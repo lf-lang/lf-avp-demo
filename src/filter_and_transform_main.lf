@@ -1,0 +1,31 @@
+target C {
+    cmake: true,
+    cmake-include: "include/CMakeListsExtension.txt",
+    threads: 1,
+    flags: ["-Wno-write-strings", "-g"],
+    compiler: "g++"
+};
+
+preamble {=
+    #include "sensor_msgs/msg/point_cloud2.hpp"
+    #include "point_cloud_filter_transform_node.hpp"
+=}
+
+reactor filter_and_transform {    
+    output point_cloud:sensor_msgs::msg::PointCloud2;
+    
+    state count:int(0);
+    state node:PointCloud2FilterTransformNode;
+    
+    timer t (0, 1 sec);
+    
+    reaction (t) -> point_cloud {=
+        const auto filtered_transformed_msg = self->node.filter_and_transform(msg);
+        SET(point_cloud, filtered_transformed_msg);
+    =}
+}
+
+main reactor {
+    fat = new filter_and_transform();
+}
+

@@ -1,0 +1,18 @@
+target C {
+    cmake: true,
+    cmake-include: "include/CMakeListsExtension.txt",
+    threads: 1,
+    flags: ["-Wno-write-strings"],
+    compiler: "g++"
+};
+
+import filter_and_transform from "filter_and_transform_main.lf";
+import point_cloud_fusion from "point_cloud_fusion_main.lf";
+
+
+federated reactor {
+    fat = new filter_and_transform();
+    pcf = new point_cloud_fusion();
+
+	fat.point_cloud -> pcf.point_cloud serialized "ros2";
+}
