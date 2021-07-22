@@ -1,10 +1,21 @@
+unset(BUILD_TESTING)
 
+set(AUTOWARE_HOME /home/parallels/adehome/AutowareAuto)
 
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(point_cloud_filter_transform_nodes REQUIRED)
 find_package(builtin_interfaces REQUIRED)
+find_package(point_cloud_filter_transform_nodes REQUIRED)
 
-ament_target_dependencies( ${LF_MAIN_TARGET} std_msgs sensor_msgs)
+include_directories(${AUTOWARE_HOME}/src/perception/filters/point_cloud_filter_transform_nodes/include/point_cloud_filter_transform_nodes)
+include_directories(${AUTOWARE_HOME}/src/common/lidar_utils/include/)
+include_directories(${AUTOWARE_HOME}/src/common/autoware_auto_common/include)
+include_directories(${AUTOWARE_HOME}/src/common/autoware_auto_geometry/include)
+include_directories(${AUTOWARE_HOME}/src/perception/filters/point_cloud_filter_transform_nodes/include/)
 
-add_executable( ${LF_MAIN_TARGET} point_cloud_filter_transform_node.cpp )
+# include(/home/parallels/adehome/AutowareAuto/src/tools/autoware_auto_cmake/cmake/autoware_auto_cmake.cmake)
+# include(/home/parallels/adehome/AutowareAuto/src/perception/filters/point_cloud_filter_transform_nodes/CMakeLists.txt)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} std_msgs sensor_msgs point_cloud_filter_transform_nodes)

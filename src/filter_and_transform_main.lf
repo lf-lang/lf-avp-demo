@@ -1,6 +1,15 @@
+/**
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
+ * reflect your top-level AutowareAuto folder. You can do this by changing
+ * the follwoing line:
+ * 
+ *     set(AUTOWARE_HOME /home/parallels/adehome/AutowareAuto)
+ */
+
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
+    files: ["include/package.xml"],
     threads: 1,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
@@ -11,17 +20,16 @@ preamble {=
     #include "point_cloud_filter_transform_node.hpp"
 =}
 
-reactor filter_and_transform {    
-    output point_cloud:sensor_msgs::msg::PointCloud2;
+reactor filter_and_transform {
+    input points_in:sensor_msgs::msg::PointCloud2;
+    output points_out:sensor_msgs::msg::PointCloud2;
     
     state count:int(0);
-    state node:PointCloud2FilterTransformNode;
+    state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode;
     
-    timer t (0, 1 sec);
-    
-    reaction (t) -> point_cloud {=
-        const auto filtered_transformed_msg = self->node.filter_and_transform(msg);
-        SET(point_cloud, filtered_transformed_msg);
+    reaction (points_in) -> points_out {=
+        const auto filtered_transformed_msg = self->node.filter_and_transform(points_in->value);
+        SET(points_out, filtered_transformed_msg);
     =}
 }
 
