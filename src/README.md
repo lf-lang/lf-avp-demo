@@ -8,8 +8,8 @@ Notes:
       
       https://docs.ros.org/en/foxy/Tutorials/Configuring-ROS2-Environment.html
       
-  For example, if ROS is installed in /opt/ros/foxy and Autoware is built in /home/$ENV{USER}/adehome/AutowareAuto/opt/AutowareAuto you can source the terminal via:
+  For example, if ROS is installed in /opt/ros/foxy and Autoware is built in /home/${USER}/adehome/AutowareAuto/opt/AutowareAuto you can source the terminal via:
   
       source /opt/ros/foxy/setup.bash
-      source /home/$ENV{USER}/adehome/AutowareAuto/opt/AutowareAuto/setup.bash
+      source /home/${USER}/adehome/AutowareAuto/opt/AutowareAuto/setup.bash
       
