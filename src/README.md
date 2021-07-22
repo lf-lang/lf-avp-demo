@@ -13,3 +13,5 @@ Notes:
       source /opt/ros/foxy/setup.bash
       source /home/${USER}/adehome/AutowareAuto/opt/AutowareAuto/setup.bash
       
+ - Please use the port of Autoware located in https://github.com/lf-lang/Autoware
+      
