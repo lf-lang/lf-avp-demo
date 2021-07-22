@@ -3,7 +3,8 @@
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
  * 
- *     set(AUTOWARE_HOME /home/parallels/adehome/AutowareAuto)
+ *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+ * 
  */
 
 target C {

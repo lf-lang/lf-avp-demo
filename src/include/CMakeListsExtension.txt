@@ -1,6 +1,6 @@
 unset(BUILD_TESTING)
 
-set(AUTOWARE_HOME /home/parallels/adehome/AutowareAuto)
+set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
 
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
