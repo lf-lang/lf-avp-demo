@@ -1,0 +1,36 @@
+target C {
+    cmake: true,
+    cmake-include: "include/CMakeListsExtension.txt",
+    threads: 1,
+    flags: ["-Wno-write-strings"],
+    compiler: "g++"
+};
+
+preamble {=
+    #include "sensor_msgs/msg/point_cloud2.hpp"
+    #include "point_cloud_fusion_node.hpp"
+=}
+
+reactor point_cloud_fusion(in_width:int(2)) {
+	input[in_width] points_in:sensor_msgs::msg::PointCloud2;
+	
+	state node:autoware::perception::filters::point_cloud_fusion_nodes;
+        
+    reaction (points_in) {=
+        // FIXME: perform is_present checks before
+        self->node.pointcloud_callback(
+            std::const_pointer_cast<const sensor_msgs::msg::PointCloud2::ConstSharedPtr>(&points_in[0]->value),
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+         );
+	=}
+}
+
+main reactor {
+    pcf = new point_cloud_fusion();
+}

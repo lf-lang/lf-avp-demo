@@ -6,13 +6,13 @@ target C {
     compiler: "g++"
 };
 
-import filter_and_transform from "filter_and_transform_main.lf";
-import point_cloud_fusion from "point_cloud_fusion_main.lf";
+import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
+import point_cloud_fusion from "point_cloud_fusion/point_cloud_fusion_main.lf";
 
 
 federated reactor {
-    fat = new filter_and_transform();
-    pcf = new point_cloud_fusion();
+    fat = new[2] filter_and_transform();
+    pcf = new point_cloud_fusion(in_width = 2);
 
-	fat.point_cloud -> pcf.point_cloud serialized "ros2";
+	fat.points_out -> pcf.points_in serialized "ros2";
 }

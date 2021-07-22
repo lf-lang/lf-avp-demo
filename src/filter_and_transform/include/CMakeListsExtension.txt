@@ -15,7 +15,4 @@ include_directories(${AUTOWARE_HOME}/src/common/autoware_auto_common/include)
 include_directories(${AUTOWARE_HOME}/src/common/autoware_auto_geometry/include)
 include_directories(${AUTOWARE_HOME}/src/perception/filters/point_cloud_filter_transform_nodes/include/)
 
-# include(/home/parallels/adehome/AutowareAuto/src/tools/autoware_auto_cmake/cmake/autoware_auto_cmake.cmake)
-# include(/home/parallels/adehome/AutowareAuto/src/perception/filters/point_cloud_filter_transform_nodes/CMakeLists.txt)
-
 ament_target_dependencies( ${LF_MAIN_TARGET} std_msgs sensor_msgs point_cloud_filter_transform_nodes)
