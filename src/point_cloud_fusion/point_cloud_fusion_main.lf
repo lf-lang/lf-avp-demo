@@ -14,15 +14,17 @@ preamble {=
 
 reactor point_cloud_fusion(in_width:int(2)) {
 	input[in_width] points_in:sensor_msgs::msg::PointCloud2;
+	output points_out:sensor_msgs::msg::PointCloud2;
 	
 	state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
         
-    reaction (points_in) {=
+    reaction (points_in) -> points_out {=
         // FIXME: perform is_present checks before
         std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg1(&points_in[0]->value);
+        std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg2(&points_in[1]->value);
         self->node.pointcloud_callback(
             msg1,
-            NULL,
+            msg2,
             NULL,
             NULL,
             NULL,
@@ -30,6 +32,7 @@ reactor point_cloud_fusion(in_width:int(2)) {
             NULL,
             NULL
          );
+        SET(points_out, self->node.m_cloud_concatenated);
 	=}
 }
 
