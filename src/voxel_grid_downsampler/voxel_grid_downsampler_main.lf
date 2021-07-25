@@ -22,7 +22,7 @@ reactor voxel_grid_downsampler {
           try {
             self->node.m_voxelgrid_ptr->insert(points_in->value);
             auto outgoing_point_cloud = self->node.m_voxelgrid_ptr->get();
-            outgoing_point_cloud.sequence_number = points_in->value.sequence_number;
+            //outgoing_point_cloud.sequence_number = points_in->value.sequence_number;
             SET(points_out, outgoing_point_cloud);
           } catch (const std::exception & e) {
             std::string err_msg{self->node.get_name()};

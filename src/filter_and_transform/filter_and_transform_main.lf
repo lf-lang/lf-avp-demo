@@ -10,15 +10,17 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml"],
+    files: ["include/package.xml"], 
     threads: 1,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
 };
 
+# preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
+
 preamble {=
-    #include "sensor_msgs/msg/point_cloud2.hpp"
-    #include "point_cloud_filter_transform_node.hpp"
+    #include "sensor_msgs/msg/point_cloud2.hpp"      /* This is for PointCloud2 structure from ROS 2 */ 
+    #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
 =}
 
 reactor filter_and_transform {
@@ -26,7 +28,11 @@ reactor filter_and_transform {
     output points_out:sensor_msgs::msg::PointCloud2;
     
     state count:int(0);
-    state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode;
+    
+    /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
+
+    state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode; 
+
     
     reaction (points_in) -> points_out {=
         const auto filtered_transformed_msg = self->node.filter_and_transform(points_in->value);
