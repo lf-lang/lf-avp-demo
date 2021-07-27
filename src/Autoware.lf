@@ -8,11 +8,14 @@ target C {
 
 import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
 import point_cloud_fusion from "point_cloud_fusion/point_cloud_fusion_main.lf";
+import voxel_grid_downsampler from "voxel_grid_downsampler/voxel_grid_downsampler_main.lf";
 
 
 federated reactor {
     fat = new[2] filter_and_transform();
     pcf = new point_cloud_fusion(in_width = 2);
-
+    bgd = new voxel_grid_downsampler();
+    
 	fat.points_out -> pcf.points_in serialized "ros2";
+	pcf.points_out -> bgd.points_in serialized "ros2";
 }
