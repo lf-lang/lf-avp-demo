@@ -1,0 +1,38 @@
+target C {
+    cmake: true,
+    cmake-include: "include/CMakeListsExtension.txt",
+    files: ["include/package.xml"],
+    threads: 1,
+    flags: ["-Wno-write-strings"],
+    compiler: "g++"
+};
+
+preamble {=
+    #include "sensor_msgs/msg/point_cloud2.hpp"
+    #include "ndt_localizer_nodes.hpp"
+=}
+
+reactor p2d_ndt_localizer {
+    input ndt_map_points_in:sensor_msgs::msg::PointCloud2;
+    input fused_downsampled_points_in:sensor_msgs::msg::PointCloud2;
+	
+	state node:autoware::localization::ndt_nodes::P2DNDTLocalizerNode;
+    
+    reaction (ndt_map_points_in, fused_downsampled_points_in) {=
+        // Converts the point in value to shared pointer
+        std::shared_ptr<const sensor_msgs::msg::PointCloud2> ndt_map(&ndt_map_points_in->value);
+        std::shared_ptr<const sensor_msgs::msg::PointCloud2> fused_downsampled(&fused_downsampled_points_in->value);
+        
+        // Callback definitions:
+        // void map_callback(typename MapMsgT::ConstSharedPtr msg_ptr)
+        // void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
+        // Both MapMsgT and ObservationMsgT are given as PointCloud2 in the templated class definition of
+        // RelativeLocalizerNode in localization_node.hpp.
+        self->node.map_callback(ndt_map);
+        self->node.observation_callback(fused_downsampled);
+	=}
+}
+
+main reactor {
+    pnl = new p2d_ndt_localizer();
+}
