@@ -20,10 +20,13 @@ target C {
 
 preamble {=
     #include "sensor_msgs/msg/point_cloud2.hpp"      /* This is for PointCloud2 structure from ROS 2 */ 
+    #include "rclcpp/parameter_map.hpp"
+    #include "rcl_yaml_param_parser/parser.h"
     #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
+    
 =}
 
-reactor filter_and_transform {
+reactor filter_and_transform (node_name:char*("rear_lidar")) {
     input points_in:sensor_msgs::msg::PointCloud2;
     output points_out:sensor_msgs::msg::PointCloud2;
     
@@ -31,11 +34,32 @@ reactor filter_and_transform {
     
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
-    state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode; 
+    state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
+    
+    reaction (startup) {=
+        char *argv[] = {(char*)"rear_lidar", NULL};
+        rclcpp::init(1, argv);
+        rclcpp::NodeOptions nodeOptions;
+        rcl_params_t* params = rcl_yaml_node_struct_init(rcl_get_default_allocator());
+        bool out = rcl_parse_yaml_file(
+            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/pc_filter_transform.param.yaml",
+            params
+        );
+        
+        auto options = rclcpp::parameter_map_from(params);
+        
+        for (std::pair<const std::__cxx11::basic_string<char>, std::vector<rclcpp::Parameter> > option : options) {            
+            if (option.first == "/lidar_rear/filter_transform_vlp16_rear") {
+                nodeOptions.parameter_overrides() = option.second;
+            }
+        }
+        
+        self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(nodeOptions);
+    =} 
 
     
     reaction (points_in) -> points_out {=
-        const auto filtered_transformed_msg = self->node.filter_and_transform(points_in->value);
+        const auto filtered_transformed_msg = self->node->filter_and_transform(points_in->value);
         SET(points_out, filtered_transformed_msg);
     =}
 }
