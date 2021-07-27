@@ -26,7 +26,7 @@ preamble {=
     
 =}
 
-reactor filter_and_transform (node_name:char*("rear_lidar")) {
+reactor filter_and_transform {
     input points_in:sensor_msgs::msg::PointCloud2;
     output points_out:sensor_msgs::msg::PointCloud2;
     
@@ -37,8 +37,7 @@ reactor filter_and_transform (node_name:char*("rear_lidar")) {
     state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
     
     reaction (startup) {=
-        char *argv[] = {(char*)"rear_lidar", NULL};
-        rclcpp::init(1, argv);
+        rclcpp::init(0, NULL);
         rclcpp::NodeOptions nodeOptions;
         rcl_params_t* params = rcl_yaml_node_struct_init(rcl_get_default_allocator());
         bool out = rcl_parse_yaml_file(
