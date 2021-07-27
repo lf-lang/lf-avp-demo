@@ -10,7 +10,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml"], 
+    files: ["include/package.xml", "../include/utils.hpp"], 
     threads: 1,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
@@ -23,7 +23,7 @@ preamble {=
     #include "rclcpp/parameter_map.hpp"
     #include "rcl_yaml_param_parser/parser.h"
     #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
-    
+    #include "utils.hpp"
 =}
 
 reactor filter_and_transform {
@@ -37,21 +37,10 @@ reactor filter_and_transform {
     state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
     
     reaction (startup) {=
-        rclcpp::init(0, NULL);
-        rclcpp::NodeOptions nodeOptions;
-        rcl_params_t* params = rcl_yaml_node_struct_init(rcl_get_default_allocator());
-        bool out = rcl_parse_yaml_file(
-            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/pc_filter_transform.param.yaml",
-            params
+        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/pc_filter_transform.param.yaml", 
+            "/lidar_rear/filter_transform_vlp16_rear"
         );
-        
-        auto options = rclcpp::parameter_map_from(params);
-        
-        for (std::pair<const std::__cxx11::basic_string<char>, std::vector<rclcpp::Parameter> > option : options) {            
-            if (option.first == "/lidar_rear/filter_transform_vlp16_rear") {
-                nodeOptions.parameter_overrides() = option.second;
-            }
-        }
         
         self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(nodeOptions);
     =} 
