@@ -25,5 +25,5 @@ reactor ndt_map_publisher {
 }
 
 main reactor {
-    vgd = new ndt_map_publisher();
+    nmp = new ndt_map_publisher();
 }
