@@ -1,0 +1,17 @@
+unset(BUILD_TESTING)
+
+set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(voxel_grid_nodes REQUIRED)
+
+include_directories(${AUTOWARE_HOME}/src/localization/ndt/include)
+include_directories(${AUTOWARE_HOME}/src/localization/ndt_nodes/include)
+include_directories(${AUTOWARE_HOME}/src/localization/ndt_nodes/include/ndt_nodes)
+include_directories(${AUTOWARE_HOME}/src/common/time_utils/include)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} std_msgs sensor_msgs voxel_grid_nodes)
