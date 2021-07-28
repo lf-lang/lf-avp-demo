@@ -10,7 +10,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -18,6 +18,7 @@ target C {
 
 preamble {=
     #include "lane_planner_node.hpp"
+    #include "utils.hpp"
 =}
 
 reactor lane_planner {
@@ -25,12 +26,21 @@ reactor lane_planner {
     input lanelet_map:lanelet::LaneletMapPtr*;
     output trajectory:autoware_auto_msgs::msg::Trajectory;
 	
-	state node:autoware::lane_planner_nodes::LanePlannerNode;
+	state node:autoware::lane_planner_nodes::LanePlannerNode*;
+        
+    reaction (startup) {=
+        rclcpp::NodeOptions node_options = get_node_options_from_yaml(
+            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lane_planner.param.yaml",
+            // FIXME: Not sure if this root name is correct.
+            "/ros__parameters"
+        );
+        self->node = new autoware::lane_planner_nodes::LanePlannerNode(node_options);
+    =}
     
     reaction (route, lanelet_map) -> trajectory {=
         std::shared_ptr<autoware_auto_msgs::msg::Route> route_msg(&route->value);
         trajectory:autoware_auto_msgs::msg::Trajectory trajectory_msg =
-        	self->node.plan_trajectory(*route_msg, *(lanelet::LaneletMapPtr*)lanelet_map);
+        	self->node->plan_trajectory(*route_msg, *(lanelet::LaneletMapPtr*)lanelet_map);
         	
         SET(trajectory, trajectory_msg);
 	=}
