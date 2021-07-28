@@ -9,6 +9,8 @@ find_package(lanelet2_core REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(lane_planner_nodes REQUIRED)
 
+include_directories(${AUTOWARE_HOME}/src/common/autoware_auto_common/include)
+include_directories(${AUTOWARE_HOME}/src/common/had_map_utils/include)
 include_directories(${AUTOWARE_HOME}/src/common/time_utils/include)
 include_directories(${AUTOWARE_HOME}/src/control/motion_common/include)
 include_directories(${AUTOWARE_HOME}/src/external/autoware_auto_msgs)

@@ -12,13 +12,15 @@
 
     <depend>ndt_nodes</depend>
     <depend>ndt</depend>
+    <depend>autoware_auto_common</depend>
+    <depend>had_map_utils</depend>
     <depend>sensor_msgs</depend>
     <depend>time_utils</depend>
     <depend>rclcpp</depend>
     <depend>rclcpp_components</depend>
+    <depend>lanelet2_core</depend>
 
     <build_depend>eigen</build_depend>
-    <build_depend>autoware_auto_common</build_depend>
 
     <build_export_depend>eigen</build_export_depend>
 

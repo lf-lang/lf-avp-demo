@@ -17,15 +17,21 @@ target C {
 };
 
 preamble {=
+    #include "lanelet2_core/LaneletMap.h"
+    #include "had_map_utils/had_map_conversion.hpp"
+    #include "had_map_utils/had_map_query.hpp"
     #include "lane_planner_node.hpp"
     #include "utils.hpp"
 =}
 
 reactor lane_planner {
     input route:autoware_auto_msgs::msg::Route;
-    input lanelet_map:lanelet::LaneletMapPtr*;
+    input map:autoware_auto_msgs::msg::HADMapBin;
+
+    output request:autoware_auto_msgs::srv::HADMapService_Request;
     output trajectory:autoware_auto_msgs::msg::Trajectory;
 	
+	state route_msg:autoware_auto_msgs::msg::Route;
 	state node:autoware::lane_planner_nodes::LanePlannerNode*;
         
     reaction (startup) {=
@@ -36,11 +42,21 @@ reactor lane_planner {
         );
         self->node = new autoware::lane_planner_nodes::LanePlannerNode(node_options);
     =}
-    
-    reaction (route, lanelet_map) -> trajectory {=
-        std::shared_ptr<autoware_auto_msgs::msg::Route> route_msg(&route->value);
+
+    reaction (route) -> request {=
+        self->route_msg = route->value;
+        autoware_auto_msgs::srv::HADMapService_Request request_msg =
+        	self->node->create_map_request(self->route_msg);
+        	
+        SET(request, request_msg);
+	=}
+
+    reaction (map) -> trajectory {=
+	    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
+	    autoware::common::had_map_utils::fromBinaryMsg(map->value, lanelet_map_ptr);
+
         trajectory:autoware_auto_msgs::msg::Trajectory trajectory_msg =
-        	self->node->plan_trajectory(*route_msg, *(lanelet::LaneletMapPtr*)lanelet_map);
+        	self->node->plan_trajectory(self->route_msg, lanelet_map_ptr);
         	
         SET(trajectory, trajectory_msg);
 	=}
