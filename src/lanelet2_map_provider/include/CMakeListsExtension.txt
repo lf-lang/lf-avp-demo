@@ -1,0 +1,13 @@
+unset(BUILD_TESTING)
+
+set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+find_package(lanelet2_map_provider REQUIRED)
+
+include_directories(${AUTOWARE_HOME}/src/common/had_map_utils/include)
+include_directories(${AUTOWARE_HOME}/src/mapping/had_map/lanelet2_map_provider/include/lanelet2_map_provider)
+include_directories(${AUTOWARE_HOME}/src/common/autoware_auto_common/include)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} lanelet2_map_provider)

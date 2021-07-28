@@ -1,0 +1,135 @@
+/**
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
+ * reflect your top-level AutowareAuto folder. You can do this by changing
+ * the follwoing line:
+ * 
+ *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+ * 
+ */
+
+target C {
+    cmake: true,
+    cmake-include: "include/CMakeListsExtension.txt",
+    files: ["include/package.xml", "../include/utils.hpp"], 
+    threads: 1,
+    flags: ["-Wno-write-strings", "-g"],
+    compiler: "g++"
+};
+
+preamble {=
+    #include "lanelet2_map_provider_node.hpp" /* This is AUTOWARE node */
+    #include "autoware_auto_msgs/srv/had_map_service.hpp"
+    #include "autoware_auto_msgs/msg/had_map_bin.hpp"
+    #include "had_map_utils/had_map_conversion.hpp"
+    #include "had_map_utils/had_map_query.hpp"
+    #include "common/types.hpp"
+    #include "utils.hpp"
+    
+    using autoware::common::types::bool8_t;
+=}
+
+reactor lanelet2_map_provider {
+    input request:autoware_auto_msgs::srv::HADMapService_Request;
+    output map:autoware_auto_msgs::msg::HADMapBin;
+    
+    /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
+
+    state node:autoware::lanelet2_map_provider::Lanelet2MapProviderNode*;
+    
+    reaction (startup) {=
+        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+            "/home/soroush/Project/XronOS/src/lanelet2_map_provider/lanelet2_map_provider.param.yaml", 
+            "/**"
+        );
+        
+        self->node = new autoware::lanelet2_map_provider::Lanelet2MapProviderNode(nodeOptions);
+    =} 
+
+    
+    reaction (request) -> map {=
+          autoware_auto_msgs::msg::HADMapBin msg;
+          msg.header.frame_id = "map";
+        
+          // TODO(simon) add map version and format information to message header
+          // msg.format_version = format_version;
+          // msg.map_version = map_version;
+        
+          auto primitive_sequence = request->value.requested_primitives;
+        
+          // special case where we send existing map as is
+          if (primitive_sequence.size() == 1 && *(primitive_sequence.begin()) ==
+            autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP)
+          {
+            autoware::common::had_map_utils::toBinaryMsg(self->node->m_map_provider->m_map, msg);
+            SET(map, msg);
+            return;
+          }
+        
+          // check if geom bounds are set in request (ie - they are non zero)
+          auto upper_bound = request->value.geom_upper_bound;
+          auto lower_bound = request->value.geom_lower_bound;
+          bool8_t geom_bound_requested = (upper_bound.size() == 3) && (lower_bound.size() == 3);
+        
+          lanelet::LaneletMapPtr requested_map;
+          lanelet::Lanelets requested_lanelets;
+          lanelet::Areas requested_areas;
+          lanelet::LineStrings3d requested_linestrings;
+          lanelet::BoundingBox2d geom_bbox;
+        
+          if (geom_bound_requested) {
+            geom_bbox = lanelet::BoundingBox2d(
+              lanelet::BasicPoint2d(lower_bound[0], lower_bound[1]),
+              lanelet::BasicPoint2d(upper_bound[0], upper_bound[1]));
+          }
+        
+          for (auto primitive : primitive_sequence) {
+            if (primitive == autoware_auto_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY) {
+              lanelet::LineStrings3d linestrings;
+        
+              if (!geom_bound_requested) {
+                requested_lanelets =
+                  autoware::common::had_map_utils::getLaneletLayer(self->node->m_map_provider->m_map);
+                requested_areas = autoware::common::had_map_utils::getAreaLayer(self->node->m_map_provider->m_map);
+                linestrings = autoware::common::had_map_utils::getLineStringLayer(
+                  self->node->m_map_provider->m_map);
+              } else {
+                requested_lanelets = self->node->m_map_provider->m_map->laneletLayer.search(geom_bbox);
+                requested_areas = self->node->m_map_provider->m_map->areaLayer.search(geom_bbox);
+                linestrings = self->node->m_map_provider->m_map->lineStringLayer.search(geom_bbox);
+              }
+              lanelet::LineStrings3d parking_linestrings =
+                autoware::common::had_map_utils::subtypeLineStrings(
+                linestrings, "parking_spot");
+          lanelet::LineStrings3d parking_access_linestrings =
+            autoware::common::had_map_utils::subtypeLineStrings(
+            linestrings, "parking_access");
+          lanelet::LineStrings3d pickup_dropoff_linestrings =
+            autoware::common::had_map_utils::subtypeLineStrings(
+            linestrings, "parking_spot,drop_off,pick_up");
+              requested_linestrings.insert(
+                requested_linestrings.end(),
+                parking_linestrings.begin(),
+                parking_linestrings.end());
+              requested_linestrings.insert(
+                requested_linestrings.end(),
+                parking_access_linestrings.begin(),
+                parking_access_linestrings.end());
+              requested_linestrings.insert(
+                requested_linestrings.end(),
+                pickup_dropoff_linestrings.begin(),
+                pickup_dropoff_linestrings.end());
+            }
+          }
+          requested_map = lanelet::utils::createMap({requested_lanelets}, {requested_areas});
+          for (auto i = requested_linestrings.begin(); i != requested_linestrings.end(); i++) {
+            requested_map->add(*i);
+          }
+          autoware::common::had_map_utils::toBinaryMsg(requested_map, msg);
+          SET(map, msg);
+    =}
+}
+
+main reactor {
+    lmp = new lanelet2_map_provider();
+}
+
