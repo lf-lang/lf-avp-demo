@@ -1,0 +1,11 @@
+unset(BUILD_TESTING)
+
+set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+find_package(lanelet2_global_planner_nodes REQUIRED)
+
+include_directories(${AUTOWARE_HOME}/src/planning/lanelet2_global_planner_nodes/include/lanelet2_global_planner_nodes)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} autoware_auto_msgs lanelet2_global_planner_nodes)

@@ -1,0 +1,63 @@
+/**
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
+ * reflect your top-level AutowareAuto folder. You can do this by changing
+ * the follwoing line:
+ * 
+ *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+ * 
+ */
+
+target C {
+    cmake: true,
+    cmake-include: "include/CMakeListsExtension.txt",
+    files: ["include/package.xml", "../include/utils.hpp"], 
+    threads: 1,
+    flags: ["-Wno-write-strings", "-g"],
+    compiler: "g++"
+};
+
+# preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
+
+preamble {=
+    #include "lanelet2_global_planner_node.hpp" /* This is AUTOWARE node */
+    #include "utils.hpp"
+=}
+
+reactor global_planner {
+    input vehicle_kinematic_state:autoware_auto_msgs::msg::VehicleKinematicState;
+    output global_path:autoware_auto_msgs::msg::Route;
+    
+    /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
+
+    state node:autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode*;
+    
+    reaction (startup) {=
+        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/pc_filter_transform.param.yaml", 
+            "/lidar_rear/filter_transform_vlp16_rear"
+        );
+        
+        self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(nodeOptions);
+    =} 
+
+    
+    reaction (vehicle_kinematic_state) {=
+        std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> msg(&vehicle_kinematic_state->value); // Converts the point in value to shared pointer
+        self->node->current_pose_cb(msg);
+    =}
+    
+    logical action act (10msec);
+    
+    reaction (startup, act) -> global_path {=
+        if (self->node->global_route_set) {
+            SET(global_path, self->node->m_global_route);
+        } else {
+            schedule(act, 0);
+        }
+    =}
+}
+
+main reactor {
+    gp = new global_planner();
+}
+

@@ -1,6 +1,9 @@
 #ifndef XRONOS_UTILS_HPP
 #define XRONOS_UTILS_HPP
 
+#include "rclcpp/parameter_map.hpp"
+#include "rcl_yaml_param_parser/parser.h"
+
 inline rclcpp::NodeOptions get_node_options_from_yaml(string path, string root_name) {
 
 	rclcpp::init(0, NULL);
