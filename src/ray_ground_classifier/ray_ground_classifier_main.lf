@@ -15,15 +15,12 @@ preamble {=
 reactor ray_ground_classifier {
     
 	input points_in:sensor_msgs::msg::PointCloud2;
-	output points_out:sensor_msgs::msg::PointCloud2;
+	output points_non_ground:sensor_msgs::msg::PointCloud2;
 	
 	//state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
     state node:autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode;
-    
-    
-    
         
-    reaction (points_in) -> points_out {=
+    reaction (points_in) -> points_non_ground {=
     	
     	std::shared_ptr<sensor_msgs::msg::PointCloud2> msg(&points_in->value); // Converts the point in value to shared pointer
     	self->node.callback(msg);    

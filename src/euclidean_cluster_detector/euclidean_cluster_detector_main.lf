@@ -12,7 +12,7 @@ preamble {=
     #include "utils.hpp"
 =}
 
-reactor ray_ground_classifier {
+reactor euclidean_cluster_detector {
     
 	input points_in:sensor_msgs::msg::PointCloud2;
 	output bounding_boxes:autoware_auto_msgs::msg::BoundingBoxArray;
@@ -39,5 +39,5 @@ reactor ray_ground_classifier {
 }
 
 main reactor {
-    pcf = new ray_ground_classifier();
+    ecd = new euclidean_cluster_detector();
 }
