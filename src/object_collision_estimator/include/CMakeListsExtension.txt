@@ -1,0 +1,11 @@
+unset(BUILD_TESTING)
+
+set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+find_package(object_collision_estimator_nodes REQUIRED)
+
+include_directories(${AUTOWARE_HOME}/src/planning/object_collision_estimator_nodes/include/object_collision_estimator_nodes/)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} std_msgs sensor_msgs object_collision_estimator_nodes)

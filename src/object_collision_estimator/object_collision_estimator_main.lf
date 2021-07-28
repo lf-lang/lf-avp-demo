@@ -1,0 +1,49 @@
+target C {
+    cmake: true,
+    cmake-include: "include/CMakeListsExtension.txt",
+    files: ["include/package.xml"],
+    threads: 1,
+    flags: ["-Wno-write-strings"],
+    compiler: "g++"
+};
+
+preamble {=
+    #include "sensor_msgs/msg/point_cloud2.hpp"
+    #include "object_collision_estimator_node.hpp"
+=}
+
+reactor object_collision_estimator {
+    input filtered_lidar_boxes:autoware_auto_msgs::msg::BoundingBoxArray;
+    input original_trajectory:autoware_auto_msgs::msg::Trajectory;
+    output modified_trajectory:autoware_auto_msgs::msg::Trajectory;
+	
+	state node:motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode;
+    
+    reaction (filtered_lidar_boxes) {=
+        std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray> msg(&filtered_lidar_boxes->value); // Convert to shared pointer
+        self->node.on_bounding_box(msg);
+	=}
+	
+	reaction(original_trajectory) -> modified_trajectory {=
+        SET(modified_trajectory, original_trajectory->value);
+        
+        // m_estimator performs the collision estimation and the trajectory will get updated inside
+        self->node.m_estimator->updatePlan(modified_trajectory->value);
+
+        // ROS stuff to make rviz2 show pretty boxes:
+        /*
+          // publish trajectory bounding box for visualization
+          auto trajectory_bbox = m_estimator->getTrajectoryBoundingBox();
+          trajectory_bbox.header = response->modified_trajectory.header;
+          auto marker = toVisualizationMarkerArray(
+          trajectory_bbox, response->modified_trajectory.points.size());
+          m_trajectory_bbox_pub->publish(marker);
+         
+         */
+        
+    =}
+}
+
+main reactor {
+    oce = new object_collision_estimator();
+}
