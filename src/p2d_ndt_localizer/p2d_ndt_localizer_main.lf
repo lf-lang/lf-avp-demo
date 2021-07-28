@@ -26,14 +26,19 @@ reactor p2d_ndt_localizer {
     input ndt_map_points_in:sensor_msgs::msg::PointCloud2;
     input fused_downsampled_points_in:sensor_msgs::msg::PointCloud2;
 	
-	state node:autoware::localization::ndt_nodes::P2DNDTLocalizerNode;
+	state node:autoware::localization::ndt_nodes::P2DNDTLocalizerNode*;
         
     reaction (startup) {=
-        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+        rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/ndt_localizer.param.yaml",
             // FIXME: Not sure if this root name is correct.
             "/ros__parameters/localizer"
         );
+        autoware::localization::localization_common::BestEffortInitializer pose_initializer;
+        // This constructor copies pose_initializer and stores it internally. Thus,
+        // pose_initializer does not need to be a state.
+        self->node = new autoware::localization::ndt_nodes::P2DNDTLocalizerNode(
+        	"lfros2_ndt_localizer", node_options, pose_initializer);
     =}
     
     reaction (ndt_map_points_in, fused_downsampled_points_in) {=
@@ -46,8 +51,8 @@ reactor p2d_ndt_localizer {
         // void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
         // Both MapMsgT and ObservationMsgT are given as PointCloud2 in the templated class definition of
         // RelativeLocalizerNode in localization_node.hpp.
-        self->node.map_callback(ndt_map);
-        self->node.observation_callback(fused_downsampled);
+        self->node->map_callback(ndt_map);
+        self->node->observation_callback(fused_downsampled);
 	=}
 }
 

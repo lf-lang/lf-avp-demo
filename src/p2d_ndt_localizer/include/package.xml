@@ -10,12 +10,14 @@
     <buildtool_depend>ament_cmake_auto</buildtool_depend>
     <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
-    <depend>ndt_nodes</depend>
     <depend>ndt</depend>
+    <depend>ndt_nodes</depend>
     <depend>sensor_msgs</depend>
     <depend>time_utils</depend>
     <depend>rclcpp</depend>
     <depend>rclcpp_components</depend>
+  	<depend>tf2</depend>
+  	<depend>tf2_ros</depend>
 
     <build_depend>eigen</build_depend>
     <build_depend>autoware_auto_common</build_depend>
