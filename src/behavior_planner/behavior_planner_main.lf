@@ -37,8 +37,8 @@ reactor behavior_planner {
     input map:autoware_auto_msgs::msg::HADMapBin;
     
     // Inputs from LGSVL interface.
-    // FIXME: Add input for VehicleStateReport from LGSVL interface.
     input vehicle_kinematic_state:autoware_auto_msgs::msg::VehicleKinematicState;
+    input vehicle_state_report:autoware_auto_msgs::msg::VehicleStateReport;
     
     // For responses from lane and parking planners.
     input lane_trajectory:autoware_auto_msgs::msg::Trajectory;
@@ -103,7 +103,7 @@ reactor behavior_planner {
         self->node->m_planner->set_route(*self->node->m_route, self->node->m_lanelet_map_ptr);
     =}
     
-    // Corresponds to BehaviorPlannerNode::modify_trajectory_response()
+    // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
     reaction (modified_trajectory) -> control_trajectory {=
         // Initialize with modified trajectory from object collision estimator.
         auto trajectory = modified_trajectory->value;
@@ -130,6 +130,11 @@ reactor behavior_planner {
         self->node->m_planner->set_trajectory(parking_trajectory->value);
         // finished requesting trajectory
         self->node->m_requesting_trajectory = false;
+    =}
+    
+    // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
+    reaction (vehicle_state_report) {=
+        self->node->m_current_gear = vehicle_state_report->value.gear;
     =}
     
     // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
