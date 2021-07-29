@@ -37,11 +37,9 @@ reactor lgsvl_interface {
     
     state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
     
-    state vehicle_interface:std::unique_ptr<lgsvl_interface::LgsvlInterface>;
-    
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/soroush/Project/XronOS/src/lgsvl_interface/include/lgsvl_interface.param.yaml", 
+            "/home/soroush/Projects/XronOS/src/lgsvl_interface/include/lgsvl_interface.param.yaml", 
             "/**"
         );
         
@@ -50,27 +48,26 @@ reactor lgsvl_interface {
         
         self->node = new lgsvl_interface::LgsvlInterfaceNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
-        self->vehicle_interface = std::unique_ptr<lgsvl_interface::LgsvlInterface>(self->node->m_interface);
     =}
     
     reaction (gps_odom) -> vehicle_kinematic_state {=
         rclcpp::spin_some(self->node_shared_ptr);
         // If the vehicle kinematic state is not null
-        if (self->vehicle_interface->m_vse_t) {
-            SET(vehicle_kinematic_state, self->vehicle_interface->m_vse_t);
+        if (self->node->m_interface->m_vse_t) {
+            SET(vehicle_kinematic_state, *self->node->m_interface->m_vse_t.get());
         }
     =}
     
     reaction (can_bus) -> state_report {=
         rclcpp::spin_some(self->node_shared_ptr);
         
-        SET(state_report, self->vehicle_interface->get_state_report());
+        SET(state_report, self->node->m_interface->get_state_report());
         
     =}
     
     // To the simulator
     reaction (state_command) {=
-        m_last_state_command = state_command->value;
+        self->node->m_last_state_command = state_command->value;
         
         rclcpp::spin_some(self->node_shared_ptr);
     =}
