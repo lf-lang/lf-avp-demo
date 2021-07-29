@@ -6,7 +6,6 @@
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  * 
  */
-
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
@@ -18,10 +17,7 @@ target C {
 
 # preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
 
-preamble {=
-    #include "sensor_msgs/msg/point_cloud2.hpp"      /* This is for PointCloud2 structure from ROS 2 */ 
-    #include "rclcpp/parameter_map.hpp"
-    #include "rcl_yaml_param_parser/parser.h"
+preamble {= 
     #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
 =}
@@ -38,7 +34,7 @@ reactor filter_and_transform {
     
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/pc_filter_transform.param.yaml", 
+            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/pc_filter_transform.param.yaml", 
             "/lidar_rear/filter_transform_vlp16_rear"
         );
         
