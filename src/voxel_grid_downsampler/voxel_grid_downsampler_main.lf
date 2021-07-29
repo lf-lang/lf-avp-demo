@@ -1,7 +1,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -10,28 +10,38 @@ target C {
 preamble {=
     #include "sensor_msgs/msg/point_cloud2.hpp"
     #include "voxel_cloud_node.hpp"
+    #include "utils.hpp"
 =}
 
 reactor voxel_grid_downsampler {
-	input points_in:sensor_msgs::msg::PointCloud2;
+    input points_in:sensor_msgs::msg::PointCloud2;
     output points_out:sensor_msgs::msg::PointCloud2;
-	
-	state node:autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode;
+    
+    state node:autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode*;
+    
+    reaction (startup) {=
+        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+            "/home/lfros/Projects/XronOS/src/voxel_grid_downsampler/include/scan_downsampler_ms3.param.yaml", 
+            "/**"
+        );
+        
+        self->node = new autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode(nodeOptions);
+    =}
         
     reaction (points_in) -> points_out {=
           try {
-            self->node.m_voxelgrid_ptr->insert(points_in->value);
-            auto outgoing_point_cloud = self->node.m_voxelgrid_ptr->get();
+            self->node->m_voxelgrid_ptr->insert(points_in->value);
+            auto outgoing_point_cloud = self->node->m_voxelgrid_ptr->get();
             //outgoing_point_cloud.sequence_number = points_in->value.sequence_number;
             SET(points_out, outgoing_point_cloud);
           } catch (const std::exception & e) {
-            std::string err_msg{self->node.get_name()};
+            std::string err_msg{self->node->get_name()};
             err_msg += ": " + std::string(e.what());
             error_print("%s", err_msg.c_str());
-            self->node.m_has_failed = true;
+            self->node->m_has_failed = true;
           } catch (...) {
             std::string err_msg{"Unknown error occurred in "};
-            err_msg += self->node.get_name();
+            err_msg += self->node->get_name();
             error_print("%s", err_msg.c_str());
             throw;
           }
