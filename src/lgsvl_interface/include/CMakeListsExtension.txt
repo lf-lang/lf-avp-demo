@@ -1,0 +1,11 @@
+unset(BUILD_TESTING)
+
+set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+find_package(lgsvl_interface REQUIRED)
+
+include_directories(${AUTOWARE_HOME}/src/drivers/lgsvl_interface/include/lgsvl_interface)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} lgsvl_interface)
