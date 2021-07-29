@@ -1,0 +1,11 @@
+unset(BUILD_TESTING)
+
+set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+find_package(mpc_controller_nodes REQUIRED)
+
+include_directories(${AUTOWARE_HOME}/src/control/mpc_controller_nodes/include/)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} mpc_controller_nodes)
