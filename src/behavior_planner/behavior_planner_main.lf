@@ -84,7 +84,45 @@ reactor behavior_planner {
 		    SET(map_request, request);
         }
     =}
+   
+    // Corresponds to BehaviorPlannerNode::map_response()
+    reaction (map) {=
+		self->node->m_lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
+		autoware::common::had_map_utils::fromBinaryMsg(map->value, self->node->m_lanelet_map_ptr);
+		
+		printf("Received map");
+		
+		self->node->m_planner->set_route(*self->node->m_route, self->node->m_lanelet_map_ptr);
+    =}
     
+    // Corresponds to BehaviorPlannerNode::modify_trajectory_response()
+    reaction (modified_trajectory) -> control_trajectory {=
+		// Initialize with modified trajectory from object collision estimator.
+		auto trajectory = modified_trajectory->value;
+		
+		// Set current position with velocity zero to do emergency stop in case
+		// collision estimator fails or if there is obstacle on first point
+		if (trajectory.points.empty()) {
+		    auto stopping_point = self->node->m_ego_state.state;
+		    stopping_point.longitudinal_velocity_mps = 0.0;
+		    trajectory.points.push_back(stopping_point);
+		}
+		SET(control_trajectory, trajectory);
+    =}
+    
+    // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
+    reaction (lane_trajectory) {=
+		self->node->m_planner->set_trajectory(lane_trajectory->value);
+		// finished requesting trajectory
+		self->node->m_requesting_trajectory = false;
+    =}
+    
+    // Corresponds to BehaviorPlannerNode::result_callback() for parking planner response.
+    reaction (parking_trajectory) {=
+		self->node->m_planner->set_trajectory(parking_trajectory->value);
+		// finished requesting trajectory
+		self->node->m_requesting_trajectory = false;
+    =}
 }
 
 main reactor {
