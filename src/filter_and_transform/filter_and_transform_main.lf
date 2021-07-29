@@ -22,7 +22,7 @@ preamble {=
     #include "utils.hpp"
 =}
 
-reactor filter_and_transform {
+reactor filter_and_transform (config_namespaces:std::vector<string>(2)) {
     input points_in:sensor_msgs::msg::PointCloud2;
     output points_out:sensor_msgs::msg::PointCloud2;
     
@@ -34,8 +34,8 @@ reactor filter_and_transform {
     
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/pc_filter_transform.param.yaml", 
-            "/lidar_rear/filter_transform_vlp16_rear"
+            "/home/lfros/workspace/XronOS/src/filter_and_transform/include/pc_filter_transform.param.yaml", 
+            self->config_namespaces[self->bank_index]
         );
         
         self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(nodeOptions);
@@ -49,6 +49,6 @@ reactor filter_and_transform {
 }
 
 main reactor {
-    fat = new filter_and_transform();
+    fat = new filter_and_transform(config_namespaces = {=std::vector<string>{"/lidar_front/filter_transform_vlp16_front", "/lidar_rear/filter_transform_vlp16_rear"}=});
 }
 

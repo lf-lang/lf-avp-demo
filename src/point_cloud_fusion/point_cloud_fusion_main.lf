@@ -16,7 +16,16 @@ reactor point_cloud_fusion(in_width:int(2)) {
 	input[in_width] points_in:sensor_msgs::msg::PointCloud2;
 	output points_out:sensor_msgs::msg::PointCloud2;
 	
-	state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
+	state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode*;
+	
+	reaction (startup) {=
+        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+            "/home/lfros/Projects/XronOS/src/point_cloud_fusion/include/vlp16_sim_lexus_pc_fusion.param.yaml", 
+            "/**"
+        );
+        
+        self->node = new autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode(nodeOptions);
+    =}
         
     reaction (points_in) -> points_out {=
         // FIXME: perform is_present checks before
