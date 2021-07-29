@@ -1,7 +1,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -10,6 +10,7 @@ target C {
 preamble {=
     #include "sensor_msgs/msg/point_cloud2.hpp"
     #include "point_cloud_fusion_node.hpp"
+    #include "utils.hpp"
 =}
 
 reactor point_cloud_fusion(in_width:int(2)) {
@@ -31,7 +32,7 @@ reactor point_cloud_fusion(in_width:int(2)) {
         // FIXME: perform is_present checks before
         std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg1(&points_in[0]->value);
         std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg2(&points_in[1]->value);
-        self->node.pointcloud_callback(
+        self->node->pointcloud_callback(
             msg1,
             msg2,
             NULL,
@@ -41,7 +42,7 @@ reactor point_cloud_fusion(in_width:int(2)) {
             NULL,
             NULL
          );
-        SET(points_out, self->node.m_cloud_concatenated);
+        SET(points_out, self->node->m_cloud_concatenated);
 	=}
 }
 

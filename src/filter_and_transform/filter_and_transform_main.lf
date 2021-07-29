@@ -49,6 +49,8 @@ reactor filter_and_transform (config_namespaces:std::vector<string>(2)) {
 }
 
 main reactor {
-    fat = new filter_and_transform(config_namespaces = {=std::vector<string>{"/lidar_front/filter_transform_vlp16_front", "/lidar_rear/filter_transform_vlp16_rear"}=});
+    fat = new filter_and_transform(
+        config_namespaces = {=std::vector<string>{"/lidar_front/filter_transform_vlp16_front", "/lidar_rear/filter_transform_vlp16_rear"}=}
+    );
 }
 
