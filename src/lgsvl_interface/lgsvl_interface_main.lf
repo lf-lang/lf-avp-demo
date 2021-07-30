@@ -34,7 +34,6 @@ reactor lgsvl_interface {
     output vehicle_kinematic_state:autoware_auto_msgs::msg::VehicleKinematicState;
 
     state node:lgsvl_interface::LgsvlInterfaceNode*;
-    
     state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
     
     reaction (startup) {=
