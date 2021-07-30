@@ -22,7 +22,7 @@ preamble {=
     #include "utils.hpp"
 =}
 
-reactor filter_and_transform (config_namespaces:std::vector<string>(2)) {
+reactor filter_and_transform (bank_index:int(0), config_namespaces:std::vector<string>(2)) {
     input points_in:sensor_msgs::msg::PointCloud2;
     output points_out:sensor_msgs::msg::PointCloud2;
     
