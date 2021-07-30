@@ -46,6 +46,7 @@ reactor p2d_ndt_localizer {
         std::shared_ptr<const sensor_msgs::msg::PointCloud2> ndt_map(&ndt_map_points_in->value);
         self->node->map_callback(ndt_map);
         
+        rclcpp::spin_some(self->node_shared_ptr);
         
         // Callback definitions:
         // void map_callback(typename MapMsgT::ConstSharedPtr msg_ptr)
@@ -58,11 +59,6 @@ reactor p2d_ndt_localizer {
         std::shared_ptr<const sensor_msgs::msg::PointCloud2> fused_downsampled(&fused_downsampled_points_in->value);
         self->node->observation_callback(fused_downsampled);
         
-    =}
-	
-	timer ros_spin(0, 1 sec);
-    reaction (ros_spin) {=
-        // Make sure the tf and rviz2 visualization stuff have gone out
         rclcpp::spin_some(self->node_shared_ptr);
     =}
 }
