@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>Autoware</name>
+  <version>0.0.0</version>
+  <description>Port of Autoware to LF using the federated runtime currently only supported in the C target.</description>
+  <maintainer email="soroush@utdallas.edu">Soroush Bateni</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>ament_index_python</depend>
+  <depend>autoware_auto_common</depend>
+  <depend>autoware_auto_geometry</depend>
+  <depend>autoware_auto_msgs</depend>
+  <depend>autoware_auto_tf2</depend>
+  <depend>euclidean_cluster</depend>
+  <depend>geometry_msgs</depend>
+  <depend>had_map_utils</depend>
+  <depend>lanelet2</depend>
+  <depend>lanelet2_core</depend>
+  <depend>lanelet2_global_planner</depend>
+  <depend>lanelet2_io</depend>
+  <depend>lanelet2_projection</depend>
+  <depend>lgsvl_msgs</depend>
+  <depend>lidar_utils</depend>
+  <depend>localization_nodes</depend>
+  <depend>message_filters</depend>
+  <depend>motion_common</depend>
+  <depend>nav_msgs</depend>
+  <depend>ndt</depend>
+  <depend>ndt_nodes</depend>
+  <depend>object_collision_estimator</depend>
+  <depend>point_cloud_fusion</depend>
+  <depend>point_cloud_msg_wrapper</depend>
+  <depend>ray_ground_classifier</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>tf2_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_sensor_msgs</depend>
+  <depend>time_utils</depend>
+  <depend>vehicle_interface</depend>
+  <depend>visualization_msgs</depend>
+  <depend>voxel_grid</depend>
+  <depend>voxel_grid_nodes</depend>
+  <depend>yaml_cpp_vendor</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
