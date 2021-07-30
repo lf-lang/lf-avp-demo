@@ -66,6 +66,9 @@ reactor behavior_planner {
 
     //////// STATES ////////
     state node:autoware::behavior_planner_nodes::BehaviorPlannerNode*;
+    state node_shared_ptr:std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>;
+    
+    
     state global_path_route:autoware_auto_msgs::msg::Route;
     state previous_output_arrived_goal:std::chrono::time_point<std::chrono::system_clock>;
     state previous_output:std::chrono::time_point<std::chrono::system_clock>;
@@ -73,18 +76,26 @@ reactor behavior_planner {
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/behavior_planner.param.yaml",
-            // FIXME: Not sure if this root name is correct.
-            "/ros__parameters"
+            "/**"
         );
         self->node = new autoware::behavior_planner_nodes::BehaviorPlannerNode(node_options);
+        self->node_shared_ptr = std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node);
+    =}
+    
+    timer ros_spin(0, 10 msec);
+    reaction (ros_spin) {=
+        // Spin on ROS for a bit to get tf updates
+        rclcpp::spin_some(self->node_shared_ptr);
     =}
    
     // Corresponds to BehaviorPlannerNode::on_route()
     reaction (global_path) -> map_request {=
-        if (self->node->m_requesting_trajectory) {
-            printf("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
-        } else if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
-            printf("Route was rejected. Route cannot be update while the vehicle is moving");
+        /* This can never happen in  LF :
+         if (self->node->m_requesting_trajectory) {
+            info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
+        } else */ 
+        if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
+            info_print("Route was rejected. Route cannot be update while the vehicle is moving");
         } else {
             self->global_path_route = global_path->value;
             autoware_auto_msgs::srv::HADMapService::Request request;
@@ -98,16 +109,23 @@ reactor behavior_planner {
         self->node->m_lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
         autoware::common::had_map_utils::fromBinaryMsg(map->value, self->node->m_lanelet_map_ptr);
         
-        printf("Received map");
+        info_print("Received map");
         
         self->node->m_planner->set_route(*self->node->m_route, self->node->m_lanelet_map_ptr);
     =}
     
+    // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
+    reaction (vehicle_state_report) {=
+        self->node->m_current_gear = vehicle_state_report->value.gear;
+    =}
+    
     // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
     reaction (vehicle_kinematic_state) -> lane_route, parking_route {=
+        rclcpp::spin_some(self->node_shared_ptr);
+        
         if (!self->node->m_tf_buffer->canTransform(
             "map", vehicle_kinematic_state->value.header.frame_id, tf2::TimePointZero)) {
-              printf("Waiting for localization result to become available");
+              info_print("Waiting for localization result to become available");
             return;
         }
         
@@ -129,10 +147,10 @@ reactor behavior_planner {
             // using float64_t = double;
             const auto throttle_time = std::chrono::duration<double>(3);
             if (now - self->previous_output_arrived_goal > throttle_time) {
-                printf("Trying to change gear");
+                info_print("Trying to change gear");
                 self->previous_output_arrived_goal = now;
             }
-            printf("Reached goal. Wait for another route");
+            info_print("Reached goal. Wait for another route");
         } else if (self->node->m_planner->has_arrived_subroute_goal(self->node->m_ego_state)) {
             // send next subroute
             self->node->m_planner->set_next_subroute();
@@ -141,11 +159,11 @@ reactor behavior_planner {
               switch (subroute.planner_type) {
                 case autoware::behavior_planner::PlannerType::LANE:
                     SET(lane_route, subroute.route);
-                    printf("Sent lane trajectory action goal");
+                    info_print("Sent lane trajectory action goal");
                     break;
                 case autoware::behavior_planner::PlannerType::PARKING:
                     SET(parking_route, subroute.route);
-                    printf("Sent parking trajectory action goal");
+                    info_print("Sent parking trajectory action goal");
                     break;
                 default:
                     break;
@@ -158,11 +176,11 @@ reactor behavior_planner {
             switch (subroute.planner_type) {
                 case autoware::behavior_planner::PlannerType::LANE:
                     SET(lane_route, subroute.route);
-                    printf("Sent lane trajectory action goal");
+                    info_print("Sent lane trajectory action goal");
                     break;
                 case autoware::behavior_planner::PlannerType::PARKING:
                     SET(parking_route, subroute.route);
-                    printf("Sent parking trajectory action goal");
+                    info_print("Sent parking trajectory action goal");
                     break;
                 default:
                     break;
@@ -188,7 +206,7 @@ reactor behavior_planner {
             // TODO(mitsudome-r): replace this with throttled output in foxy
             const auto now = std::chrono::system_clock::now();
             if (now - self->previous_output > throttle_time) {
-                printf("Trying to change gear");
+                info_print("Trying to change gear");
                 self->previous_output = now;
             }
         
@@ -238,7 +256,7 @@ reactor behavior_planner {
             // TODO(mitsudome-r): replace this with throttled output in foxy
             const auto now = std::chrono::system_clock::now();
             if (now - self->previous_output > throttle_time) {
-                printf("Trying to change gear");
+                info_print("Trying to change gear");
                 self->previous_output = now;
             }
         
@@ -268,13 +286,7 @@ reactor behavior_planner {
             // FIXMESB: trajectory can go through the object collision estimator
             SET(original_trajectory, trajectory);
         }
-    =}
-    
-    // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
-    reaction (vehicle_state_report) {=
-        self->node->m_current_gear = vehicle_state_report->value.gear;
-    =}
-    
+    =}    
     
     
     // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
