@@ -71,11 +71,12 @@ reactor global_planner {
         self->node->current_pose_cb(msg);
     =}
     
-    logical action act (10 msec);
+    logical action act (60 msec);
     
     reaction (startup, act) -> global_path {=
         if (self->node->global_route_set) {
             SET(global_path, self->node->m_global_route);
+            self->node->global_route_set = false;
         } else {
             rclcpp::spin_some(self->node_shared_ptr);
             schedule(act, 0);
