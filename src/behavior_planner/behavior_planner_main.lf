@@ -103,21 +103,6 @@ reactor behavior_planner {
         self->node->m_planner->set_route(*self->node->m_route, self->node->m_lanelet_map_ptr);
     =}
     
-    // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
-    reaction (modified_trajectory) -> control_trajectory {=
-        // Initialize with modified trajectory from object collision estimator.
-        auto trajectory = modified_trajectory->value;
-        
-        // Set current position with velocity zero to do emergency stop in case
-        // collision estimator fails or if there is obstacle on first point
-        if (trajectory.points.empty()) {
-            auto stopping_point = self->node->m_ego_state.state;
-            stopping_point.longitudinal_velocity_mps = 0.0;
-            trajectory.points.push_back(stopping_point);
-        }
-        SET(control_trajectory, trajectory);
-    =}
-    
     // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
     reaction (vehicle_kinematic_state) -> lane_route, parking_route {=
         if (!self->node->m_tf_buffer->canTransform(
@@ -288,6 +273,23 @@ reactor behavior_planner {
     // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
     reaction (vehicle_state_report) {=
         self->node->m_current_gear = vehicle_state_report->value.gear;
+    =}
+    
+    
+    
+    // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
+    reaction (modified_trajectory) -> control_trajectory {=
+        // Initialize with modified trajectory from object collision estimator.
+        auto trajectory = modified_trajectory->value;
+        
+        // Set current position with velocity zero to do emergency stop in case
+        // collision estimator fails or if there is obstacle on first point
+        if (trajectory.points.empty()) {
+            auto stopping_point = self->node->m_ego_state.state;
+            stopping_point.longitudinal_velocity_mps = 0.0;
+            trajectory.points.push_back(stopping_point);
+        }
+        SET(control_trajectory, trajectory);
     =}
 }
 
