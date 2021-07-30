@@ -8,10 +8,9 @@ target C {
 };
 
 preamble {=
-    #include "sensor_msgs/msg/point_cloud2.hpp"
     #include "off_map_obstacles_filter_node.hpp"
+    #include "had_map_utils/had_map_conversion.hpp"
     #include "utils.hpp"
-    #include "visibility_control.hpp"
 =}
 
 reactor off_map_obstacles_filter {
@@ -23,19 +22,21 @@ reactor off_map_obstacles_filter {
     output request:autoware_auto_msgs::srv::HADMapService_Request;
 
 
-    state node:autoware::perception:filters::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode*;
-	state node_shared_ptr:std::shared_ptr<off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>;
+    state node:autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode*;
+	state node_shared_ptr:std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>;
 
-	 reaction (startup) {=
+	 reaction (startup) -> request {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lanelet2_map_provider.param.yaml", 
+            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/off_map_obstacles_filter.param.yaml", 
             "/**"
         );
     
-        // This will lookup for a transform (tf2) over ROS
-        self->node = new autoware::lanelet2_map_provider::Lanelet2MapProviderNode(nodeOptions);
-		auto requestPtr = std::make_shared<HADMapService::Request>();
-  		requestPtr->requested_primitives.push_back(HADMapService::Request::FULL_MAP);
+        self->node = new autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode(nodeOptions);
+        self->node_shared_ptr = std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>(self->node);
+        
+        
+		auto requestPtr = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
+  		requestPtr->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
   		SET(request, *requestPtr);
 
     =}
@@ -44,12 +45,14 @@ reactor off_map_obstacles_filter {
 	reaction (map) {=
         auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
   		autoware::common::had_map_utils::fromBinaryMsg(map->value, lanelet_map_ptr);
- 		self->node->m_filter = std::make_unique<OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
+ 		self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
        
     =}
     
-    reaction (original_bounding_boxes) -> modified_bounding_boxes {=    
+    reaction (original_bounding_boxes) -> modified_bounding_boxes {=
+        // Try to get tf data
         rclcpp::spin_some(self->node_shared_ptr);
+        
         std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray> msg(&original_bounding_boxes->value);
         self->node->process_bounding_boxes(msg);    
         SET(modified_bounding_boxes, original_bounding_boxes->value);
