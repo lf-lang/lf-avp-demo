@@ -2,7 +2,6 @@ target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["include/package.xml", "include/utils.hpp"],
-    threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
 };
@@ -26,7 +25,7 @@ import object_collision_estimator from "object_collision_estimator/object_collis
 import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
 import mpc_controller from "mpc_controller/mpc_controller_main.lf";
 
-main reactor {
+federated reactor Autoware {
     fat = new[2] filter_and_transform();
     pcf = new point_cloud_fusion(in_width = 2);
     bgd = new voxel_grid_downsampler();
