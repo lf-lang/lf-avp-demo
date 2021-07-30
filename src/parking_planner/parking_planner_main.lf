@@ -31,16 +31,17 @@ reactor parking_planner {
     output request:autoware_auto_msgs::srv::HADMapService_Request;
     output trajectory:autoware_auto_msgs::msg::Trajectory;
 	
-	state route_msg:autoware_auto_msgs::msg::Route;
-	state node:autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode*;
+    state route_msg:autoware_auto_msgs::msg::Route;
+    state node:autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode*;
+    state node_shared_ptr:std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>;
         
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/parking_planner.param.yaml",
-            // FIXME: Not sure if this root name is correct.
-            "/ros__parameters"
+            "/**"
         );
         self->node = new autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode(node_options);
+        self->node_shared_ptr = std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>(self->node);
     =}
 
     reaction (route) -> request {=
@@ -55,11 +56,18 @@ reactor parking_planner {
 	    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
 	    autoware::common::had_map_utils::fromBinaryMsg(map->value, lanelet_map_ptr);
 
-        trajectory:autoware_auto_msgs::msg::Trajectory trajectory_msg =
-        	self->node->plan_trajectory(self->route_msg, lanelet_map_ptr);
-        	
-        SET(trajectory, trajectory_msg);
+        const auto & trajectory_msg =
+            self->node->plan_trajectory(self->route_msg, lanelet_map_ptr);
+        
+        // This node publishes some stuff to rviz2, so we need to spin for them to work
+        rclcpp::spin_some(self->node_shared_ptr);
+        
+        // Only publish the trajectory if it is valid        
+        if (self->node->is_trajectory_valid(trajectory_msg)) {
+            SET(trajectory, trajectory_msg);
+        }
 	=}
+	
 }
 
 main reactor {
