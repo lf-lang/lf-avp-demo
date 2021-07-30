@@ -5,7 +5,7 @@
 #include "rcl_yaml_param_parser/parser.h"
 
 inline rclcpp::NodeOptions get_node_options_from_yaml(string path, string root_name) {
-	// User a try - catch for now so that if the rclcpp context is already initialized,
+	// Use a try - catch for now so that if the rclcpp context is already initialized,
 	// ROS doesn't throw a tantrum.
 	try {
 		rclcpp::init(0, NULL);
