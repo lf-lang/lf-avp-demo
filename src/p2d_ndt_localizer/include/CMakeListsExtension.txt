@@ -2,8 +2,11 @@ unset(BUILD_TESTING)
 
 set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
 
-find_package(ament_cmake_auto REQUIRED)
-ament_auto_find_build_dependencies()
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(ndt REQUIRED)
+find_package(localization_nodes REQUIRED)
+find_package(voxel_grid_nodes REQUIRED)
 find_package(ndt_nodes REQUIRED)
 
 include_directories(${AUTOWARE_HOME}/src/localization/ndt_nodes/include/ndt_nodes)

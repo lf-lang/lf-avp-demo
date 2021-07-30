@@ -2,8 +2,12 @@ unset(BUILD_TESTING)
 
 set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
 
-find_package(ament_cmake_auto REQUIRED)
-ament_auto_find_build_dependencies()
+find_package(autoware_auto_msgs REQUIRED)
+find_package(lidar_utils REQUIRED)
+find_package(yaml_cpp_vendor REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(point_cloud_filter_transform_nodes REQUIRED)
 
 include_directories(${AUTOWARE_HOME}/src/perception/filters/point_cloud_filter_transform_nodes/include/point_cloud_filter_transform_nodes)

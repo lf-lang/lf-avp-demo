@@ -17,7 +17,6 @@ target C {
 
 preamble {= 
     #include "mpc_controller_nodes/mpc_controller_node.hpp" /* This is AUTOWARE node */
-    
     #include "utils.hpp"
 =}
 
