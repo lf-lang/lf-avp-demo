@@ -50,6 +50,9 @@ reactor object_collision_estimator {
         auto marker = motion::planning::object_collision_estimator_nodes::toVisualizationMarkerArray(trajectory_bbox, modified_trajectory->value.points.size());
         self->node->m_trajectory_bbox_pub->publish(marker);
         rclcpp::spin_some(self->node_shared_ptr);
+    =} deadline (1 sec) {=
+        warning_print("Outdated obstacle information.");
+        // FIXME: still do collision estimation?
     =}
 }
 
