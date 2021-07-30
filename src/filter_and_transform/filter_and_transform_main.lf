@@ -2,9 +2,9 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- * 
+ *
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ *
  */
 target C {
     cmake: true,
@@ -17,31 +17,31 @@ target C {
 
 # preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
 
-preamble {= 
+preamble {=
     #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
 =}
 
-reactor filter_and_transform (bank_index:int(0), config_namespaces:std::vector<string>(2)) {
+reactor filter_and_transform (bank_index:int(0), config_namespaces:std::vector<string>({=std::vector<string>(2)=})) {
     input points_in:sensor_msgs::msg::PointCloud2;
     output points_out:sensor_msgs::msg::PointCloud2;
-    
+
     state count:int(0);
-    
+
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
     state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
-    
+
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/lfros/workspace/XronOS/src/filter_and_transform/include/pc_filter_transform.param.yaml", 
+            "/home/lfros/workspace/XronOS/src/filter_and_transform/include/pc_filter_transform.param.yaml",
             self->config_namespaces[self->bank_index]
         );
-        
-        self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(nodeOptions);
-    =} 
 
-    
+        self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(nodeOptions);
+    =}
+
+
     reaction (points_in) -> points_out {=
         const auto filtered_transformed_msg = self->node->filter_and_transform(points_in->value);
         SET(points_out, filtered_transformed_msg);
