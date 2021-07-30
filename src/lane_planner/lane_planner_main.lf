@@ -30,23 +30,11 @@ reactor lane_planner {
 
     output request:autoware_auto_msgs::srv::HADMapService_Request;
     output trajectory:autoware_auto_msgs::msg::Trajectory;
-<<<<<<< HEAD
 	
     state route_msg:autoware_auto_msgs::msg::Route;
     state node:autoware::lane_planner_nodes::LanePlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>;
         
-||||||| parent of ea6f0da (Remove package.xml from sub LF files)
-	
-	state route_msg:autoware_auto_msgs::msg::Route;
-	state node:autoware::lane_planner_nodes::LanePlannerNode*;
-        
-=======
-
-	state route_msg:autoware_auto_msgs::msg::Route;
-	state node:autoware::lane_planner_nodes::LanePlannerNode*;
-
->>>>>>> ea6f0da (Remove package.xml from sub LF files)
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lane_planner.param.yaml",
