@@ -3,6 +3,8 @@ unset(BUILD_TESTING)
 set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
 
 find_package(ament_cmake_auto REQUIRED)
+
+
 ament_auto_find_build_dependencies()
 find_package(autoware_auto_msgs REQUIRED)
 find_package(lanelet2_core REQUIRED)
