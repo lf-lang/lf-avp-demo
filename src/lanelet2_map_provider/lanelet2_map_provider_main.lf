@@ -2,15 +2,15 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- * 
+ *
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ *
  */
 
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"], 
+    files: ["../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
@@ -24,23 +24,23 @@ preamble {=
 reactor lanelet2_map_provider {
     input request:autoware_auto_msgs::srv::HADMapService_Request;
     output map:autoware_auto_msgs::msg::HADMapBin;
-    
+
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
     state node:autoware::lanelet2_map_provider::Lanelet2MapProviderNode*;
-    
+
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lanelet2_map_provider.param.yaml", 
+            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lanelet2_map_provider.param.yaml",
             "/**"
         );
-        
+
         // This will lookup for a transform (tf2) over ROS from the ndt_map_publisher
         self->node = new autoware::lanelet2_map_provider::Lanelet2MapProviderNode(nodeOptions);
 
-    =} 
+    =}
 
-    
+
     reaction (request) -> map {=
         std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Response> response{};
         std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request> rq(&request->value); // Converts the point in value to shared pointer

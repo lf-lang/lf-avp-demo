@@ -1,7 +1,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
+    files: ["../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -14,28 +14,28 @@ preamble {=
 =}
 
 reactor ray_ground_classifier {
-    
+
 	input points_in:sensor_msgs::msg::PointCloud2;
 	output points_non_ground:sensor_msgs::msg::PointCloud2;
-	
+
 	//state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
     state node:autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode*;
-        
+
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/lfros/Projects/XronOS/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml", 
+            "/home/lfros/Projects/XronOS/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml",
             "/**"
         );
-        
+
         self->node = new autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode(nodeOptions);
     =}
-    
+
     reaction (points_in) -> points_non_ground {=
-    	
+
     	std::shared_ptr<sensor_msgs::msg::PointCloud2> msg(&points_in->value); // Converts the point in value to shared pointer
-    	self->node->callback(msg);    
-        
-      
+    	self->node->callback(msg);
+
+
         SET(points_non_ground, self->node->m_nonground_msg);
 	=}
 }

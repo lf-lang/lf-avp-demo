@@ -2,15 +2,15 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- * 
+ *
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ *
  */
 
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
+    files: ["../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -30,11 +30,23 @@ reactor lane_planner {
 
     output request:autoware_auto_msgs::srv::HADMapService_Request;
     output trajectory:autoware_auto_msgs::msg::Trajectory;
+<<<<<<< HEAD
 	
     state route_msg:autoware_auto_msgs::msg::Route;
     state node:autoware::lane_planner_nodes::LanePlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>;
         
+||||||| parent of ea6f0da (Remove package.xml from sub LF files)
+	
+	state route_msg:autoware_auto_msgs::msg::Route;
+	state node:autoware::lane_planner_nodes::LanePlannerNode*;
+        
+=======
+
+	state route_msg:autoware_auto_msgs::msg::Route;
+	state node:autoware::lane_planner_nodes::LanePlannerNode*;
+
+>>>>>>> ea6f0da (Remove package.xml from sub LF files)
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lane_planner.param.yaml",
@@ -48,7 +60,7 @@ reactor lane_planner {
         self->route_msg = route->value;
         autoware_auto_msgs::srv::HADMapService_Request request_msg =
         	self->node->create_map_request(self->route_msg);
-        	
+
         SET(request, request_msg);
 	=}
 

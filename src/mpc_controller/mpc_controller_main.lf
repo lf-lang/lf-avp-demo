@@ -2,45 +2,45 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- * 
+ *
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ *
  */
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"], 
+    files: ["../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
 };
 
-preamble {= 
+preamble {=
     #include "mpc_controller_nodes/mpc_controller_node.hpp" /* This is AUTOWARE node */
-    
+
     #include "utils.hpp"
 =}
 
 reactor mpc_controller {
     input trajectory:autoware_auto_msgs::msg::Trajectory;
     input vehicle:autoware_auto_msgs::msg::VehicleKinematicState;
-    
+
     output command:autoware_auto_msgs::msg::VehicleControlCommand;
-    
+
 //    state count:int(0);
-//    
+//
     state node:motion::control::mpc_controller_nodes::MpcControllerNode*;
-//    
+//
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/mpc.param.yaml", 
+            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/mpc.param.yaml",
             "/**"
         );
-        // FIXME: How to pass on the parameters?        
+        // FIXME: How to pass on the parameters?
         self->node = new motion::control::mpc_controller_nodes::MpcControllerNode("mpc_controller", "");
-    =} 
+    =}
 
-    
+
     reaction (trajectory, vehicle) -> command {=
         self->node->cmd_is_set = false;
         if (trajectory->is_present) {
@@ -59,7 +59,7 @@ reactor mpc_controller {
             // Only retry computation if new trajectory was successfully set
             self->node->retry_compute();
         }
-        
+
         if (self->node->cmd_is_set) {
             SET(command, self->node->cmd);
             self->node->cmd_is_set = false;

@@ -2,15 +2,15 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- * 
+ *
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ *
  */
 
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
+    files: ["../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -24,10 +24,10 @@ preamble {=
 
 reactor ndt_map_publisher {
     output points_out:sensor_msgs::msg::PointCloud2;
-	
+
 	state node:autoware::localization::ndt_nodes::NDTMapPublisherNode*;
     state node_shared_ptr:std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>;
-        
+
     reaction (startup) -> points_out {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/map_publisher.param.yaml",
@@ -36,12 +36,12 @@ reactor ndt_map_publisher {
         );
         self->node = new autoware::localization::ndt_nodes::NDTMapPublisherNode(node_options);
         self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node);
-        
+
         SET(points_out, self->node->m_map_pc);
         // Make sure the tf and rviz2 visualization stuff have gone out
         rclcpp::spin_some(self->node_shared_ptr);
     =}
-    
+
     timer ros_spin(0, 1 sec);
     reaction (ros_spin) {=
         // Make sure the tf and rviz2 visualization stuff have gone out
