@@ -2,15 +2,15 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- *
+ * 
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- *
+ * 
  */
 
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -32,35 +32,35 @@ reactor behavior_planner {
     //////// INPUTS /////////
     // Global path from global planner.
     input global_path:autoware_auto_msgs::msg::Route;
-
+    
     // Map returned from map provider.
     input map:autoware_auto_msgs::msg::HADMapBin;
-
+    
     // Inputs from LGSVL interface.
     input vehicle_kinematic_state:autoware_auto_msgs::msg::VehicleKinematicState;
     input vehicle_state_report:autoware_auto_msgs::msg::VehicleStateReport;
-
+    
     // For responses from lane and parking planners.
     input lane_trajectory:autoware_auto_msgs::msg::Trajectory;
     input parking_trajectory:autoware_auto_msgs::msg::Trajectory;
-
+    
     // Modified trajectory from object collision estimator.
     input modified_trajectory:autoware_auto_msgs::msg::Trajectory;
-
+    
     //////// OUTPUTS ////////
     // For request to map provider.
     output map_request:autoware_auto_msgs::srv::HADMapService_Request;
-
+    
     // For sending vehicle state command to LGSVL interface.
     output vehicle_state_command:autoware_auto_msgs::msg::VehicleStateCommand;
-
+    
     // For requests to lane and parking planners.
     output lane_route:autoware_auto_msgs::msg::Route;
     output parking_route:autoware_auto_msgs::msg::Route;
-
+    
     // Original trajectory to be consulted with object collision estimator.
     output original_trajectory:autoware_auto_msgs::msg::Trajectory;
-
+    
     // Trajectory to MPC controller.
     output control_trajectory:autoware_auto_msgs::msg::Trajectory;
 
@@ -69,7 +69,7 @@ reactor behavior_planner {
     state global_path_route:autoware_auto_msgs::msg::Route;
     state previous_output_arrived_goal:std::chrono::time_point<std::chrono::system_clock>;
     state previous_output:std::chrono::time_point<std::chrono::system_clock>;
-
+        
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/behavior_planner.param.yaml",
@@ -78,7 +78,7 @@ reactor behavior_planner {
         );
         self->node = new autoware::behavior_planner_nodes::BehaviorPlannerNode(node_options);
     =}
-
+   
     // Corresponds to BehaviorPlannerNode::on_route()
     reaction (global_path) -> map_request {=
         if (self->node->m_requesting_trajectory) {
@@ -92,17 +92,17 @@ reactor behavior_planner {
             SET(map_request, request);
         }
     =}
-
+   
     // Corresponds to BehaviorPlannerNode::map_response()
     reaction (map) {=
         self->node->m_lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
         autoware::common::had_map_utils::fromBinaryMsg(map->value, self->node->m_lanelet_map_ptr);
-
+        
         printf("Received map");
-
+        
         self->node->m_planner->set_route(*self->node->m_route, self->node->m_lanelet_map_ptr);
     =}
-
+    
     // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
     reaction (vehicle_kinematic_state) -> lane_route, parking_route {=
         if (!self->node->m_tf_buffer->canTransform(
@@ -110,9 +110,9 @@ reactor behavior_planner {
               printf("Waiting for localization result to become available");
             return;
         }
-
+        
         self->node->m_ego_state = self->node->transform_to_map(vehicle_kinematic_state->value);
-
+        
         // do nothing if we haven't got route yet
         // FIXMESB: discards vehicle state if global path is not received yet
         if (!self->node->m_planner->is_route_ready()) {
@@ -169,14 +169,14 @@ reactor behavior_planner {
             }
         }
     =}
-
+    
     // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
     reaction (vehicle_kinematic_state, lane_trajectory) -> control_trajectory, original_trajectory, vehicle_state_command {=
         if (!lane_trajectory->is_present) {
             return;
         }
         self->node->m_planner->set_trajectory(lane_trajectory->value);
-
+        
         self->previous_output = std::chrono::system_clock::now();
         const auto desired_gear = self->node->m_planner->get_desired_gear(self->node->m_ego_state);
 
@@ -184,22 +184,22 @@ reactor behavior_planner {
         // or if no such service is available, just publish the trajectory directly
         if (desired_gear != self->node->m_current_gear) {
             const auto throttle_time = std::chrono::duration<double>(3);
-
+        
             // TODO(mitsudome-r): replace this with throttled output in foxy
             const auto now = std::chrono::system_clock::now();
             if (now - self->previous_output > throttle_time) {
                 printf("Trying to change gear");
                 self->previous_output = now;
             }
-
-
+        
+        
             autoware_auto_msgs::msg::VehicleStateCommand gear_command;
             gear_command.gear = desired_gear;
             gear_command.mode = autoware_auto_msgs::msg::VehicleStateCommand::MODE_AUTONOMOUS;
             gear_command.stamp = vehicle_kinematic_state->value.header.stamp;
             //gear_command.sequence_number = this->sequence_number;
             SET(vehicle_state_command, gear_command);
-
+        
             // send trajectory with current state so that velocity will be zero in order to change gear
             autoware_auto_msgs::msg::Trajectory trajectory;
             trajectory.header.frame_id = "map";
@@ -213,20 +213,20 @@ reactor behavior_planner {
             // trajectory.header = m_ego_state.header;
             trajectory.header.frame_id = "map";
             trajectory.header.stamp = vehicle_kinematic_state->value.header.stamp;
-
+        
             // If object collision estimation is enabled, send trajectory through the collision estimator
             // FIXMESB: trajectory can go through the object collision estimator
             SET(original_trajectory, trajectory);
         }
     =}
-
+    
     // Corresponds to BehaviorPlannerNode::result_callback() for parking planner response.
     reaction (vehicle_kinematic_state, parking_trajectory) -> control_trajectory, original_trajectory, vehicle_state_command {=
         if (!parking_trajectory->is_present) {
             return;
         }
         self->node->m_planner->set_trajectory(parking_trajectory->value);
-
+        
         self->previous_output = std::chrono::system_clock::now();
         const auto desired_gear = self->node->m_planner->get_desired_gear(self->node->m_ego_state);
 
@@ -234,22 +234,22 @@ reactor behavior_planner {
         // or if no such service is available, just publish the trajectory directly
         if (desired_gear != self->node->m_current_gear) {
             const auto throttle_time = std::chrono::duration<double>(3);
-
+        
             // TODO(mitsudome-r): replace this with throttled output in foxy
             const auto now = std::chrono::system_clock::now();
             if (now - self->previous_output > throttle_time) {
                 printf("Trying to change gear");
                 self->previous_output = now;
             }
-
-
+        
+        
             autoware_auto_msgs::msg::VehicleStateCommand gear_command;
             gear_command.gear = desired_gear;
             gear_command.mode = autoware_auto_msgs::msg::VehicleStateCommand::MODE_AUTONOMOUS;
             gear_command.stamp = vehicle_kinematic_state->value.header.stamp;
             //gear_command.sequence_number = this->sequence_number;
             SET(vehicle_state_command, gear_command);
-
+        
             // send trajectory with current state so that velocity will be zero in order to change gear
             autoware_auto_msgs::msg::Trajectory trajectory;
             trajectory.header.frame_id = "map";
@@ -263,25 +263,25 @@ reactor behavior_planner {
             // trajectory.header = m_ego_state.header;
             trajectory.header.frame_id = "map";
             trajectory.header.stamp = vehicle_kinematic_state->value.header.stamp;
-
+        
             // If object collision estimation is enabled, send trajectory through the collision estimator
             // FIXMESB: trajectory can go through the object collision estimator
             SET(original_trajectory, trajectory);
         }
     =}
-
+    
     // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
     reaction (vehicle_state_report) {=
         self->node->m_current_gear = vehicle_state_report->value.gear;
     =}
-
-
-
+    
+    
+    
     // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
     reaction (modified_trajectory) -> control_trajectory {=
         // Initialize with modified trajectory from object collision estimator.
         auto trajectory = modified_trajectory->value;
-
+        
         // Set current position with velocity zero to do emergency stop in case
         // collision estimator fails or if there is obstacle on first point
         if (trajectory.points.empty()) {

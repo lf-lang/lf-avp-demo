@@ -1,7 +1,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -17,29 +17,29 @@ reactor object_collision_estimator {
     input filtered_lidar_boxes:autoware_auto_msgs::msg::BoundingBoxArray;
     input original_trajectory:autoware_auto_msgs::msg::Trajectory;
     output modified_trajectory:autoware_auto_msgs::msg::Trajectory;
-
+	
 	state node:motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode*;
 	state node_shared_ptr:std::shared_ptr<motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode>;
-
-	reaction (startup) {=
+	
+	reaction (startup) {=        
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/object_collision_estimator.param.yaml",
+            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/object_collision_estimator.param.yaml", 
             "/**"
         );
-
+        
         self->node = new motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode>(self->node);
     =}
-
-
+	
+    
     reaction (filtered_lidar_boxes) {=
         std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray> msg(&filtered_lidar_boxes->value); // Convert to shared pointer
         self->node->on_bounding_box(msg);
 	=}
-
+	
 	reaction(original_trajectory) -> modified_trajectory {=
         SET(modified_trajectory, original_trajectory->value);
-
+        
         // m_estimator performs the collision estimation and the trajectory will get updated inside
         self->node->m_estimator->updatePlan(modified_trajectory->value);
 

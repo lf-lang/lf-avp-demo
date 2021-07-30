@@ -2,15 +2,15 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- *
+ * 
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- *
+ * 
  */
 
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -48,7 +48,7 @@ reactor lane_planner {
         self->route_msg = route->value;
         autoware_auto_msgs::srv::HADMapService_Request request_msg =
         	self->node->create_map_request(self->route_msg);
-
+        	
         SET(request, request_msg);
 	=}
 

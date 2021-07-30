@@ -2,15 +2,15 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- *
+ * 
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- *
+ * 
  */
 
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -30,11 +30,11 @@ reactor parking_planner {
 
     output request:autoware_auto_msgs::srv::HADMapService_Request;
     output trajectory:autoware_auto_msgs::msg::Trajectory;
-
+	
     state route_msg:autoware_auto_msgs::msg::Route;
     state node:autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>;
-
+        
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/parking_planner.param.yaml",
@@ -48,7 +48,7 @@ reactor parking_planner {
         self->route_msg = route->value;
         autoware_auto_msgs::srv::HADMapService_Request request_msg =
         	self->node->create_map_request(self->route_msg);
-
+        	
         SET(request, request_msg);
 	=}
 
@@ -58,16 +58,16 @@ reactor parking_planner {
 
         const auto & trajectory_msg =
             self->node->plan_trajectory(self->route_msg, lanelet_map_ptr);
-
+        
         // This node publishes some stuff to rviz2, so we need to spin for them to work
         rclcpp::spin_some(self->node_shared_ptr);
-
-        // Only publish the trajectory if it is valid
+        
+        // Only publish the trajectory if it is valid        
         if (self->node->is_trajectory_valid(trajectory_msg)) {
             SET(trajectory, trajectory_msg);
         }
 	=}
-
+	
 }
 
 main reactor {

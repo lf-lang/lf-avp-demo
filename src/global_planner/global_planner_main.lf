@@ -2,15 +2,15 @@
  * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
- *
+ * 
  *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- *
+ * 
  */
 
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
+    files: ["include/package.xml", "../include/utils.hpp"], 
     threads: 1,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
@@ -28,51 +28,48 @@ reactor global_planner {
     input map:autoware_auto_msgs::msg::HADMapBin;
     output global_path:autoware_auto_msgs::msg::Route;
     output map_request:autoware_auto_msgs::srv::HADMapService_Request;
-
+    
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
     state node:autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>;
-
+    
     reaction (startup) ->  map_request {=
         // Use a try - catch for now so that if the rclcpp context is already initialized,
         // ROS doesn't throw a tantrum.
         try {
             rclcpp::init(0, NULL);
         } catch (...) { /*  Ignore */ }
-
+        
         rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions();
-
+        
         self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node);
-
+        
         auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
         request->requested_primitives.push_back(
             autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP);
-
+        
         SET(map_request, *request.get());
-    =}
+    =} 
 
     reaction (map) {=
         // Convert binary map msg to lanelet2 map and set the map for global path planner
         self->node->lanelet2_global_planner->osm_map = std::make_shared<lanelet::LaneletMap>();
         autoware::common::had_map_utils::fromBinaryMsg(map->value, self->node->lanelet2_global_planner->osm_map);
-
+    
         // parse lanelet global path planner elements
         self->node->lanelet2_global_planner->parse_lanelet_element();
-
+        
     =}
-
-    // Apparently, the initial pose received from rviz2 also is published on vehicle_kinematic_state.
-    // Therefore, we leave the ROS subscriber callback as-is, but make sure that the LGSVL interface
-    // doesn't produce a vehicle_kinematic_state through ROS to prevent side-channeling.
+    
     reaction (vehicle_kinematic_state) {=
         std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> msg(&vehicle_kinematic_state->value); // Converts the point in value to shared pointer
         self->node->current_pose_cb(msg);
     =}
-
+    
     logical action act (60 msec);
-
+    
     reaction (startup, act) -> global_path {=
         if (self->node->global_route_set) {
             SET(global_path, self->node->m_global_route);

@@ -1,7 +1,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
+    files: ["include/package.xml", "../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
@@ -13,27 +13,27 @@ preamble {=
 =}
 
 reactor euclidean_cluster_detector {
-
+    
 	input points_in:sensor_msgs::msg::PointCloud2;
 	output bounding_boxes:autoware_auto_msgs::msg::BoundingBoxArray;
-
+	
 	//state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
     state node:autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode*;
-
-
-    reaction (startup) {=
+    
+    
+    reaction (startup) {=        
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/euclidean_cluster.param.yaml",
+            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/euclidean_cluster.param.yaml", 
             "/**"
         );
-
+        
         self->node = new autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode(nodeOptions);
     =}
-
+    
     reaction (points_in) -> bounding_boxes {=
         std::shared_ptr<sensor_msgs::msg::PointCloud2> msg(&points_in->value); // Converts the point in value to shared pointer
         self->node->handle(msg);
-
+      
         SET(bounding_boxes, self->node->m_boxes);
 	=}
 }
