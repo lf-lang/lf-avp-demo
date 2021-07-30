@@ -63,9 +63,6 @@ reactor global_planner {
         
     =}
     
-    // Apparently, the initial pose received from rviz2 also is published on vehicle_kinematic_state.
-    // Therefore, we leave the ROS subscriber callback as-is, but make sure that the LGSVL interface
-    // doesn't produce a vehicle_kinematic_state through ROS to prevent side-channeling.
     reaction (vehicle_kinematic_state) {=
         std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> msg(&vehicle_kinematic_state->value); // Converts the point in value to shared pointer
         self->node->current_pose_cb(msg);

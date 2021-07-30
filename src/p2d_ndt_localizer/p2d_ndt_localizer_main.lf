@@ -55,10 +55,12 @@ reactor p2d_ndt_localizer {
         // RelativeLocalizerNode in localization_node.hpp.
 	=}
 	
-	reaction (fused_downsampled_points_in) {=
-        std::shared_ptr<const sensor_msgs::msg::PointCloud2> fused_downsampled(&fused_downsampled_points_in->value);
-        self->node->observation_callback(fused_downsampled);
+	reaction (fused_downsampled_points_in) {=        
+        rclcpp::spin_some(self->node_shared_ptr);
         
+        std::shared_ptr<const sensor_msgs::msg::PointCloud2> fused_downsampled(&fused_downsampled_points_in->value);
+        self->node->observation_callback(fused_downsampled);   
+             
         rclcpp::spin_some(self->node_shared_ptr);
     =}
 }
