@@ -41,25 +41,39 @@ reactor mpc_controller {
     =} 
 
     
-    reaction (trajectory) -> command {=
-        try {
-    		self->node->m_controller->set_trajectory(*msg);
-    		// Only retry computation if new trajectory was successfully set
-    		retry_compute();
-    		if (self->node->cmd_is_set) {
-                SET(command, self->node->cmd);
-                self->node->cmd_is_set = false;
-            }
-  		} catch (...) {
-    		on_bad_trajectory(std::current_exception());
+    reaction (trajectory, vehicle) -> command {=
+        self->node->cmd_is_set = false;
+        if (trajectory.is_present) {
+            try {
+        		self->node->m_controller->set_trajectory(*msg);
+      		} catch (...) {
+        		on_bad_trajectory(std::current_exception());
+      		}
   		}
+
+        if (vehicle.is_present) {
+            if (!self->node->try_compute(vehicle->value)) {
+                self->node->m_uncomputed_states.push_back(vehicle->value);
+            }
+        }
+
+        // Only retry computation if new trajectory was successfully set
+        retry_compute();
+        if (self->node->cmd_is_set) {
+            SET(command, self->node->cmd);
+            self->node->cmd_is_set = false;
+        }
  	=}
  	
  	reaction (vehicle) -> command {=
+        self->node->cmd_is_set = false;
 		if (!self->node->try_compute(vehicle->value)) {
     		self->node->m_uncomputed_states.push_back(vehicle->value);
   		}
-  		// FIXME: add another state var to figure out which callback updated the state.
+  		if (self->node->cmd_is_set) {
+            SET(command, self->node->cmd);
+            self->node->cmd_is_set = false;
+        }
 	=}
 }
 

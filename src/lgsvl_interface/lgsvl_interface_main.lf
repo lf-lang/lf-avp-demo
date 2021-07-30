@@ -66,15 +66,15 @@ reactor lgsvl_interface {
     =}
     
     // To the simulator
-    reaction (state_command) {=
-        self->node->m_last_state_command = state_command->value;
+    reaction (vehicle_command) {=
+        self->node->on_command_message(vehicle_command->value);
         
         rclcpp::spin_some(self->node_shared_ptr);
     =}
     
     // To the simulator
-    reaction (vehicle_command) {=
-        self->node->on_command_message(vehicle_command->value);
+    reaction (state_command) {=
+        self->node->m_last_state_command = state_command->value;
         
         rclcpp::spin_some(self->node_shared_ptr);
     =}

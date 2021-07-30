@@ -14,7 +14,17 @@ import euclidean_cluster_detector from "euclidean_cluster_detector/euclidean_clu
 import ndt_map_publisher from "ndt_map_publisher/ndt_map_publisher_main.lf";
 import p2d_ndt_localizer from "p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
 
-federated reactor {
+import lanelet2_map_provider from "lanelet2_map_provider/lanelet2_map_provider_main.lf"
+
+import behavior_planner from "behavior_planner/behavior_planner_main.lf";
+import parking_planner from "parking_planner/parking_planner_main.lf";
+import lane_planner from "lane_planner/lane_planner_main.lf";
+import global_planner from "global_planner/global_planner_main.lf";
+import object_collision_estimator from "object_collision_estimator/object_collision_estimator_main.lf";
+import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
+import mpc_controller from "mpc_controller/mpc_controller_main.lf";
+
+main reactor {
     fat = new[2] filter_and_transform();
     pcf = new point_cloud_fusion(in_width = 2);
     bgd = new voxel_grid_downsampler();
@@ -23,10 +33,62 @@ federated reactor {
     nmp = new ndt_map_publisher();
     pnl = new p2d_ndt_localizer();
     
+    bp = new behavior_planner();
+    pp = new parking_planner();
+    lp = new lane_planner();
+    gp = new global_planner();
+    oce = new object_collision_estimator();
+    li = new lgsvl_interface();
+    mc = new mpc_controller();
+    
+    //map_provider = new[4] lanelet2_map_provider();
+    
+    map_provider1 = new lanelet2_map_provider();
+    map_provider2 = new lanelet2_map_provider();
+    map_provider3 = new lanelet2_map_provider();
+    map_provider4 = new lanelet2_map_provider();
+    
 	fat.points_out -> pcf.points_in serialized "ros2";
 	pcf.points_out -> bgd.points_in serialized "ros2";
 	pcf.points_out -> rgc.points_in serialized "ros2";
 	rgc.points_non_ground -> ecd.points_in serialized "ros2";
 	nmp.points_out -> pnl.ndt_map_points_in serialized "ros2";
 	bgd.points_out -> pnl.fused_downsampled_points_in serialized "ros2";
+	
+	//bp.map_request, lp.request, pp.request, gp.map_request -> map_provider.request;
+	//map_provider.map -> bp.map, lp.map, pp.map, gp.map;
+	
+	bp.map_request -> map_provider1.request;
+	map_provider1.map -> bp.map;
+	
+	lp.request -> map_provider2.request;
+    map_provider2.map -> lp.map;
+    
+    pp.request -> map_provider3.request;
+    map_provider3.map -> pp.map;
+    
+    gp.map_request -> map_provider4.request;
+    map_provider4.map -> gp.map;
+	
+	li.vehicle_kinematic_state -> bp.vehicle_kinematic_state;
+	li.state_report -> bp.vehicle_state_report;
+	li.vehicle_kinematic_state -> mc.vehicle;
+	li.vehicle_kinematic_state -> gp.vehicle_kinematic_state;
+	
+	bp.parking_route -> pp.route;
+	bp.lane_route -> lp.route;
+	
+	bp.vehicle_state_command -> li.state_command;
+	bp.control_trajectory -> mc.trajectory;
+	
+	lp.trajectory -> bp.lane_trajectory;
+	pp.trajectory -> bp.parking_trajectory;
+	
+	bp.original_trajectory -> oce.original_trajectory;
+	oce.modified_trajectory -> bp.modified_trajectory;
+
+    gp.global_path -> bp.global_path;
+    
+    mc.command -> li.vehicle_command;
+	
 }
