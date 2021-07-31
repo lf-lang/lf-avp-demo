@@ -60,20 +60,30 @@ reactor lgsvl_interface {
     reaction (can_bus) -> state_report {=
         rclcpp::spin_some(self->node_shared_ptr);
         
+        if (!self->node->m_interface->update(self->node->m_cycle_time - std::chrono::milliseconds{2LL})) {
+            self->node->on_read_timeout();
+        }
+        
         SET(state_report, self->node->m_interface->get_state_report());
         
-    =}
-    
-    // To the simulator
-    reaction (vehicle_command) {=
-        self->node->on_command_message(vehicle_command->value);
+        // Update
+        if (self->node->m_state_machine) {
+            self->node->m_state_machine->update(self->node->m_interface->get_odometry(), self->node->m_interface->get_state_report());
+            self->node->state_machine_report();
+        }
         
-        rclcpp::spin_some(self->node_shared_ptr);
     =}
     
     // To the simulator
     reaction (state_command) {=
         self->node->m_last_state_command = state_command->value;
+        
+        rclcpp::spin_some(self->node_shared_ptr);
+    =}
+    
+    // To the simulator
+    reaction (vehicle_command) {=
+        self->node->on_command_message(vehicle_command->value);
         
         rclcpp::spin_some(self->node_shared_ptr);
     =}
