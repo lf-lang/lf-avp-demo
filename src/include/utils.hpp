@@ -35,4 +35,11 @@ inline rclcpp::NodeOptions get_node_options_from_yaml(string path, string root_n
 	return nodeOptions;
 }
 
+inline rclcpp::NodeOptions get_node_options_from_yaml(string path, string root_name, int argc, char *argv[]) {
+	try {
+		rclcpp::init(argc, argv);
+	} catch (...) { /*  Ignore */ }
+	return get_node_options_from_yaml(path, root_name);
+}
+
 #endif // XRONOS_UTILS_HPP

@@ -29,9 +29,12 @@ reactor point_cloud_fusion(in_width:int(2)) {
     =}
         
     reaction (points_in) -> points_out {=
-        // FIXME: perform is_present checks before
+        if (!points_in[0]->is_present || !points_in[0]->is_present) {
+            error_print_and_exit("Expected both point clouds.");
+        }
         std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg1(&points_in[0]->value);
         std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg2(&points_in[1]->value);
+        info_print("Calling pointcloud_callback.");
         self->node->pointcloud_callback(
             msg1,
             msg2,

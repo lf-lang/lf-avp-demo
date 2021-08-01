@@ -37,9 +37,24 @@ reactor lgsvl_interface {
     state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
     
     reaction (startup) {=
+        // Remap topics using command-line arguments
+        char *argv[] = {
+            "lf_lgsvl_interface",
+            "--ros-args",
+            "--remap", "vehicle_control_cmd:=/lgsvl/vehicle_control_cmd", 
+            "--remap", "vehicle_state_cmd:=/lgsvl/vehicle_state_cmd",
+            "--remap", "state_report:=/lgsvl/state_report",
+            "--remap", "vehicle_odom:=/lgsvl/vehicle_odom",
+            "--remap", "gnss_odom:=/lgsvl/gnss_odom",
+            "--", 
+            NULL
+        };
+        
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             "/home/soroush/Projects/XronOS/src/lgsvl_interface/include/lgsvl_interface.param.yaml", 
-            "/**"
+            "/**",
+            13,
+            argv
         );
         
         // Tell the LGSVL interface to publish pose updates on tf topics, which means we need rclcpp::spin_some()
@@ -53,6 +68,7 @@ reactor lgsvl_interface {
         rclcpp::spin_some(self->node_shared_ptr);
         // If the vehicle kinematic state is not null
         if (self->node->m_interface->m_vse_t) {
+            info_print("Acceleration: %f", (*self->node->m_interface->m_vse_t).state.acceleration_mps2);
             SET(vehicle_kinematic_state, *self->node->m_interface->m_vse_t.get());
         }
     =}
@@ -63,6 +79,8 @@ reactor lgsvl_interface {
         if (!self->node->m_interface->update(self->node->m_cycle_time - std::chrono::milliseconds{2LL})) {
             self->node->on_read_timeout();
         }
+        
+        info_print("Gear: %d", self->node->m_interface->get_state_report().gear);
         
         SET(state_report, self->node->m_interface->get_state_report());
         
