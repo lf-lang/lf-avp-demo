@@ -1,0 +1,17 @@
+target C {
+    cmake-include: "../../src/include/CMakeListsExtension.txt",
+    files: ["../../src/include/utils.hpp"],
+    flags: ["-g"],
+    compiler: "g++"
+};
+
+import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
+import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf";
+
+federated reactor {
+    
+    fat = new[2] filter_and_transform();
+    pcf = new point_cloud_fusion(in_width = 2);
+    
+    fat.points_out -> pcf.points_in serialized "ros2";
+}
