@@ -13,13 +13,13 @@ preamble {=
     #include "utils.hpp"
 =}
 
-reactor point_cloud_fusion(in_width:int(2)) {
-	input[in_width] points_in:sensor_msgs::msg::PointCloud2;
-	output points_out:sensor_msgs::msg::PointCloud2;
+reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
+	input[in_width] points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
+	output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
 	
 	state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode*;
 	
-	reaction (startup) {=
+	reaction (startup) points_in {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             "/home/lfros/Projects/XronOS/src/point_cloud_fusion/include/vlp16_sim_lexus_pc_fusion.param.yaml", 
             "/**"
@@ -30,22 +30,23 @@ reactor point_cloud_fusion(in_width:int(2)) {
         
     reaction (points_in) -> points_out {=
         if (!points_in[0]->is_present || !points_in[0]->is_present) {
-            error_print_and_exit("Expected both point clouds.");
+            error_print("Expected both point clouds.");
+            return;
         }
-        std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg1(&points_in[0]->value);
-        std::shared_ptr<const sensor_msgs::msg::PointCloud2> msg2(&points_in[1]->value);
-        info_print("Calling pointcloud_callback.");
+        info_print("Calling pointcloud_callback %d %d.", points_in[0]->value->width, points_in[1]->value->width);
         self->node->pointcloud_callback(
-            msg1,
-            msg2,
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-            NULL
+            points_in[0]->value,
+            points_in[1]->value,
+            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+            std::make_shared<const sensor_msgs::msg::PointCloud2>()
          );
-        SET(points_out, self->node->m_cloud_concatenated);
+        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_cloud_concatenated);
+        SET(points_out, msg);
+        info_print("%s", points_out->value->header.frame_id.c_str());
 	=}
 }
 

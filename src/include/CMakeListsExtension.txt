@@ -1,3 +1,5 @@
+set(CMAKE_BUILD_TYPE Debug)
+
 include($ENV{HOME}/workspace/XronOS/src/behavior_planner/include/CMakeListsExtension.txt)
 include($ENV{HOME}/workspace/XronOS/src/euclidean_cluster_detector/include/CMakeListsExtension.txt)
 include($ENV{HOME}/workspace/XronOS/src/filter_and_transform/include/CMakeListsExtension.txt)
@@ -8,7 +10,7 @@ include($ENV{HOME}/workspace/XronOS/src/lgsvl_interface/include/CMakeListsExtens
 include($ENV{HOME}/workspace/XronOS/src/mpc_controller/include/CMakeListsExtension.txt)
 include($ENV{HOME}/workspace/XronOS/src/ndt_map_publisher/include/CMakeListsExtension.txt)
 include($ENV{HOME}/workspace/XronOS/src/object_collision_estimator/include/CMakeListsExtension.txt)
-include($ENV{HOME}/workspace/XronOS/src/off_map_obstacles_filter/include/CMakeListsExtension.txt)
+# include($ENV{HOME}/workspace/XronOS/src/off_map_obstacles_filter/include/CMakeListsExtension.txt)
 include($ENV{HOME}/workspace/XronOS/src/p2d_ndt_localizer/include/CMakeListsExtension.txt)
 include($ENV{HOME}/workspace/XronOS/src/parking_planner/include/CMakeListsExtension.txt)
 include($ENV{HOME}/workspace/XronOS/src/point_cloud_fusion/include/CMakeListsExtension.txt)

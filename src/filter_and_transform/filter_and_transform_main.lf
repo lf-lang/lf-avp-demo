@@ -29,7 +29,7 @@ reactor filter_and_transform (
 ) {
     // Point in come from ROS
     timer points_in(0, 30 msec);
-    output points_out:sensor_msgs::msg::PointCloud2;
+    output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
 
     state count:int(0);
 
@@ -62,12 +62,13 @@ reactor filter_and_transform (
         // Process some events
         rclcpp::spin_some(self->node_shared_ptr);
         
-        info_print("%d", self->node->m_filtered_transformed_msg.width);
+        info_print("%s", self->node->m_filtered_transformed_msg.header.frame_id.c_str());
         
         // const auto filtered_transformed_msg = self->node->filter_and_transform(points_in->value);
         // Let the callback function in ROS process the pointcloud messages.
         // Instead of publishing, it will put the results in m_filtered_transformed_msg
-        SET(points_out, self->node->m_filtered_transformed_msg);
+        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_filtered_transformed_msg);
+        SET(points_out, msg);
     =}
 }
 

@@ -1,5 +1,7 @@
 unset(BUILD_TESTING)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
 
 find_package(autoware_auto_msgs REQUIRED)

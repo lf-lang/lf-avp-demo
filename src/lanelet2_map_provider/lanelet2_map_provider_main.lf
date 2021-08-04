@@ -22,8 +22,8 @@ preamble {=
 =}
 
 reactor lanelet2_map_provider {
-    input request:autoware_auto_msgs::srv::HADMapService_Request;
-    output map:autoware_auto_msgs::msg::HADMapBin;
+    input request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    output map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
     
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
@@ -43,9 +43,9 @@ reactor lanelet2_map_provider {
     
     reaction (request) -> map {=
         std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Response> response{};
-        std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request> rq(&request->value); // Converts the point in value to shared pointer
-        self->node->handle_request(rq, response);
-        SET(map, response->map);
+        self->node->handle_request(request->value, response);
+        auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
+        SET(map, msg);
     =}
 }
 
