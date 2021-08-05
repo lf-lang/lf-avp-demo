@@ -14,8 +14,8 @@ preamble {=
 =}
 
 reactor voxel_grid_downsampler {
-    input points_in:sensor_msgs::msg::PointCloud2;
-    output points_out:sensor_msgs::msg::PointCloud2;
+    input points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
+    output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
     
     state node:autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode*;
     
@@ -30,10 +30,9 @@ reactor voxel_grid_downsampler {
         
     reaction (points_in) -> points_out {=
           try {
-            self->node->m_voxelgrid_ptr->insert(points_in->value);
-            auto outgoing_point_cloud = self->node->m_voxelgrid_ptr->get();
+            self->node->m_voxelgrid_ptr->insert(*points_in->value);
             //outgoing_point_cloud.sequence_number = points_in->value.sequence_number;
-            SET(points_out, outgoing_point_cloud);
+            SET(points_out, self->node->m_voxelgrid_ptr);
           } catch (const std::exception & e) {
             std::string err_msg{self->node->get_name()};
             err_msg += ": " + std::string(e.what());

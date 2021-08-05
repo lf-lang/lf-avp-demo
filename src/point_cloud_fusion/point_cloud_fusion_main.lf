@@ -46,7 +46,7 @@ reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
          );
         auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_cloud_concatenated);
         SET(points_out, msg);
-        info_print("%s", points_out->value->header.frame_id.c_str());
+        info_print("Output width = ", points_out->value->width);
 	=}
 }
 

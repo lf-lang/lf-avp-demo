@@ -1,10 +1,10 @@
 target C {
-    cmake-include: "include/CMakeListsExtension.txt",
     files: ["../../src/include/utils.hpp"],
     flags: ["-g"],
     compiler: "g++",
     timeout: 1 sec,
-    threads: 4
+    threads: 4,
+    coordination: decentralized
 };
 
 import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
@@ -17,22 +17,22 @@ import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_
 
 
 
-federated reactor {    
+federated reactor {
     fat = new[2] filter_and_transform();
     pcf = new point_cloud_fusion(in_width = 2);
     rgc = new ray_ground_classifier();
     ecd = new euclidean_cluster_detector();
     omof = new off_map_obstacles_filter();
-//    oce = new object_collision_estimator();
-//    
-//    map_provider = new lanelet2_map_provider();
+    oce = new object_collision_estimator();
+    
+    map_provider = new lanelet2_map_provider();
     
     fat.points_out -> pcf.points_in serialized "ros2";
     pcf.points_out -> rgc.points_in serialized "ros2";
     rgc.points_non_ground -> ecd.points_in serialized "ros2";
     ecd.bounding_boxes -> omof.original_bounding_boxes serialized "ros2";
-//    omof.request -> map_provider.request serialized "ros2";
-//    map_provider.map -> omof.map serialized "ros2";
-//    omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serialized "ros2";
+    omof.request -> map_provider.request serialized "ros2";
+    map_provider.map -> omof.map serialized "ros2";
+    omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serialized "ros2";
     
 }

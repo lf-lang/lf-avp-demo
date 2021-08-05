@@ -23,7 +23,7 @@ preamble {=
 =}
 
 reactor ndt_map_publisher {
-    output points_out:sensor_msgs::msg::PointCloud2;
+    output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
 	
 	state node:autoware::localization::ndt_nodes::NDTMapPublisherNode*;
     state node_shared_ptr:std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>;
@@ -37,7 +37,8 @@ reactor ndt_map_publisher {
         self->node = new autoware::localization::ndt_nodes::NDTMapPublisherNode(node_options);
         self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node);
         
-        SET(points_out, self->node->m_map_pc);
+        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_map_pc);
+        SET(points_out, msg);
         // Make sure the tf and rviz2 visualization stuff have gone out
         rclcpp::spin_some(self->node_shared_ptr);
     =}

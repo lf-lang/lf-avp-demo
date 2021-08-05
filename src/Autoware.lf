@@ -1,6 +1,4 @@
 target C {
-    cmake: true,
-    cmake-include: "include/CMakeListsExtension.txt",
     files: ["include/utils.hpp"],
     flags: ["-Wno-write-strings"],
     compiler: "g++"

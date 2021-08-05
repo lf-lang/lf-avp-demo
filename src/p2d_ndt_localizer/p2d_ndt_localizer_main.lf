@@ -22,8 +22,8 @@ preamble {=
 =}
 
 reactor p2d_ndt_localizer {
-    input ndt_map_points_in:sensor_msgs::msg::PointCloud2;
-    input fused_downsampled_points_in:sensor_msgs::msg::PointCloud2;
+    input ndt_map_points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
+    input fused_downsampled_points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
 	
 	state node:autoware::localization::ndt_nodes::P2DNDTLocalizerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>;
@@ -43,8 +43,7 @@ reactor p2d_ndt_localizer {
     
     reaction (ndt_map_points_in) {=
         // Converts the point in value to shared pointer
-        std::shared_ptr<const sensor_msgs::msg::PointCloud2> ndt_map(&ndt_map_points_in->value);
-        self->node->map_callback(ndt_map);
+        self->node->map_callback(ndt_map_points_in->value);
         
         rclcpp::spin_some(self->node_shared_ptr);
         
@@ -58,8 +57,7 @@ reactor p2d_ndt_localizer {
 	reaction (fused_downsampled_points_in) {=        
         rclcpp::spin_some(self->node_shared_ptr);
         
-        std::shared_ptr<const sensor_msgs::msg::PointCloud2> fused_downsampled(&fused_downsampled_points_in->value);
-        self->node->observation_callback(fused_downsampled);   
+        self->node->observation_callback(fused_downsampled_points_in->value);   
              
         rclcpp::spin_some(self->node_shared_ptr);
     =}

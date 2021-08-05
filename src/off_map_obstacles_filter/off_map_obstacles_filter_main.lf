@@ -47,6 +47,11 @@ reactor off_map_obstacles_filter {
   		autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
  		self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
        
+    =} STP (10 msec) {=
+        error_print("Received the map late");
+        auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
+        autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
+        self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
     =}
     
     reaction (original_bounding_boxes) -> modified_bounding_boxes {=

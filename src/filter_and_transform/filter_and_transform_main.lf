@@ -62,7 +62,7 @@ reactor filter_and_transform (
         // Process some events
         rclcpp::spin_some(self->node_shared_ptr);
         
-        info_print("%s", self->node->m_filtered_transformed_msg.header.frame_id.c_str());
+        info_print("Input width = %d", self->node->m_filtered_transformed_msg.width);
         
         // const auto filtered_transformed_msg = self->node->filter_and_transform(points_in->value);
         // Let the callback function in ROS process the pointcloud messages.
