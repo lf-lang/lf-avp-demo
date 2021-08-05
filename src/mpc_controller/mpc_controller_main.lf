@@ -21,10 +21,10 @@ preamble {=
 =}
 
 reactor mpc_controller {
-    input trajectory:autoware_auto_msgs::msg::Trajectory;
-    input vehicle:autoware_auto_msgs::msg::VehicleKinematicState;
+    input trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+    input vehicle:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
     
-    output command:autoware_auto_msgs::msg::VehicleControlCommand;
+    output command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
     
 //    state count:int(0);
 //    
@@ -59,15 +59,15 @@ reactor mpc_controller {
         self->node->cmd_is_set = false;
         if (trajectory->is_present) {
             try {
-        		self->node->m_controller->set_trajectory(trajectory->value);
+        		self->node->m_controller->set_trajectory(*trajectory->value);
       		} catch (...) {
         		self->node->on_bad_trajectory(std::current_exception());
       		}
   		}
 
         if (vehicle->is_present) {
-            if (!self->node->try_compute(vehicle->value)) {
-                self->node->m_uncomputed_states.push_back(vehicle->value);
+            if (!self->node->try_compute(*vehicle->value)) {
+                self->node->m_uncomputed_states.push_back(*vehicle->value);
             }
         } else if (trajectory->is_present) { // no need for the "if". Just making things more explicit.
             // Only retry computation if new trajectory was successfully set
@@ -75,7 +75,8 @@ reactor mpc_controller {
         }
         
         if (self->node->cmd_is_set) {
-            SET(command, self->node->cmd);
+            auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
+            SET(command, msg);
             self->node->cmd_is_set = false;
         }
  	=}

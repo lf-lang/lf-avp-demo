@@ -1,7 +1,8 @@
 target C {
     files: ["include/utils.hpp"],
     flags: ["-Wno-write-strings"],
-    compiler: "g++"
+    compiler: "g++",
+    coordination: decentralized
 };
 
 import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";

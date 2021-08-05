@@ -25,11 +25,11 @@ preamble {=
 =}
 
 reactor parking_planner {
-    input route:autoware_auto_msgs::msg::Route;
-    input map:autoware_auto_msgs::msg::HADMapBin;
+    input route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
+    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
 
-    output request:autoware_auto_msgs::srv::HADMapService_Request;
-    output trajectory:autoware_auto_msgs::msg::Trajectory;
+    output request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    output trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
 	
     state route_msg:autoware_auto_msgs::msg::Route;
     state node:autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode*;
@@ -45,25 +45,25 @@ reactor parking_planner {
     =}
 
     reaction (route) -> request {=
-        self->route_msg = route->value;
-        autoware_auto_msgs::srv::HADMapService_Request request_msg =
-        	self->node->create_map_request(self->route_msg);
+        self->route_msg = *route->value;
+        auto request_msg = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>(
+        	self->node->create_map_request(self->route_msg));
         	
         SET(request, request_msg);
 	=}
 
     reaction (map) -> trajectory {=
 	    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-	    autoware::common::had_map_utils::fromBinaryMsg(map->value, lanelet_map_ptr);
+	    autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
 
-        const auto & trajectory_msg =
-            self->node->plan_trajectory(self->route_msg, lanelet_map_ptr);
+        auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
+            self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
         
         // This node publishes some stuff to rviz2, so we need to spin for them to work
         rclcpp::spin_some(self->node_shared_ptr);
         
         // Only publish the trajectory if it is valid        
-        if (self->node->is_trajectory_valid(trajectory_msg)) {
+        if (self->node->is_trajectory_valid(*trajectory_msg)) {
             SET(trajectory, trajectory_msg);
         }
 	=}

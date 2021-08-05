@@ -1,14 +1,12 @@
 target C {
-    cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
+    files: ["../include/utils.hpp"],
     threads: 1,
     flags: ["-Wno-write-strings"],
     compiler: "g++"
 };
 
 preamble {=
-    #include "sensor_msgs/msg/point_cloud2.hpp"
     #include "voxel_cloud_node.hpp"
     #include "utils.hpp"
 =}
@@ -32,7 +30,8 @@ reactor voxel_grid_downsampler {
           try {
             self->node->m_voxelgrid_ptr->insert(*points_in->value);
             //outgoing_point_cloud.sequence_number = points_in->value.sequence_number;
-            SET(points_out, self->node->m_voxelgrid_ptr);
+            auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_voxelgrid_ptr->get());
+            SET(points_out, msg);
           } catch (const std::exception & e) {
             std::string err_msg{self->node->get_name()};
             err_msg += ": " + std::string(e.what());

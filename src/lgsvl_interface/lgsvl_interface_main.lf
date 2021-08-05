@@ -28,10 +28,10 @@ reactor lgsvl_interface {
     // Comes from the LGSVL interface
     timer can_bus(0, 33 msec);
     
-    input state_command:autoware_auto_msgs::msg::VehicleStateCommand;
-    input vehicle_command:autoware_auto_msgs::msg::VehicleControlCommand;
-    output state_report:autoware_auto_msgs::msg::VehicleStateReport;
-    output vehicle_kinematic_state:autoware_auto_msgs::msg::VehicleKinematicState;
+    input state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
+    input vehicle_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
+    output state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
+    output vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
 
     state node:lgsvl_interface::LgsvlInterfaceNode*;
     state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
@@ -69,7 +69,7 @@ reactor lgsvl_interface {
         // If the vehicle kinematic state is not null
         if (self->node->m_interface->m_vse_t) {
             info_print("Acceleration: %f", (*self->node->m_interface->m_vse_t).state.acceleration_mps2);
-            SET(vehicle_kinematic_state, *self->node->m_interface->m_vse_t.get());
+            SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
         }
     =}
     
@@ -82,7 +82,8 @@ reactor lgsvl_interface {
         
         info_print("Gear: %d", self->node->m_interface->get_state_report().gear);
         
-        SET(state_report, self->node->m_interface->get_state_report());
+        auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(self->node->m_interface->get_state_report());
+        SET(state_report, msg);
         
         // Update
         if (self->node->m_state_machine) {
@@ -94,14 +95,14 @@ reactor lgsvl_interface {
     
     // To the simulator
     reaction (state_command) {=
-        self->node->m_last_state_command = state_command->value;
+        self->node->m_last_state_command = *state_command->value;
         
         rclcpp::spin_some(self->node_shared_ptr);
     =}
     
     // To the simulator
     reaction (vehicle_command) {=
-        self->node->on_command_message(vehicle_command->value);
+        self->node->on_command_message(*vehicle_command->value);
         
         rclcpp::spin_some(self->node_shared_ptr);
     =}
