@@ -1,0 +1,5 @@
+unset(BUILD_TESTING)
+
+find_package(robot_state_publisher REQUIRED)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} robot_state_publisher)
