@@ -10,7 +10,7 @@
 target C {
     cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"], 
+    files: ["../include/utils.hpp"], 
     threads: 5,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
@@ -42,7 +42,7 @@ reactor lanelet2_map_provider {
 
     
     reaction (request) -> map {=
-        std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Response> response{};
+        auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
         self->node->handle_request(request->value, response);
         auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
         SET(map, msg);

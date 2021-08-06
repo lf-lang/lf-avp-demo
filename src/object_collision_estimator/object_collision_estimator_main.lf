@@ -34,6 +34,8 @@ reactor object_collision_estimator {
     
     reaction (filtered_lidar_boxes) {=
         self->node->on_bounding_box(filtered_lidar_boxes->value);
+        
+        info_print("Updated obstacles.");
 	=}
 	
 	reaction(original_trajectory) -> modified_trajectory {=
@@ -45,6 +47,7 @@ reactor object_collision_estimator {
         // ROS stuff to make rviz2 show pretty boxes:
         // publish trajectory bounding box for visualization
         auto trajectory_bbox = self->node->m_estimator->getTrajectoryBoundingBox();
+        info_print("Bounding boxes for obstacles = %d", trajectory_bbox.boxes.size());
         trajectory_bbox.header = modified_trajectory->value->header;
         auto marker = motion::planning::object_collision_estimator_nodes::toVisualizationMarkerArray(trajectory_bbox, modified_trajectory->value->points.size());
         self->node->m_trajectory_bbox_pub->publish(marker);

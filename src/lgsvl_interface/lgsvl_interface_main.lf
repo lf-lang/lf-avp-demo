@@ -8,9 +8,8 @@
  */
 
 target C {
-    cmake: true,
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"], 
+    files: ["../include/utils.hpp"], 
     threads: 1,
     flags: ["-Wno-write-strings", "-g"],
     compiler: "g++"
@@ -24,9 +23,9 @@ preamble {=
 
 reactor lgsvl_interface {
     // Comes from the LGSVL interface
-    timer gps_odom(0, 33 msec);    
+    timer gps_odom(33 msec, 33 msec);    
     // Comes from the LGSVL interface
-    timer can_bus(0, 33 msec);
+    timer can_bus(33 msec, 33 msec);
     
     input state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
     input vehicle_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
@@ -62,13 +61,15 @@ reactor lgsvl_interface {
         
         self->node = new lgsvl_interface::LgsvlInterfaceNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
+        rclcpp::spin_some(self->node_shared_ptr);       
+    
     =}
     
     reaction (gps_odom) -> vehicle_kinematic_state {=
         rclcpp::spin_some(self->node_shared_ptr);
         // If the vehicle kinematic state is not null
         if (self->node->m_interface->m_vse_t) {
-            info_print("Acceleration: %f", (*self->node->m_interface->m_vse_t).state.acceleration_mps2);
+            // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
             SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
         }
     =}
@@ -80,7 +81,7 @@ reactor lgsvl_interface {
             self->node->on_read_timeout();
         }
         
-        info_print("Gear: %d", self->node->m_interface->get_state_report().gear);
+        // info_print("Gear: %d", self->node->m_interface->get_state_report().gear);
         
         auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(self->node->m_interface->get_state_report());
         SET(state_report, msg);

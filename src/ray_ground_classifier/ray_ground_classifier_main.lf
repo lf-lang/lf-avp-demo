@@ -49,16 +49,15 @@ reactor ray_ground_classifier {
     =}
     
     reaction (points_in) -> points_non_ground {=
-        info_print("Invoking callback");
-        info_print("Non-ground input width: %d", points_in->value->width);
+        // info_print("Non-ground input width: %d", points_in->value->width);
         self->node_shared_ptr->callback(points_in->value);    
         
         if (self->node_shared_ptr->m_has_failed) {
             warning_print("Ground classification failed.");
             return;
         }
-        info_print("Non-ground width: %d", self->node_shared_ptr->m_nonground_msg.width);
-        info_print("Ground width: %d", self->node_shared_ptr->m_ground_msg.width);
+        // info_print("Non-ground width: %d", self->node_shared_ptr->m_nonground_msg.width);
+        // info_print("Ground width: %d", self->node_shared_ptr->m_ground_msg.width);
         auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node_shared_ptr->m_nonground_msg);
         SET(points_non_ground, msg);
 	=}

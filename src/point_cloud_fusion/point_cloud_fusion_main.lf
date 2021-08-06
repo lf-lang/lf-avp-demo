@@ -19,7 +19,7 @@ reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
 	
 	state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode*;
 	
-	reaction (startup) points_in {=
+	reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             "/home/lfros/Projects/XronOS/src/point_cloud_fusion/include/vlp16_sim_lexus_pc_fusion.param.yaml", 
             "/**"
@@ -33,7 +33,7 @@ reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
             error_print("Expected both point clouds.");
             return;
         }
-        info_print("Calling pointcloud_callback %d %d.", points_in[0]->value->width, points_in[1]->value->width);
+        // info_print("Calling pointcloud_callback %d %d.", points_in[0]->value->width, points_in[1]->value->width);
         self->node->pointcloud_callback(
             points_in[0]->value,
             points_in[1]->value,
@@ -46,7 +46,7 @@ reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
          );
         auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_cloud_concatenated);
         SET(points_out, msg);
-        info_print("Output width = ", points_out->value->width);
+        // info_print("Output width = %d", points_out->value->width);
 	=}
 }
 

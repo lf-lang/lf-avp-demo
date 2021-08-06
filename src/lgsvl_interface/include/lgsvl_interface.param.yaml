@@ -15,7 +15,7 @@
       steer:
         domain: [-0.331, 0.331]
         range: [-100.0, 100.0]
-      publish_tf: False
+      publish_tf: True
       odom_child_frame: "base_link"
     state_machine:
       gear_shift_velocity_threshold_mps: 0.5

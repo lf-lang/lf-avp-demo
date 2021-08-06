@@ -31,6 +31,7 @@ reactor voxel_grid_downsampler {
             self->node->m_voxelgrid_ptr->insert(*points_in->value);
             //outgoing_point_cloud.sequence_number = points_in->value.sequence_number;
             auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_voxelgrid_ptr->get());
+            // info_print("Downsampled pointcloud size: %d", msg->width);
             SET(points_out, msg);
           } catch (const std::exception & e) {
             std::string err_msg{self->node->get_name()};

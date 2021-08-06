@@ -28,10 +28,17 @@ reactor euclidean_cluster_detector {
         );
         
         self->node = new autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode(nodeOptions);
+        
+        // info_print("Max clusters = %d", self->node->m_clusters.clusters.capacity());
     =}
     
     reaction (points_in) -> bounding_boxes {=
+        info_print("Got points");
         self->node->handle(points_in->value);
+        info_print("Handled points");
+        
+        
+        info_print("Boxes = %d", self->node->m_boxes.boxes.size());
       
         auto msg = std::make_shared<autoware_auto_msgs::msg::BoundingBoxArray>(self->node->m_boxes);
         SET(bounding_boxes, msg);

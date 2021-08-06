@@ -23,6 +23,7 @@ import global_planner from "global_planner/global_planner_main.lf";
 import object_collision_estimator from "object_collision_estimator/object_collision_estimator_main.lf";
 import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
 import mpc_controller from "mpc_controller/mpc_controller_main.lf";
+import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf";
 
 federated reactor Autoware {
     fat = new[2] filter_and_transform();
@@ -43,6 +44,7 @@ federated reactor Autoware {
     oce = new object_collision_estimator();
     li = new lgsvl_interface();
     mc = new mpc_controller();
+    rsp = new robot_state_publisher();
 
     
     map_provider = new[5] lanelet2_map_provider();

@@ -39,6 +39,9 @@ reactor p2d_ndt_localizer {
         self->node = new autoware::localization::ndt_nodes::P2DNDTLocalizerNode(
         	"lfros2_ndt_localizer", node_options, autoware::localization::ndt_nodes::PoseInitializer_{});
         self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>(self->node);
+        
+        rclcpp::spin_some(self->node_shared_ptr);
+        
     =}
     
     reaction (ndt_map_points_in) {=

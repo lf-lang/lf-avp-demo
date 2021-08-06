@@ -13,7 +13,7 @@ preamble {=
     #include "utils.hpp"
 =}
 
-reactor off_map_obstacles_filter {
+reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
     
     input original_bounding_boxes:std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>;
     input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
@@ -38,16 +38,21 @@ reactor off_map_obstacles_filter {
 		auto requestPtr = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
   		requestPtr->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
   		SET(request, requestPtr);
+  		
+  		info_print("Requesting map.");
 
     =}
 
 
 	reaction (map) {=
+        info_print("Got the map.");
         auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
   		autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
  		self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
-       
-    =} STP (10 msec) {=
+        self->wait_for_map = 0;
+    =} STP (wait_for_map) {=
+        // Don't need to wait for the map anymore.
+        self->wait_for_map = 0;
         error_print("Received the map late");
         auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
         autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
@@ -58,7 +63,9 @@ reactor off_map_obstacles_filter {
         // Try to get tf data
         rclcpp::spin_some(self->node_shared_ptr);
         
-        self->node->process_bounding_boxes(original_bounding_boxes->value);    
+        self->node->process_bounding_boxes(original_bounding_boxes->value);
+        
+        info_print("Filtered boxes = %d", original_bounding_boxes->value->boxes.size());
         
         SET(modified_bounding_boxes, original_bounding_boxes->value);
 

@@ -43,7 +43,7 @@ reactor ndt_map_publisher {
         rclcpp::spin_some(self->node_shared_ptr);
     =}
     
-    timer ros_spin(0, 1 sec);
+    timer ros_spin(0, 10 msec);
     reaction (ros_spin) {=
         // Make sure the tf and rviz2 visualization stuff have gone out
         rclcpp::spin_some(self->node_shared_ptr);

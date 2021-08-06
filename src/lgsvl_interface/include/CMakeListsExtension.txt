@@ -1,20 +1,9 @@
 unset(BUILD_TESTING)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
 
-find_package(autoware_auto_common REQUIRED)
-find_package(autoware_auto_geometry REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(motion_common REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(tf2_msgs REQUIRED)
-find_package(tf2_ros REQUIRED)
-find_package(vehicle_interface REQUIRED)
-
-find_package(autoware_auto_msgs REQUIRED)
-find_package(lgsvl_msgs REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
 find_package(lgsvl_interface REQUIRED)
 
 include_directories(${AUTOWARE_HOME}/src/drivers/lgsvl_interface/include/lgsvl_interface)
