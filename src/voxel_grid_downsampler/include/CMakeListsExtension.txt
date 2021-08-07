@@ -1,13 +1,12 @@
 unset(BUILD_TESTING)
 
-set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+set(AUTOWARE_HOME /home/$ENV{USER}/workspace/Autoware)
 
 find_package(lidar_utils REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(voxel_grid REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(point_cloud_msg_wrapper REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
@@ -15,4 +14,4 @@ find_package(voxel_grid_nodes REQUIRED)
 
 include_directories(${AUTOWARE_HOME}/src/perception/filters/voxel_grid_nodes/include/voxel_grid_nodes)
 
-ament_target_dependencies( ${LF_MAIN_TARGET} std_msgs sensor_msgs voxel_grid_nodes)
+ament_target_dependencies( ${LF_MAIN_TARGET} voxel_grid_nodes)

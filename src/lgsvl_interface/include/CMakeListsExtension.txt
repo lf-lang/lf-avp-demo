@@ -2,7 +2,7 @@ unset(BUILD_TESTING)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+set(AUTOWARE_HOME /home/$ENV{USER}/workspace/Autoware)
 
 find_package(lgsvl_interface REQUIRED)
 

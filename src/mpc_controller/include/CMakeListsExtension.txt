@@ -1,6 +1,6 @@
 unset(BUILD_TESTING)
 
-set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+set(AUTOWARE_HOME /home/$ENV{USER}/workspace/Autoware)
 
 find_package(mpc_controller_nodes REQUIRED)
 

@@ -3,11 +3,12 @@
  * reflect your top-level AutowareAuto folder. You can do this by changing
  * the follwoing line:
  *
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+ *     set(AUTOWARE_HOME /home/$ENV{USER}/Autoware)
  *
  */
 target C {
     cmake: true,
+
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["include/package.xml", "../include/utils.hpp"], 
     threads: 1,
