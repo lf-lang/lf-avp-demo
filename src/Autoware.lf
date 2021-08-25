@@ -49,37 +49,37 @@ federated reactor Autoware {
     
     map_provider = new[5] lanelet2_map_provider();
     
-	fat.points_out -> pcf.points_in serialized "ros2";
-	pcf.points_out -> bgd.points_in serialized "ros2";
-	pcf.points_out -> rgc.points_in serialized "ros2";
-	rgc.points_non_ground -> ecd.points_in serialized "ros2";
-	ecd.bounding_boxes -> omof.original_bounding_boxes serialized "ros2";
-	omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serialized "ros2";
-	nmp.points_out -> pnl.ndt_map_points_in serialized "ros2";
-	bgd.points_out -> pnl.fused_downsampled_points_in serialized "ros2";
+	fat.points_out -> pcf.points_in serializer "ros2";
+	pcf.points_out -> bgd.points_in serializer "ros2";
+	pcf.points_out -> rgc.points_in serializer "ros2";
+	rgc.points_non_ground -> ecd.points_in serializer "ros2";
+	ecd.bounding_boxes -> omof.original_bounding_boxes serializer "ros2";
+	omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serializer "ros2";
+	nmp.points_out -> pnl.ndt_map_points_in serializer "ros2";
+	bgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2";
 	
-	bp.map_request, lp.request, pp.request, gp.map_request, omof.request -> map_provider.request serialized "ros2";
-	map_provider.map -> bp.map, lp.map, pp.map, gp.map, omof.map serialized "ros2";
+	bp.map_request, lp.request, pp.request, gp.map_request, omof.request -> map_provider.request serializer "ros2";
+	map_provider.map -> bp.map, lp.map, pp.map, gp.map, omof.map serializer "ros2";
 	
-	li.vehicle_kinematic_state -> bp.vehicle_kinematic_state serialized "ros2";
-	li.state_report -> bp.vehicle_state_report serialized "ros2";
-	li.vehicle_kinematic_state -> mc.vehicle serialized "ros2";
-	li.vehicle_kinematic_state -> gp.vehicle_kinematic_state serialized "ros2";
+	li.vehicle_kinematic_state -> bp.vehicle_kinematic_state serializer "ros2";
+	li.state_report -> bp.vehicle_state_report serializer "ros2";
+	li.vehicle_kinematic_state -> mc.vehicle serializer "ros2";
+	li.vehicle_kinematic_state -> gp.vehicle_kinematic_state serializer "ros2";
 	
-	bp.parking_route -> pp.route serialized "ros2";
-	bp.lane_route -> lp.route serialized "ros2";
+	bp.parking_route -> pp.route serializer "ros2";
+	bp.lane_route -> lp.route serializer "ros2";
 	
-	bp.vehicle_state_command -> li.state_command serialized "ros2";
-	bp.control_trajectory -> mc.trajectory serialized "ros2";
+	bp.vehicle_state_command -> li.state_command serializer "ros2";
+	bp.control_trajectory -> mc.trajectory serializer "ros2";
 	
-	lp.trajectory -> bp.lane_trajectory serialized "ros2";
-	pp.trajectory -> bp.parking_trajectory serialized "ros2";
+	lp.trajectory -> bp.lane_trajectory serializer "ros2";
+	pp.trajectory -> bp.parking_trajectory serializer "ros2";
 	
-	bp.original_trajectory -> oce.original_trajectory serialized "ros2";
-	oce.modified_trajectory -> bp.modified_trajectory serialized "ros2";
+	bp.original_trajectory -> oce.original_trajectory serializer "ros2";
+	oce.modified_trajectory -> bp.modified_trajectory serializer "ros2";
 
-    gp.global_path -> bp.global_path serialized "ros2";
+    gp.global_path -> bp.global_path serializer "ros2";
     
-    mc.command -> li.vehicle_command serialized "ros2";
+    mc.command -> li.vehicle_command serializer "ros2";
 	
 }

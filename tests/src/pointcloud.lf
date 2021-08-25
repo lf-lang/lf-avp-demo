@@ -14,5 +14,5 @@ federated reactor {
     fat = new[2] filter_and_transform();
     pcf = new point_cloud_fusion(in_width = 2);
     
-    fat.points_out -> pcf.points_in serialized "ros2";
+    fat.points_out -> pcf.points_in serializer "ros2";
 }

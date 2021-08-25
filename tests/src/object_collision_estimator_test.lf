@@ -37,15 +37,15 @@ federated reactor {
     mc = new mpc_controller();
     rsp = new robot_state_publisher();
     
-    fat.points_out -> pcf.points_in serialized "ros2";
-    pcf.points_out -> vgd.points_in serialized "ros2";
-    vgd.points_out -> pnl.fused_downsampled_points_in serialized "ros2";
-    nmp.points_out -> pnl.ndt_map_points_in serialized "ros2";
-    pcf.points_out -> rgc.points_in serialized "ros2";
-    rgc.points_non_ground -> ecd.points_in serialized "ros2";
-    ecd.bounding_boxes -> omof.original_bounding_boxes serialized "ros2";
-    omof.request -> map_provider.request serialized "ros2";
-    map_provider.map -> omof.map serialized "ros2";
-    omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serialized "ros2";
+    fat.points_out -> pcf.points_in serializer "ros2";
+    pcf.points_out -> vgd.points_in serializer "ros2";
+    vgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2";
+    nmp.points_out -> pnl.ndt_map_points_in serializer "ros2";
+    pcf.points_out -> rgc.points_in serializer "ros2";
+    rgc.points_non_ground -> ecd.points_in serializer "ros2";
+    ecd.bounding_boxes -> omof.original_bounding_boxes serializer "ros2";
+    omof.request -> map_provider.request serializer "ros2";
+    map_provider.map -> omof.map serializer "ros2";
+    omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serializer "ros2";
     
 }
