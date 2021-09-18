@@ -7,13 +7,10 @@
  * 
  */
 
-target C {
-    cmake: true,
+target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["include/package.xml", "../include/utils.hpp"], 
-    threads: 1,
-    flags: ["-Wno-write-strings", "-g"],
-    compiler: "g++"
+    threads: 1
 };
 
 # preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble

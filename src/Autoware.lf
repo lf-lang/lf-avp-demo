@@ -1,8 +1,6 @@
-target C {
+target CCpp {
     files: ["include/utils.hpp"],
-    flags: ["-Wno-write-strings"],
-    compiler: "g++",
-    coordination: decentralized
+    flags: ["-Wno-write-strings"]
 };
 
 import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";

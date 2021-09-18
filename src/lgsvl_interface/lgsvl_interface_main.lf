@@ -7,12 +7,10 @@
  * 
  */
 
-target C {
+target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["../include/utils.hpp"], 
-    threads: 1,
-    flags: ["-Wno-write-strings", "-g"],
-    compiler: "g++"
+    threads: 1
 };
 
 preamble {=

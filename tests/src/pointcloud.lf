@@ -1,8 +1,7 @@
-target C {
+target CCpp {
     cmake-include: "../../src/include/CMakeListsExtension.txt",
     files: ["../../src/include/utils.hpp"],
     flags: ["-g"],
-    compiler: "g++",
     coordination: decentralized
 };
 
