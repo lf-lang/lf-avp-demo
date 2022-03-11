@@ -8,8 +8,8 @@
  */
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"], 
-    threads: 1
+    files: ["../include/utils.hpp", "../include/constants.hpp"], 
+    threading: true
 };
 
 # preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
@@ -17,6 +17,10 @@ target CCpp {
 preamble {=
     #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
+    #include "constants.hpp"
+    #include <cstdlib>
+    #include <string>
+    static std::string yaml_path = get_autoware_home() + "/" + PATH_TO_PARAMS + "/" + PC_FILTER_TRANSFORM_PARAM;
 =}
 
 reactor filter_and_transform (
@@ -27,24 +31,17 @@ reactor filter_and_transform (
     // Point in come from ROS
     timer points_in(4 sec, 100 msec);
     output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-
     state count:int(0);
-
-    /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
-
     state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
     state node_shared_ptr:std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>;
 
     reaction (startup) {=
-        
-        char program_name[200];
-        char topic_cmd[200];
+        char program_name[200], topic_cmd[200];
         sprintf(program_name, "lf_filter_and_transform_%d", self->bank_index);
         sprintf(topic_cmd, "points_in:=%s", self->lidar_topic_names[self->bank_index]);
         char *argv[] = {program_name, "--ros-args", "--remap", topic_cmd, "--", NULL};
-        
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/lfros/workspace/XronOS/src/filter_and_transform/include/pc_filter_transform.param.yaml",
+            yaml_path.c_str(),
             self->config_namespaces[self->bank_index],
             5,
             argv
@@ -61,7 +58,6 @@ reactor filter_and_transform (
         rclcpp::spin_some(self->node_shared_ptr);
         
         // info_print("Input width = %d", self->node->m_filtered_transformed_msg.width);
-        
         // const auto filtered_transformed_msg = self->node->filter_and_transform(points_in->value);
         // Let the callback function in ROS process the pointcloud messages.
         // Instead of publishing, it will put the results in m_filtered_transformed_msg
