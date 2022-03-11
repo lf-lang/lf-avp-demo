@@ -20,7 +20,7 @@ preamble {=
     #include "constants.hpp"
     #include <cstdlib>
     #include <string>
-    static std::string yaml_path = get_autoware_home() + "/" + PATH_TO_PARAMS + "/" + PC_FILTER_TRANSFORM_PARAM;
+    static std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + PC_FILTER_TRANSFORM_PARAM;
 =}
 
 reactor filter_and_transform (

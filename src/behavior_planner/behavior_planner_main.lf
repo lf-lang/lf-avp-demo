@@ -9,7 +9,7 @@
 
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
+    files: ["../include/utils.hpp", "../include/constants.hpp"],
     threads: 1
 };
 
@@ -23,6 +23,8 @@ preamble {=
     #include "behavior_planner.hpp"
     #include "behavior_planner_node.hpp"
     #include "utils.hpp"
+    #include "constants.hpp"
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
 =}
 
 reactor behavior_planner {
@@ -72,7 +74,7 @@ reactor behavior_planner {
         
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/behavior_planner.param.yaml",
+            yaml_path.c_str(),
             "/**"
         );
         

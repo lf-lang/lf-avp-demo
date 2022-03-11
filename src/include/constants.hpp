@@ -4,9 +4,13 @@
 #include <string>
 
 // Paths within the AUTOWARE_HOME directory
-const std::string PATH_TO_PARAMS = "src/launch/autoware_auto_launch/param";
+const std::string LAUNCH_PARAM_PATH = "src/launch/autoware_auto_launch/param";
+const std::string AVP_DEMO_PARAM_PATH = "src/tools/autoware_auto_avp_demo/param";
 
-// File names
+// Launch parameters
 const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.param.yaml";
+
+// AVP Demo parameters
+const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";
 
 #endif // XRONOS_CONSTANTS_HPP
