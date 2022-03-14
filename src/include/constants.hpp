@@ -12,5 +12,6 @@ const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.para
 
 // AVP Demo parameters
 const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";
+const std::string EUCLIDEAN_CLUSTER_DETECTOR_PARAM = "euclidean_cluster.param.yaml";
 
 #endif // XRONOS_CONSTANTS_HPP

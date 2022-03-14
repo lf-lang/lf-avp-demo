@@ -3,7 +3,7 @@ unset(BUILD_TESTING)
 set(AUTOWARE_HOME /home/$ENV{USER}/workspace/Autoware)
 
 find_package(autoware_auto_geometry REQUIRED)
-find_package(autoware_auto_msgs REQUIRED)
+find_package(autoware_auto_perception_msgs REQUIRED)
 find_package(euclidean_cluster REQUIRED)
 find_package(lidar_utils REQUIRED)
 find_package(rclcpp REQUIRED)
