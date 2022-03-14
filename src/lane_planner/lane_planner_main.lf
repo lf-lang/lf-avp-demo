@@ -9,7 +9,7 @@
 
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
+    files: ["../include/constants.hpp", "../include/utils.hpp"],
     threads: 1
 };
 
@@ -19,6 +19,8 @@ preamble {=
     #include "had_map_utils/had_map_query.hpp"
     #include "lane_planner_node.hpp"
     #include "utils.hpp"
+    #include "constants.hpp"
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANE_PLANNER_PARAM;
 =}
 
 reactor lane_planner {
@@ -34,7 +36,7 @@ reactor lane_planner {
         
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lane_planner.param.yaml",
+            yaml_path.c_str(),
             "/**"
         );
         self->node = new autoware::lane_planner_nodes::LanePlannerNode(node_options);
