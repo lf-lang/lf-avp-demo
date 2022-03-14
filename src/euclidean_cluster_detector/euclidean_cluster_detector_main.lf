@@ -1,7 +1,7 @@
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threads: 1
+    threading: true
 };
 
 preamble {=
