@@ -46,4 +46,12 @@ std::string get_autoware_home() {
 	return std::string(autoware_home);
 }
 
+std::string get_xronos_home() {
+	const char* xronos_home = std::getenv("XRONOS_HOME");
+	if (!xronos_home) {
+		error_print_and_exit("ERROR: Environment variable $XRONOS_HOME is not declared.");
+	}
+	return std::string(xronos_home);
+}
+
 #endif // XRONOS_UTILS_HPP
