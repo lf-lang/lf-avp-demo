@@ -9,18 +9,20 @@
 
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"], 
-    threads: 5
+    files: ["../include/utils.hpp", "../include/constants.hpp"], 
+    threading: true
 };
 
 preamble {=
     #include "lanelet2_map_provider_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
+    #include "constants.hpp"
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANELET2_MAP_PROVIDER_PARAM;
 =}
 
 reactor lanelet2_map_provider {
-    input request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
-    output map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+    input request:std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Request>;
+    output map:std::shared_ptr<autoware_auto_mapping_msgs::msg::HADMapBin>;
     
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
@@ -28,20 +30,19 @@ reactor lanelet2_map_provider {
     
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/soroush/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/lanelet2_map_provider.param.yaml", 
+            yaml_path.c_str(), 
             "/**"
         );
         
         // This will lookup for a transform (tf2) over ROS from the ndt_map_publisher
         self->node = new autoware::lanelet2_map_provider::Lanelet2MapProviderNode(nodeOptions);
-
     =} 
 
     
     reaction (request) -> map {=
-        auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
+        auto response = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService_Response>();
         self->node->handle_request(request->value, response);
-        auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
+        auto msg = std::make_shared<autoware_auto_mapping_msgs::msg::HADMapBin>(response->map);
         SET(map, msg);
     =}
 }

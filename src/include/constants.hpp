@@ -5,7 +5,7 @@
 
 // Paths within the AUTOWARE_HOME directory
 const std::string LAUNCH_PARAM_PATH = "src/launch/autoware_auto_launch/param";
-const std::string AVP_DEMO_PARAM_PATH = "src/tools/autoware_auto_avp_demo/param";
+const std::string AVP_DEMO_PARAM_PATH = "src/launch/autoware_demos/param/avp";
 
 // Launch parameters
 const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.param.yaml";
@@ -14,5 +14,6 @@ const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.para
 const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";
 const std::string EUCLIDEAN_CLUSTER_DETECTOR_PARAM = "euclidean_cluster.param.yaml";
 const std::string LANE_PLANNER_PARAM = "lane_planner.param.yaml";
+const std::string LANELET2_MAP_PROVIDER_PARAM = "lanelet2_map_provider.param.yaml";
 
 #endif // XRONOS_CONSTANTS_HPP
