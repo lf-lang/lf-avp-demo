@@ -10,6 +10,7 @@ const std::string AVP_DEMO_PARAM_PATH = "src/launch/autoware_demos/param/avp";
 // Launch parameters
 const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.param.yaml";
 const std::string MPC_CONTROLLER_PARAM = "mpc_controller.param.yaml";
+const std::string NDT_MAP_PUBLISHER_PARAM = "map_publisher.param.yaml";
 
 // AVP Demo parameters
 const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";

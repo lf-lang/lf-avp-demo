@@ -9,14 +9,16 @@
 
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
-    threads: 1
+    files: ["../include/utils.hpp", "../include/constants.hpp"],
+    threading: true
 };
 
 preamble {=
     #include "sensor_msgs/msg/point_cloud2.hpp"
     #include "map_publisher.hpp"
     #include "utils.hpp"
+    #include "constants.hpp"
+    static std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + NDT_MAP_PUBLISHER_PARAM;
 =}
 
 reactor ndt_map_publisher {
@@ -24,11 +26,10 @@ reactor ndt_map_publisher {
 	
 	state node:autoware::localization::ndt_nodes::NDTMapPublisherNode*;
     state node_shared_ptr:std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>;
-        
+    
     reaction (startup) -> points_out {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/map_publisher.param.yaml",
-            // FIXME: Not sure if this root name is correct.
+            yaml_path.c_str(),
             "/**"
         );
         self->node = new autoware::localization::ndt_nodes::NDTMapPublisherNode(node_options);
