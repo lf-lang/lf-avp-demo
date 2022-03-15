@@ -17,9 +17,9 @@ preamble {=
     #include "lanelet2_core/LaneletMap.h"
     #include "had_map_utils/had_map_conversion.hpp"
     #include "had_map_utils/had_map_query.hpp"
-    #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
-    #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
-    #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
+    #include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
+    #include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
+    #include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
     #include "behavior_planner.hpp"
     #include "behavior_planner_node.hpp"
     #include "utils.hpp"
@@ -30,45 +30,45 @@ preamble {=
 reactor behavior_planner {
     //////// INPUTS /////////
     // Global path from global planner.
-    input global_path:std::shared_ptr<autoware_auto_msgs::msg::Route>;
+    input global_path:std::shared_ptr<autoware_auto_planning_msgs::msg::Route>;
     
     // Map returned from map provider.
-    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+    input map:std::shared_ptr<autoware_auto_mapping_msgs::msg::HADMapBin>;
     
     // Inputs from LGSVL interface.
-    input vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
-    input vehicle_state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
+    input vehicle_kinematic_state:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>;
+    input vehicle_state_report:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleStateReport>;
     
     // For responses from lane and parking planners.
-    input lane_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
-    input parking_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+    input lane_trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
+    input parking_trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
     
     // Modified trajectory from object collision estimator.
-    input modified_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+    input modified_trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
     
     //////// OUTPUTS ////////
     // For request to map provider.
-    output map_request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    output map_request:std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Request>;
     
     // For sending vehicle state command to LGSVL interface.
-    output vehicle_state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
+    output vehicle_state_command:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>;
     
     // For requests to lane and parking planners.
-    output lane_route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
-    output parking_route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
+    output lane_route:std::shared_ptr<autoware_auto_planning_msgs::msg::Route>;
+    output parking_route:std::shared_ptr<autoware_auto_planning_msgs::msg::Route>;
     
     // Original trajectory to be consulted with object collision estimator.
-    output original_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+    output original_trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
     
     // Trajectory to MPC controller.
-    output control_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+    output control_trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
 
     //////// STATES ////////
     state node:autoware::behavior_planner_nodes::BehaviorPlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>;
     
     
-    state global_path_route:autoware_auto_msgs::msg::Route;
+    state global_path_route:autoware_auto_planning_msgs::msg::Route;
     state previous_output_arrived_goal:std::chrono::time_point<std::chrono::system_clock>;
     state previous_output:std::chrono::time_point<std::chrono::system_clock>;
         
@@ -100,8 +100,8 @@ reactor behavior_planner {
             info_print("Route was rejected. Route cannot be update while the vehicle is moving");
         } else {
             self->node->m_route = global_path->value;
-            auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
-            request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
+            auto request = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService::Request>();
+            request->requested_primitives.push_back(autoware_auto_mapping_msgs::srv::HADMapService::Request::FULL_MAP);
             SET(map_request, request);
         }
     =}
@@ -160,7 +160,7 @@ reactor behavior_planner {
             // send next subroute
             self->node->m_planner->set_next_subroute();
             auto subroute = self->node->m_planner->get_current_subroute(self->node->m_ego_state);
-            auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(subroute.route);
+            auto msg = std::make_shared<autoware_auto_planning_msgs::msg::Route>(subroute.route);
               switch (subroute.planner_type) {
                 case autoware::behavior_planner::PlannerType::LANE:
                     SET(lane_route, msg);
@@ -177,7 +177,7 @@ reactor behavior_planner {
             // update trajectory for current subroute
             self->node->m_planner->set_next_subroute();
             auto subroute = self->node->m_planner->get_current_subroute(self->node->m_ego_state);
-            auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(subroute.route);
+            auto msg = std::make_shared<autoware_auto_planning_msgs::msg::Route>(subroute.route);
 
             switch (subroute.planner_type) {
                 case autoware::behavior_planner::PlannerType::LANE:
@@ -223,15 +223,15 @@ reactor behavior_planner {
             }
         
         
-            auto gear_command = std::make_shared<autoware_auto_msgs::msg::VehicleStateCommand>();
+            auto gear_command = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>();
             gear_command->gear = desired_gear;
-            gear_command->mode = autoware_auto_msgs::msg::VehicleStateCommand::MODE_AUTONOMOUS;
+            gear_command->mode = autoware_auto_vehicle_msgs::msg::VehicleStateCommand::MODE_AUTONOMOUS;
             gear_command->stamp = vehicle_kinematic_state->value->header.stamp;
             //gear_command.sequence_number = this->sequence_number;
             SET(vehicle_state_command, gear_command);
         
             // send trajectory with current state so that velocity will be zero in order to change gear
-            auto trajectory = std::make_shared<autoware_auto_msgs::msg::Trajectory>();
+            auto trajectory = std::make_shared<autoware_auto_planning_msgs::msg::Trajectory>();
             trajectory->header.frame_id = "map";
             trajectory->header.stamp = vehicle_kinematic_state->value->header.stamp;
             trajectory->points.push_back(vehicle_kinematic_state->value->state);
@@ -246,7 +246,7 @@ reactor behavior_planner {
         
             // If object collision estimation is enabled, send trajectory through the collision estimator
             // FIXMESB: trajectory can go through the object collision estimator
-            auto msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(trajectory);
+            auto msg = std::make_shared<autoware_auto_planning_msgs::msg::Trajectory>(trajectory);
             SET(original_trajectory, msg);
         }
     =} STP (30 msec) {=
