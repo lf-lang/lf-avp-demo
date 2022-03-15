@@ -9,13 +9,15 @@
 
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
-    threads: 1
+    files: ["../include/utils.hpp", "../include/constants.hpp"],
+    threading: true
 };
 
 preamble {=
     #include "ndt_localizer_nodes.hpp"
     #include "utils.hpp"
+    #include "constants.hpp"
+    std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
 =}
 
 reactor p2d_ndt_localizer {
@@ -27,7 +29,7 @@ reactor p2d_ndt_localizer {
         
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/ndt_localizer.param.yaml",
+            yaml_path.c_str(),
             "/**"
         );
         
