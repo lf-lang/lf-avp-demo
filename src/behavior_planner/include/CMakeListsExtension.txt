@@ -2,7 +2,9 @@ unset(BUILD_TESTING)
 
 set(AUTOWARE_HOME /home/$ENV{USER}/workspace/Autoware)
 
-find_package(autoware_auto_msgs REQUIRED)
+find_package(autoware_auto_vehicle_msgs REQUIRED)
+find_package(autoware_auto_planning_msgs REQUIRED)
+find_package(autoware_auto_mapping_msgs REQUIRED)
 find_package(ndt_nodes REQUIRED)
 find_package(ndt REQUIRED)
 find_package(had_map_utils REQUIRED)
@@ -17,7 +19,9 @@ find_package(behavior_planner REQUIRED)
 
 include_directories(${AUTOWARE_HOME}/src/common/time_utils/include)
 include_directories(${AUTOWARE_HOME}/src/control/motion_common/include)
-include_directories(${AUTOWARE_HOME}/src/external/autoware_auto_msgs)
+include_directories(${AUTOWARE_HOME}/src/external/autoware_auto_vehicle_msgs)
+include_directories(${AUTOWARE_HOME}/src/external/autoware_auto_planning_msgs)
+include_directories(${AUTOWARE_HOME}/src/external/autoware_auto_mapping_msgs)
 include_directories(${AUTOWARE_HOME}/src/planning/behavior_planner/include)
 include_directories(${AUTOWARE_HOME}/src/planning/behavior_planner/include/behavior_planner)
 include_directories(${AUTOWARE_HOME}/src/planning/behavior_planner_nodes/include)
@@ -25,4 +29,4 @@ include_directories(${AUTOWARE_HOME}/src/planning/behavior_planner_nodes/include
 include_directories(${AUTOWARE_HOME}/src/planning/trajectory_planner_node_base/include)
 include_directories(${AUTOWARE_HOME}/src/planning/trajectory_smoother/include)
 
-ament_target_dependencies( ${LF_MAIN_TARGET} autoware_auto_msgs lanelet2_core behavior_planner_nodes)
+ament_target_dependencies( ${LF_MAIN_TARGET} autoware_auto_vehicle_msgs autoware_auto_planning_msgs autoware_auto_mapping_msgs lanelet2_core behavior_planner_nodes)
