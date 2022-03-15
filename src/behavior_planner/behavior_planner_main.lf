@@ -10,7 +10,7 @@
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threads: 1
+    threading: true
 };
 
 preamble {=
@@ -24,13 +24,13 @@ preamble {=
     #include "behavior_planner_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
+    static std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
 =}
 
 reactor behavior_planner {
     //////// INPUTS /////////
     // Global path from global planner.
-    input global_path:std::shared_ptr<autoware_auto_planning_msgs::msg::Route>;
+    input global_path:std::shared_ptr<autoware_auto_planning_msgs::msg::HADMapRoute>;
     
     // Map returned from map provider.
     input map:std::shared_ptr<autoware_auto_mapping_msgs::msg::HADMapBin>;
@@ -54,8 +54,8 @@ reactor behavior_planner {
     output vehicle_state_command:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>;
     
     // For requests to lane and parking planners.
-    output lane_route:std::shared_ptr<autoware_auto_planning_msgs::msg::Route>;
-    output parking_route:std::shared_ptr<autoware_auto_planning_msgs::msg::Route>;
+    output lane_route:std::shared_ptr<autoware_auto_planning_msgs::msg::HADMapRoute>;
+    output parking_route:std::shared_ptr<autoware_auto_planning_msgs::msg::HADMapRoute>;
     
     // Original trajectory to be consulted with object collision estimator.
     output original_trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
@@ -68,7 +68,7 @@ reactor behavior_planner {
     state node_shared_ptr:std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>;
     
     
-    state global_path_route:autoware_auto_planning_msgs::msg::Route;
+    state global_path_route:autoware_auto_planning_msgs::msg::HADMapRoute;
     state previous_output_arrived_goal:std::chrono::time_point<std::chrono::system_clock>;
     state previous_output:std::chrono::time_point<std::chrono::system_clock>;
         
@@ -160,7 +160,7 @@ reactor behavior_planner {
             // send next subroute
             self->node->m_planner->set_next_subroute();
             auto subroute = self->node->m_planner->get_current_subroute(self->node->m_ego_state);
-            auto msg = std::make_shared<autoware_auto_planning_msgs::msg::Route>(subroute.route);
+            auto msg = std::make_shared<autoware_auto_planning_msgs::msg::HADMapRoute>(subroute.route);
               switch (subroute.planner_type) {
                 case autoware::behavior_planner::PlannerType::LANE:
                     SET(lane_route, msg);
@@ -177,7 +177,7 @@ reactor behavior_planner {
             // update trajectory for current subroute
             self->node->m_planner->set_next_subroute();
             auto subroute = self->node->m_planner->get_current_subroute(self->node->m_ego_state);
-            auto msg = std::make_shared<autoware_auto_planning_msgs::msg::Route>(subroute.route);
+            auto msg = std::make_shared<autoware_auto_planning_msgs::msg::HADMapRoute>(subroute.route);
 
             switch (subroute.planner_type) {
                 case autoware::behavior_planner::PlannerType::LANE:
