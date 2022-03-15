@@ -12,6 +12,7 @@ const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.para
 const std::string MPC_CONTROLLER_PARAM = "mpc_controller.param.yaml";
 const std::string NDT_MAP_PUBLISHER_PARAM = "map_publisher.param.yaml";
 const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";
+const std::string OFF_MAP_OBSTACLES_FILTER_PARAM = "off_map_obstacles_filter.param.yaml";
 
 // AVP Demo parameters
 const std::string EUCLIDEAN_CLUSTER_DETECTOR_PARAM = "euclidean_cluster.param.yaml";
