@@ -1,7 +1,7 @@
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["../include/utils.hpp"],
-    threads: 1
+    threading: true
 };
 
 preamble {=
@@ -9,6 +9,7 @@ preamble {=
     #include <stdlib.h>
     #include <string>
     #include "utils.hpp"
+    std::string yaml_path = get_xronos_home() + "/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml";
 =}
 
 reactor ray_ground_classifier {
@@ -30,7 +31,7 @@ reactor ray_ground_classifier {
         };
         
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/lfros/Projects/XronOS/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml", 
+            yaml_path.c_str(), 
             "/**",
             5,
             argv
