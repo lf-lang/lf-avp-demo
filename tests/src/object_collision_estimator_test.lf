@@ -1,6 +1,4 @@
 target CCpp {
-    files: ["../../src/include/utils.hpp"],
-    flags: ["-g"],
     threads: 4,
     coordination: decentralized
 };
