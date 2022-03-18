@@ -1,6 +1,7 @@
 unset(BUILD_TESTING)
 
-set(AUTOWARE_HOME /home/$ENV{USER}/workspace/Autoware)
+set(AUTOWARE_HOME $ENV{AUTOWARE_HOME})
+message(STATUS "Using ${AUTOWARE_HOME} as Autoware's home directory")
 
 find_package(lidar_utils REQUIRED)
 find_package(sensor_msgs REQUIRED)

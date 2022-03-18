@@ -2,7 +2,8 @@ unset(BUILD_TESTING)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-set(AUTOWARE_HOME /home/$ENV{USER}/workspace/Autoware)
+set(AUTOWARE_HOME $ENV{AUTOWARE_HOME})
+message(STATUS "Using ${AUTOWARE_HOME} as Autoware's home directory")
 
 find_package(autoware_auto_msgs REQUIRED)
 find_package(lidar_utils REQUIRED)
