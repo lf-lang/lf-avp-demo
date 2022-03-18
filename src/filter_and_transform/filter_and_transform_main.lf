@@ -20,7 +20,7 @@ preamble {=
     #include "constants.hpp"
     #include <cstdlib>
     #include <string>
-    static std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + PC_FILTER_TRANSFORM_PARAM;
+    static std::string yaml_path = get_xronos_home() + "/src/filter_and_transform/include/pc_filter_transform.param.yaml";
 =}
 
 reactor filter_and_transform (
