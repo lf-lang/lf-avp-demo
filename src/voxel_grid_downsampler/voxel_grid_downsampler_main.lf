@@ -1,12 +1,14 @@
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
-    threads: 1
+    files: ["../include/utils.hpp", "../include/constants.hpp"],
+    threading: true
 };
 
 preamble {=
     #include "voxel_cloud_node.hpp"
     #include "utils.hpp"
+    #include "constants.hpp"
+    std::string yaml_path = get_xronos_home() + "/src/voxel_grid_downsampler/include/scan_downsampler_ms3.param.yaml";
 =}
 
 reactor voxel_grid_downsampler {
@@ -17,7 +19,7 @@ reactor voxel_grid_downsampler {
     
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            "/home/lfros/Projects/XronOS/src/voxel_grid_downsampler/include/scan_downsampler_ms3.param.yaml", 
+            yaml_path.c_str(), 
             "/**"
         );
         
