@@ -26,10 +26,10 @@ reactor lgsvl_interface {
     // Comes from the LGSVL interface
     timer can_bus(33 msec, 33 msec);
     
-    input state_command:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>;
-    input vehicle_command:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>;
-    output state_report:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleStateReport>;
-    output vehicle_kinematic_state:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>;
+    input state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
+    input vehicle_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
+    output state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
+    output vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
 
     state node:lgsvl_interface::LgsvlInterfaceNode*;
     state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
@@ -82,7 +82,7 @@ reactor lgsvl_interface {
         
         // info_print("Gear: %d", self->node->m_interface->get_state_report().gear);
         
-        auto msg = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleStateReport>(self->node->m_interface->get_state_report());
+        auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(self->node->m_interface->get_state_report());
         SET(state_report, msg);
         
         // Update
