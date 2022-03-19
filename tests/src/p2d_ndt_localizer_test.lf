@@ -1,0 +1,23 @@
+target CCpp {
+    coordination: decentralized
+};
+
+import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
+import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf";
+import voxel_grid_downsampler from "../../src/voxel_grid_downsampler/voxel_grid_downsampler_main.lf";
+import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf";
+import p2d_ndt_localizer from "../../src/p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
+
+federated reactor {
+    
+    fat = new[2] filter_and_transform();
+    pcf = new point_cloud_fusion(in_width = 2);
+    vgd = new voxel_grid_downsampler();
+    nmp = new ndt_map_publisher();
+    pnl = new p2d_ndt_localizer();
+    
+    fat.points_out -> pcf.points_in serializer "ros2";
+    pcf.points_out -> vgd.points_in serializer "ros2";
+    nmp.points_out -> pnl.ndt_map_points_in serializer "ros2";
+    vgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2";
+}

@@ -17,7 +17,7 @@ preamble {=
     #include "ndt_localizer_nodes.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
+    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
 =}
 
 reactor p2d_ndt_localizer {
