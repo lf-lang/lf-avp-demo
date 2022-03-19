@@ -14,4 +14,19 @@ federated reactor {
     
     fat.points_out -> pcf.points_in serializer "ros2";
     pcf.points_out -> vgd.points_in serializer "ros2";
+
+    reaction(pcf.points_out) {=
+        info_print(
+            "Fused output's height = %d, width = %d",
+            pcf.points_out->value->height, 
+            pcf.points_out->value->width
+        );
+    =}
+
+    reaction(vgd.points_out) {=
+        info_print(
+            "Downsampled pointcloud size: %d", 
+            vgd.points_out->value->width
+        );
+    =}
 }
