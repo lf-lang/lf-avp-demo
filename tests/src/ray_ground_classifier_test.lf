@@ -1,0 +1,17 @@
+target CCpp {
+    coordination: decentralized
+};
+
+import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
+import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf";
+import ray_ground_classifier from "../../src/ray_ground_classifier/ray_ground_classifier_main.lf";
+
+federated reactor {
+    
+    fat = new[2] filter_and_transform();
+    pcf = new point_cloud_fusion(in_width = 2);
+    rgc = new ray_ground_classifier();
+    
+    fat.points_out -> pcf.points_in serializer "ros2";
+    pcf.points_out -> rgc.points_in serializer "ros2";
+}
