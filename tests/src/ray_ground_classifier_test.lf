@@ -14,4 +14,20 @@ federated reactor {
     
     fat.points_out -> pcf.points_in serializer "ros2";
     pcf.points_out -> rgc.points_in serializer "ros2";
+
+    reaction(pcf.points_out) {=
+        info_print(
+            "Fused output's height = %d, width = %d",
+            pcf.points_out->value->height, 
+            pcf.points_out->value->width
+        );
+    =}
+
+    reaction(rgc.points_non_ground) {=
+        info_print(
+            "Non-ground width: %d", 
+            rgc.points_non_ground->value->width
+        );
+    =}
+
 }
