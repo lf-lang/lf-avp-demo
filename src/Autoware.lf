@@ -52,7 +52,7 @@ federated reactor Autoware {
 	pcf.points_out -> rgc.points_in serializer "ros2";
 	rgc.points_non_ground -> ecd.points_in serializer "ros2";
 	ecd.bounding_boxes -> omof.original_bounding_boxes serializer "ros2";
-	omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serializer "ros2";
+	// omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serializer "ros2";
 	nmp.points_out -> pnl.ndt_map_points_in serializer "ros2";
 	bgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2";
 	

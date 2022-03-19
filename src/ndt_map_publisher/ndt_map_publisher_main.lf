@@ -18,7 +18,7 @@ preamble {=
     #include "map_publisher.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + NDT_MAP_PUBLISHER_PARAM;
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_MAP_PUBLISHER_PARAM;
 =}
 
 reactor ndt_map_publisher {
