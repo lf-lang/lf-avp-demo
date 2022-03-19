@@ -4,7 +4,7 @@ set(AUTOWARE_HOME $ENV{AUTOWARE_HOME})
 message(STATUS "Using ${AUTOWARE_HOME} as Autoware's home directory")
 
 find_package(autoware_auto_geometry REQUIRED)
-find_package(autoware_auto_perception_msgs REQUIRED)
+find_package(autoware_auto_msgs REQUIRED)
 find_package(euclidean_cluster REQUIRED)
 find_package(lidar_utils REQUIRED)
 find_package(rclcpp REQUIRED)

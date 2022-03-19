@@ -13,7 +13,7 @@ preamble {=
 
 reactor euclidean_cluster_detector {
 	input points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	output bounding_boxes:std::shared_ptr<autoware_auto_perception_msgs::msg::BoundingBoxArray>;
+	output bounding_boxes:std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>;
 	
 	//state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
     state node:autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode*;
@@ -28,11 +28,11 @@ reactor euclidean_cluster_detector {
     =}
     
     reaction (points_in) -> bounding_boxes {=
-        info_print("Got points");
+        // info_print("Got points");
         self->node->handle(points_in->value);
-        info_print("Handled points");
-        info_print("Boxes = %d", self->node->m_boxes.boxes.size());
-        auto msg = std::make_shared<autoware_auto_perception_msgs::msg::BoundingBoxArray>(self->node->m_boxes);
+        // info_print("Handled points");
+        // info_print("Boxes = %d", self->node->m_boxes.boxes.size());
+        auto msg = std::make_shared<autoware_auto_msgs::msg::BoundingBoxArray>(self->node->m_boxes);
         SET(bounding_boxes, msg);
 	=}
 }
