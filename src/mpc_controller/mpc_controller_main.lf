@@ -20,22 +20,22 @@ preamble {=
 =}
 
 reactor mpc_controller {
-    input trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
-    input vehicle:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>;
+    input trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+    input vehicle:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
     
-    output command:std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>;
+    output command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
     
 //    state count:int(0);
 //    
     state node:motion::control::mpc_controller_nodes::MpcControllerNode*;
     state node_shared_ptr:std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>;
-
+//    
     reaction (startup) {=
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             yaml_path.c_str(), 
             "/**"
         );
-
+        
         self->node = new motion::control::mpc_controller_nodes::MpcControllerNode(
             "mpc_controller", 
             "",
@@ -74,7 +74,7 @@ reactor mpc_controller {
         }
         
         if (self->node->cmd_is_set) {
-            auto msg = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>(self->node->cmd);
+            auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
             SET(command, msg);
             self->node->cmd_is_set = false;
         }
