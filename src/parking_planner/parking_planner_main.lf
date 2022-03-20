@@ -9,8 +9,8 @@
 
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"],
-    threads: 1
+    files: ["../include/utils.hpp", "../include/constants.hpp"],
+    threading: true
 };
 
 preamble {=
@@ -19,6 +19,8 @@ preamble {=
     #include "had_map_utils/had_map_query.hpp"
     #include "parking_planner_node.hpp"
     #include "utils.hpp"
+    #include "constants.hpp"
+    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + PARKING_PLANNER_PARAM;
 =}
 
 reactor parking_planner {
@@ -34,7 +36,7 @@ reactor parking_planner {
         
     reaction (startup) {=
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            "/home/lfros/adehome/AutowareAuto/src/tools/autoware_auto_avp_demo/param/parking_planner.param.yaml",
+            yaml_path.c_str(),
             "/**"
         );
         self->node = new autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode(node_options);

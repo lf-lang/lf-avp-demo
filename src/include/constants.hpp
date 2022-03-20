@@ -20,6 +20,7 @@ const std::string NDT_LOCALIZER_PARAM = "ndt_localizer.param.yaml";
 const std::string NDT_MAP_PUBLISHER_PARAM = "map_publisher.param.yaml";
 const std::string OFF_MAP_OBSTACLES_FILTER_PARAM = "off_map_obstacles_filter.param.yaml";
 const std::string OBJ_COLLISION_EST_PARAM = "object_collision_estimator.param.yaml";
+const std::string PARKING_PLANNER_PARAM = "parking_planner.param.yaml";
 
 
 #endif // XRONOS_CONSTANTS_HPP
