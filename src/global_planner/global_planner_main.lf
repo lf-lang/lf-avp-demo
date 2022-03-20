@@ -9,8 +9,8 @@
 
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
-    files: ["include/package.xml", "../include/utils.hpp"], 
-    threads: 1
+    files: ["../include/utils.hpp"], 
+    threading: true 
 };
 
 # preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
