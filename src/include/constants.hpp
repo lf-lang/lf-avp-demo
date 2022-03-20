@@ -9,7 +9,6 @@ const std::string AVP_DEMO_PARAM_PATH = "src/tools/autoware_auto_avp_demo/param"
 
 // Launch parameters
 const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.param.yaml";
-const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";
 
 // AVP Demo parameters
 const std::string EUCLIDEAN_CLUSTER_DETECTOR_PARAM = "euclidean_cluster.param.yaml";
@@ -21,6 +20,7 @@ const std::string OFF_MAP_OBSTACLES_FILTER_PARAM = "off_map_obstacles_filter.par
 const std::string OBJ_COLLISION_EST_PARAM = "object_collision_estimator.param.yaml";
 const std::string PARKING_PLANNER_PARAM = "parking_planner.param.yaml";
 const std::string MPC_CONTROLLER_PARAM = "mpc.param.yaml";
+const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";
 
 
 #endif // XRONOS_CONSTANTS_HPP
