@@ -9,16 +9,16 @@ preamble {=
     #include "had_map_utils/had_map_conversion.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + OFF_MAP_OBSTACLES_FILTER_PARAM;
+    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + OFF_MAP_OBSTACLES_FILTER_PARAM;
 =}
 
 reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
     
-    input original_bounding_boxes:std::shared_ptr<autoware_auto_perception_msgs::msg::BoundingBoxArray>;
-    input map:std::shared_ptr<autoware_auto_mapping_msgs::msg::HADMapBin>;
+    input original_bounding_boxes:std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>;
+    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
     
-    output modified_bounding_boxes:std::shared_ptr<autoware_auto_perception_msgs::msg::BoundingBoxArray>;
-    output request:std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Request>;
+    output modified_bounding_boxes:std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>;
+    output request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
 
 
     state node:autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode*;
@@ -34,8 +34,8 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
         self->node_shared_ptr = std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>(self->node);
         
         
-		auto requestPtr = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService::Request>();
-  		requestPtr->requested_primitives.push_back(autoware_auto_mapping_msgs::srv::HADMapService::Request::FULL_MAP);
+		auto requestPtr = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
+  		requestPtr->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
   		SET(request, requestPtr);
   		
   		info_print("Requesting map.");
