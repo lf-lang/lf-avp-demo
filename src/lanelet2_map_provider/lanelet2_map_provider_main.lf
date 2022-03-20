@@ -17,12 +17,12 @@ preamble {=
     #include "lanelet2_map_provider_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANELET2_MAP_PROVIDER_PARAM;
+    static std::string yaml_path = get_xronos_home() + "/src/lanelet2_map_provider/include/lanelet2_map_provider.param.yaml";
 =}
 
 reactor lanelet2_map_provider {
-    input request:std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Request>;
-    output map:std::shared_ptr<autoware_auto_mapping_msgs::msg::HADMapBin>;
+    input request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    output map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
     
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
@@ -36,13 +36,14 @@ reactor lanelet2_map_provider {
         
         // This will lookup for a transform (tf2) over ROS from the ndt_map_publisher
         self->node = new autoware::lanelet2_map_provider::Lanelet2MapProviderNode(nodeOptions);
+
     =} 
 
     
     reaction (request) -> map {=
-        auto response = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService_Response>();
+        auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
         self->node->handle_request(request->value, response);
-        auto msg = std::make_shared<autoware_auto_mapping_msgs::msg::HADMapBin>(response->map);
+        auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
         SET(map, msg);
     =}
 }
@@ -50,4 +51,3 @@ reactor lanelet2_map_provider {
 main reactor {
     lmp = new lanelet2_map_provider();
 }
-
