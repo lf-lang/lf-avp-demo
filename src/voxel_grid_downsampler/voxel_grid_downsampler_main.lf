@@ -27,23 +27,9 @@ reactor voxel_grid_downsampler {
     =}
         
     reaction (points_in) -> points_out {=
-          try {
-            self->node->m_voxelgrid_ptr->insert(*points_in->value);
-            //outgoing_point_cloud.sequence_number = points_in->value.sequence_number;
-            auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_voxelgrid_ptr->get());
-            // info_print("Downsampled pointcloud size: %d", msg->width);
-            SET(points_out, msg);
-          } catch (const std::exception & e) {
-            std::string err_msg{self->node->get_name()};
-            err_msg += ": " + std::string(e.what());
-            error_print("%s", err_msg.c_str());
-            self->node->m_has_failed = true;
-          } catch (...) {
-            std::string err_msg{"Unknown error occurred in "};
-            err_msg += self->node->get_name();
-            error_print("%s", err_msg.c_str());
-            throw;
-          }
+          self->node->callback(points_in->value);
+          auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_voxelgrid_ptr->get());
+          SET(points_out, msg);
 	=}
 }
 
