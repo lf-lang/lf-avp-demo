@@ -50,23 +50,39 @@ reactor mpc_controller {
         rclcpp::spin_some(self->node_shared_ptr);
     =}
 
-    reaction (vehicle_kinematic_state) -> command {=        
+    // The order of reactions is important.
+    reaction (vehicle_kinematic_state) -> command {=
+        // FIXME: The way that Autoware does this is convoluted, and uses a
+        // buffer to keep kinematic states.
+        // If vehicle_kinematic_state and trajectory are always logically
+        // simoultanous, all we need to do is call
+        // m_controller->set_trajectory(*trajectory->value); and
+        // then try_compute(*vehicle_kinematic_state->value); See commented out
+        // code in the body of this and the next reaction.
+
+        // self->node->try_compute(*vehicle_kinematic_state->value);
+
         self->node->on_state(vehicle_kinematic_state->value);
 
-        
+        // Check if there is a command to send after processing the state.
         if (self->node->cmd_is_set) {
             auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
             SET(command, msg);
             self->node->cmd_is_set = false;
         }
     =}
-    
+
     // The order of reactions is important.
-    // on_trajectory needs a kinematic state to be available.
     reaction (trajectory) -> command {=
+        // try {
+        //     self->node->m_controller->set_trajectory(*trajectory->value);
+        // } catch (...) {
+        //     self->node->on_bad_trajectory(std::current_exception());
+        // }
+
         self->node->on_trajectory(trajectory->value);
 
-        
+        // Check if there is a command to send after processing the state.
         if (self->node->cmd_is_set) {
             auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
             SET(command, msg);
