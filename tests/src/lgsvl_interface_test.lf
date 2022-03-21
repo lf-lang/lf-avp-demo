@@ -1,12 +1,67 @@
-target CCpp {
-    coordination: decentralized
-};
+target CCpp;
 
+import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
+import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf";
+import ray_ground_classifier from "../../src/ray_ground_classifier/ray_ground_classifier_main.lf";
+import voxel_grid_downsampler from "../../src/voxel_grid_downsampler/voxel_grid_downsampler_main.lf";
+import euclidean_cluster_detector from "../../src/euclidean_cluster_detector/euclidean_cluster_detector_main.lf";
+import off_map_obstacles_filter from "../../src/off_map_obstacles_filter/off_map_obstacles_filter_main.lf";
+import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf";
+import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf";
+import p2d_ndt_localizer from "../../src/p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
 import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf"
 
 federated reactor {
     
     lgsvl = new lgsvl_interface();
+    fat = new[2] filter_and_transform();
+    pcf = new point_cloud_fusion(in_width = 2);
+    rgc = new ray_ground_classifier();
+    vgd = new voxel_grid_downsampler();
+    ecd = new euclidean_cluster_detector();
+    omof = new off_map_obstacles_filter();
+    lmp = new lanelet2_map_provider();
+    nmp = new ndt_map_publisher();
+    pnl = new p2d_ndt_localizer();
+    
+    fat.points_out -> pcf.points_in serializer "ros2";
+    pcf.points_out -> rgc.points_in serializer "ros2";
+    pcf.points_out -> vgd.points_in serializer "ros2";
+    rgc.points_non_ground -> ecd.points_in serializer "ros2";
+    ecd.bounding_boxes -> omof.original_bounding_boxes serializer "ros2";
+    lmp.map -> omof.map serializer "ros2";
+    omof.request -> lmp.request serializer "ros2";
+    vgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2";
+    nmp.points_out -> pnl.ndt_map_points_in serializer "ros2";
+
+    reaction(pcf.points_out) {=
+        info_print(
+            "Fused output's height = %d, width = %d",
+            pcf.points_out->value->height, 
+            pcf.points_out->value->width
+        );
+    =}
+
+    reaction(rgc.points_non_ground) {=
+        info_print(
+            "Non-ground width: %d", 
+            rgc.points_non_ground->value->width
+        );
+    =}
+
+    reaction(ecd.bounding_boxes) {=
+        info_print(
+            "Boxes = %d", 
+            ecd.bounding_boxes->value->boxes.size()
+        );
+    =}
+
+    reaction(omof.modified_bounding_boxes) {=
+        info_print(
+            "Filtered boxes = %d", 
+            omof.modified_bounding_boxes->value->boxes.size()
+        );
+    =}
 
     reaction(lgsvl.state_report) {=
         info_print(
