@@ -61,7 +61,7 @@ federated reactor Autoware {
 	
 	li.vehicle_kinematic_state -> bp.vehicle_kinematic_state serializer "ros2";
 	li.state_report -> bp.vehicle_state_report serializer "ros2";
-	li.vehicle_kinematic_state -> mc.vehicle serializer "ros2";
+	li.vehicle_kinematic_state -> mc.vehicle_kinematic_state serializer "ros2";
 	li.vehicle_kinematic_state -> gp.vehicle_kinematic_state serializer "ros2";
 	
 	bp.parking_route -> pp.route serializer "ros2";
