@@ -11,7 +11,7 @@ import off_map_obstacles_filter from "../../src/off_map_obstacles_filter/off_map
 import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf";
 import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf";
 import p2d_ndt_localizer from "../../src/p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
-
+import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf";
 
 federated reactor {
     
@@ -24,6 +24,7 @@ federated reactor {
     lmp = new lanelet2_map_provider();
     nmp = new ndt_map_publisher();
     pnl = new p2d_ndt_localizer();
+    rsp = new robot_state_publisher();
     
     fat.points_out -> pcf.points_in serializer "ros2";
     pcf.points_out -> rgc.points_in serializer "ros2";
