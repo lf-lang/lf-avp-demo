@@ -1,12 +1,12 @@
 target CCpp {
     cmake-include: "include/CMakeListsExtension.txt",
     files: ["../include/utils.hpp"], 
-    threads: 1
+    threading: true
 };
 
 preamble {=
     #include "robot_state_publisher/robot_state_publisher.hpp"
-    #include "rclcpp/parameter_map.hpp"
+    #include "utils.hpp"
     #include <fstream>
 =}
 
@@ -17,7 +17,7 @@ reactor robot_state_publisher {
     
     reaction (startup) {=
         // Parse the urdf/xml file
-        std::string urdf_file_name = "/home/soroush/adehome/AutowareAuto/src/urdf/lexus_rx_450h_description/urdf/lexus_rx_450h.urdf";
+        std::string urdf_file_name = get_autoware_home() + "/src/urdf/lexus_rx_450h_description/urdf/lexus_rx_450h.urdf";
         std::ifstream f(urdf_file_name); 
         std::stringstream ss;
         ss << f.rdbuf();
