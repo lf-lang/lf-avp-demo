@@ -20,12 +20,7 @@ preamble {=
     std::string yaml_path = get_xronos_home() + "/src/lgsvl_interface/include/lgsvl_interface.param.yaml";
 =}
 
-reactor lgsvl_interface {
-    // Comes from the LGSVL interface
-    timer gps_odom(33 msec, 33 msec);    
-    // Comes from the LGSVL interface
-    timer can_bus(33 msec, 33 msec);
-    
+reactor lgsvl_interface {    
     input state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
     input vehicle_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
     output state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
@@ -64,25 +59,27 @@ reactor lgsvl_interface {
     
     =}
     
+    // Comes from the LGSVL interface
+    timer gps_odom(0, 10 msec);   
     reaction (gps_odom) -> vehicle_kinematic_state {=
         rclcpp::spin_some(self->node_shared_ptr);
         // If the vehicle kinematic state is not null
         if (self->node->m_interface->m_vse_t) {
             // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
             SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
+            self->node->m_interface->m_vse_t.reset();
         }
     =}
-    
+     
+    // Comes from the LGSVL interface
+    timer can_bus(33 msec, 33 msec);
     reaction (can_bus) -> state_report {=
         rclcpp::spin_some(self->node_shared_ptr);
         
-        if (!self->node->m_interface->update(self->node->m_cycle_time - std::chrono::milliseconds{2LL})) {
-            self->node->on_read_timeout();
-        }
-        
-        // info_print("Gear: %d", self->node->m_interface->get_state_report().gear);
-        
-        auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(self->node->m_interface->get_state_report());
+        auto msg =
+            std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(
+                self->node->m_interface->get_state_report()
+            );
         SET(state_report, msg);
         
         // Update
@@ -102,7 +99,11 @@ reactor lgsvl_interface {
     
     // To the simulator
     reaction (vehicle_command) {=
-        self->node->on_command_message(*vehicle_command->value);
+        try {
+            self->node->on_command_message(*vehicle_command->value);
+        } catch (...) {
+            self->node->on_error(std::current_exception());
+        }
         
         rclcpp::spin_some(self->node_shared_ptr);
     =}
