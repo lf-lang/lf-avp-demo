@@ -1,4 +1,6 @@
-target CCpp;
+target CCpp {
+    coordination: decentralized
+};
 
 import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf"
 import mpc_controller from "../../src/mpc_controller/mpc_controller_main.lf"
