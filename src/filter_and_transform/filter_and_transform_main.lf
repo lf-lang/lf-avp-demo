@@ -61,8 +61,11 @@ reactor filter_and_transform (
         // const auto filtered_transformed_msg = self->node->filter_and_transform(points_in->value);
         // Let the callback function in ROS process the pointcloud messages.
         // Instead of publishing, it will put the results in m_filtered_transformed_msg
-        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_filtered_transformed_msg);
-        SET(points_out, msg);
+        if (self->node->has_points) {
+            auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_filtered_transformed_msg);
+            self->node->has_points = false;
+            SET(points_out, msg);
+        }
     =}
 }
 
