@@ -6,6 +6,7 @@
 // Paths within the AUTOWARE_HOME directory
 const std::string LAUNCH_PARAM_PATH = "src/launch/autoware_auto_launch/param";
 const std::string AVP_DEMO_PARAM_PATH = "src/tools/autoware_auto_avp_demo/param";
+const std::string AVP_DEMO_CONFIG_PATH = "src/tools/autoware_auto_avp_demo/config";
 
 // Launch parameters
 const std::string PC_FILTER_TRANSFORM_PARAM = "point_cloud_filter_transform.param.yaml";
@@ -21,6 +22,7 @@ const std::string OBJ_COLLISION_EST_PARAM = "object_collision_estimator.param.ya
 const std::string PARKING_PLANNER_PARAM = "parking_planner.param.yaml";
 const std::string MPC_CONTROLLER_PARAM = "mpc.param.yaml";
 const std::string BEHAVIOR_PLANNER_PARAM = "behavior_planner.param.yaml";
+const std::string RVIZ_CONFIG = "ms3.rviz";
 
 
 #endif // XRONOS_CONSTANTS_HPP

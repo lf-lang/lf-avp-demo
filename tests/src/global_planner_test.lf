@@ -1,0 +1,21 @@
+target CCpp;
+
+import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf"
+import global_planner from "../../src/global_planner/global_planner_main.lf"
+import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf";
+import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf"
+
+federated reactor {
+    
+    lgsvl = new lgsvl_interface();
+    rsp = new robot_state_publisher();
+    global_planner = new global_planner();
+    map_provider = new lanelet2_map_provider();
+
+    lgsvl.vehicle_kinematic_state -> 
+        global_planner.vehicle_kinematic_state serializer "ROS2";
+
+    global_planner.map_request -> map_provider.request serializer "ROS2";
+    map_provider.map -> global_planner.map serializer "ROS2";
+
+}
