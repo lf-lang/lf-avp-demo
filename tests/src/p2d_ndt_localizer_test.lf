@@ -12,7 +12,6 @@ import robot_state_publisher from "../../src/robot_state_publisher/robot_state_p
 
 
 federated reactor {
-    
     fat = new[2] filter_and_transform();
     pcf = new point_cloud_fusion(in_width = 2);
     vgd = new voxel_grid_downsampler();
