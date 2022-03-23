@@ -2,7 +2,7 @@ target CCpp;
 
 import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf";
 import behavior_planner from "../../src/behavior_planner/behavior_planner_main.lf";
-import parking_planner from "../../src/parking_planner/parking_planner_main.lf";
+import lane_planner from "../../src/lane_planner/lane_planner_main.lf";
 import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf";
 
 federated reactor {
@@ -10,11 +10,11 @@ federated reactor {
 
     lanelet2_map_provider = new lanelet2_map_provider();
     behavior_planner = new behavior_planner();
-    parking_planner = new parking_planner();
+    lane_planner = new lane_planner();
 
-    parking_planner.request -> lanelet2_map_provider.request serializer "ROS2";
-    lanelet2_map_provider.map -> parking_planner.map serializer "ROS2";
-    parking_planner.trajectory -> behavior_planner.parking_trajectory serializer "ROS2";
-    behavior_planner.parking_route -> parking_planner.route serializer "ROS2";
+    lane_planner.request -> lanelet2_map_provider.request serializer "ROS2";
+    lanelet2_map_provider.map -> lane_planner.map serializer "ROS2";
+    lane_planner.trajectory -> behavior_planner.lane_trajectory serializer "ROS2";
+    behavior_planner.lane_route -> lane_planner.route serializer "ROS2";
 }
 
