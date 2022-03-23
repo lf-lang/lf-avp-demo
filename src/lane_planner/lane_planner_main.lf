@@ -20,17 +20,17 @@ preamble {=
     #include "lane_planner_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + LAUNCH_PARAM_PATH + "/" + LANE_PLANNER_PARAM;
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANE_PLANNER_PARAM;
 =}
 
 reactor lane_planner {
-    input route:std::shared_ptr<autoware_auto_planning_msgs::msg::HADMapRoute>;
-    input map:std::shared_ptr<autoware_auto_mapping_msgs::msg::HADMapBin>;
+    input route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
+    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
 
-    output request:std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Request>;
-    output trajectory:std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory>;
+    output request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    output trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
 	
-    state route_msg:autoware_auto_planning_msgs::msg::HADMapRoute;
+    state route_msg:autoware_auto_msgs::msg::Route;
     state node:autoware::lane_planner_nodes::LanePlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>;
         
@@ -45,7 +45,7 @@ reactor lane_planner {
 
     reaction (route) -> request {=
         self->route_msg = *route->value;
-        auto request_msg = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService_Request>(
+        auto request_msg = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>(
         	self->node->create_map_request(self->route_msg));
         	
         SET(request, request_msg);
@@ -55,7 +55,7 @@ reactor lane_planner {
 	    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
 	    autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
 
-        auto trajectory_msg = std::make_shared<autoware_auto_planning_msgs::msg::Trajectory>(
+        auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
             self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
         
         // This node publishes some stuff to rviz2, so we need to spin for them to work
