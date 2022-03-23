@@ -76,11 +76,14 @@ reactor lgsvl_interface {
     reaction (can_bus) -> state_report {=
         rclcpp::spin_some(self->node_shared_ptr);
         
-        auto msg =
+        if (self->node->m_interface->m_state_report_set) {
+            auto msg =
             std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(
                 self->node->m_interface->get_state_report()
             );
-        SET(state_report, msg);
+            SET(state_report, msg);
+            self->node->m_interface->m_state_report_set = false;
+        }
         
         // Update
         if (self->node->m_state_machine) {
