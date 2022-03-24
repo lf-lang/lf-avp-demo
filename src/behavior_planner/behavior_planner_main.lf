@@ -92,13 +92,12 @@ reactor behavior_planner {
    
     // Corresponds to BehaviorPlannerNode::on_route()
     reaction (global_path) -> map_request {=
-        /* This can never happen in  LF :
-         if (self->node->m_requesting_trajectory) {
+        if (self->node->m_requesting_trajectory) {
             info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
-        } else */ 
-        if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
+        } else if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
             info_print("Route was rejected. Route cannot be update while the vehicle is moving");
         } else {
+            info_print("Received route");
             self->node->m_route = global_path->value;
             auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
             request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
@@ -108,150 +107,84 @@ reactor behavior_planner {
    
     // Corresponds to BehaviorPlannerNode::map_response()
     reaction (map) {=
-        self->node->m_lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-        autoware::common::had_map_utils::fromBinaryMsg(*map->value, self->node->m_lanelet_map_ptr);
-        
-        info_print("Received map");
-        
-        self->node->m_planner->set_route(*self->node->m_route, self->node->m_lanelet_map_ptr);
-    =} STP (30 msec) {=
+        // Pass a future to the callback function
+        self->node->map_response(
+            create_future_from_service<
+            autoware_auto_msgs::srv::HADMapService,
+            autoware_auto_msgs::msg::HADMapBin
+            >(map->value)
+        );
+    =} STP (1 sec) {=
         info_print("Received map late.");
-        
     =}
     
     // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
     reaction (vehicle_state_report) {=
-        self->node->m_current_gear = vehicle_state_report->value->gear;
-    =}
-    
-    // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
-    reaction (vehicle_kinematic_state) -> lane_route, parking_route {=
-        rclcpp::spin_some(self->node_shared_ptr);
-        
-        if (!self->node->m_tf_buffer->canTransform(
-            "map", vehicle_kinematic_state->value->header.frame_id, tf2::TimePointZero)) {
-              info_print("Waiting for localization result to become available");
-            return;
-        }
-        
-        self->node->m_ego_state = self->node->transform_to_map(*vehicle_kinematic_state->value);
-        
-        // do nothing if we haven't got route yet
-        // FIXMESB: discards vehicle state if global path is not received yet
-        if (!self->node->m_planner->is_route_ready()) {
-              return;
-        }
-
-        // Check if we need new trajectory
-        self->previous_output_arrived_goal = std::chrono::system_clock::now();
-        if (self->node->m_planner->has_arrived_goal(self->node->m_ego_state)) {
-            // TODO(mitsudome-r): replace this with throttled output in foxy
-            const auto now = std::chrono::system_clock::now();
-            // The following double has been translated from float64_t defined in:
-            // Autoware/src/common/autoware_auto_common/include/common/types.hpp:
-            // using float64_t = double;
-            const auto throttle_time = std::chrono::duration<double>(3);
-            if (now - self->previous_output_arrived_goal > throttle_time) {
-                info_print("Trying to change gear");
-                self->previous_output_arrived_goal = now;
-            }
-            info_print("Reached goal. Wait for another route");
-        } else if (self->node->m_planner->has_arrived_subroute_goal(self->node->m_ego_state)) {
-            // send next subroute
-            self->node->m_planner->set_next_subroute();
-            auto subroute = self->node->m_planner->get_current_subroute(self->node->m_ego_state);
-            auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(subroute.route);
-              switch (subroute.planner_type) {
-                case autoware::behavior_planner::PlannerType::LANE:
-                    SET(lane_route, msg);
-                    info_print("Sent lane trajectory action goal");
-                    break;
-                case autoware::behavior_planner::PlannerType::PARKING:
-                    SET(parking_route, msg);
-                    info_print("Sent parking trajectory action goal");
-                    break;
-                default:
-                    break;
-            }
-        } else if (self->node->m_planner->needs_new_trajectory(self->node->m_ego_state)) {
-            // update trajectory for current subroute
-            self->node->m_planner->set_next_subroute();
-            auto subroute = self->node->m_planner->get_current_subroute(self->node->m_ego_state);
-            auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(subroute.route);
-
-            switch (subroute.planner_type) {
-                case autoware::behavior_planner::PlannerType::LANE:
-                    SET(lane_route, msg);
-                    info_print("Sent lane trajectory action goal");
-                    break;
-                case autoware::behavior_planner::PlannerType::PARKING:
-                    SET(parking_route, msg);
-                    info_print("Sent parking trajectory action goal");
-                    break;
-                default:
-                    break;
-            }
-        }
+        self->node->on_vehicle_state_report(vehicle_state_report->value);
     =}
     
     // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
-    reaction (vehicle_kinematic_state, lane_trajectory, parking_trajectory) -> control_trajectory, original_trajectory, vehicle_state_command {=
-        auto trj = lane_trajectory->value;
-        if (!lane_trajectory->is_present && !parking_trajectory->is_present) {
-            return;
-        } else if (lane_trajectory->is_present && parking_trajectory->is_present) {
-            warning_print("Both trajectories present!");
-        } else if (parking_trajectory->is_present) {
-            trj = parking_trajectory->value;
-        } 
-        
-        self->node->m_planner->set_trajectory(*trj);
-        
-        self->previous_output = std::chrono::system_clock::now();
-        const auto desired_gear = self->node->m_planner->get_desired_gear(self->node->m_ego_state);
-
-        // FIXMESB: either need to change gear, or need to avoid collision using the collision estimator,
-        // or if no such service is available, just publish the trajectory directly
-        if (desired_gear != self->node->m_current_gear) {
-            const auto throttle_time = std::chrono::duration<double>(3);
-        
-            // TODO(mitsudome-r): replace this with throttled output in foxy
-            const auto now = std::chrono::system_clock::now();
-            if (now - self->previous_output > throttle_time) {
-                info_print("Trying to change gear");
-                self->previous_output = now;
-            }
-        
-        
-            auto gear_command = std::make_shared<autoware_auto_msgs::msg::VehicleStateCommand>();
-            gear_command->gear = desired_gear;
-            gear_command->mode = autoware_auto_msgs::msg::VehicleStateCommand::MODE_AUTONOMOUS;
-            gear_command->stamp = vehicle_kinematic_state->value->header.stamp;
-            //gear_command.sequence_number = this->sequence_number;
-            SET(vehicle_state_command, gear_command);
-        
-            // send trajectory with current state so that velocity will be zero in order to change gear
-            auto trajectory = std::make_shared<autoware_auto_msgs::msg::Trajectory>();
-            trajectory->header.frame_id = "map";
-            trajectory->header.stamp = vehicle_kinematic_state->value->header.stamp;
-            trajectory->points.push_back(vehicle_kinematic_state->value->state);
-            //trajectory.sequence_number = this->sequence_number;
-            //this->sequence_number++;
-            SET(control_trajectory, trajectory);
-        } else {
-            auto trajectory = self->node->m_planner->get_trajectory(self->node->m_ego_state);
-            // trajectory.header = m_ego_state.header;
-            trajectory.header.frame_id = "map";
-            trajectory.header.stamp = vehicle_kinematic_state->value->header.stamp;
-        
-            // If object collision estimation is enabled, send trajectory through the collision estimator
-            // FIXMESB: trajectory can go through the object collision estimator
-            auto msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(trajectory);
-            SET(original_trajectory, msg);
+    reaction (lane_trajectory, parking_trajectory) {=
+        if (lane_trajectory->is_present && parking_trajectory->is_present) {
+            error_print("Both trajectories present!");
         }
-    =} STP (30 msec) {=
+        auto trajectory = (lane_trajectory->is_present) ? 
+            *lane_trajectory->value.get() : *parking_trajectory->value.get();
+
+        if (!trajectory.points.empty()){
+            info_print("Received trajectory from planner");
+        } else {
+            error_print("Planner failed to calculate!!");
+        }
+
+        trajectory.header.frame_id = "map";
+        self->node->m_debug_trajectory_pub->publish(trajectory);
+
+        self->node->m_planner->set_trajectory(trajectory);
+
+        // finished requesting trajectory
+        self->node->m_requesting_trajectory = false;
+    =} STP (1 sec) {=
         // request_stop();
         error_print("Sub-planners did not respond in time.");
+    =}
+    
+    // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
+    reaction (vehicle_kinematic_state) -> 
+            control_trajectory, 
+            original_trajectory, 
+            vehicle_state_command, 
+            lane_route, 
+            parking_route {=
+        auto requesting_trajectory = self->node->m_requesting_trajectory;
+
+        self->node->on_ego_state(vehicle_kinematic_state->value);
+
+        if (self->node->m_lane_route != nullptr) {
+            SET(lane_route, self->node->m_lane_route);
+            self->node->m_lane_route.reset();
+        }
+
+        if (self->node->m_parking_route != nullptr) {
+            SET(parking_route, self->node->m_parking_route);
+            self->node->m_parking_route.reset();
+        }
+
+        if (self->node->m_state_command != nullptr) {
+            SET(vehicle_state_command, self->node->m_state_command);
+            self->node->m_state_command.reset();
+        }
+
+        if (self->node->m_trajectory != nullptr) {
+            SET(control_trajectory, self->node->m_trajectory);
+            self->node->m_trajectory.reset();
+        }
+
+        if (self->node->m_trajectory_to_modify != nullptr) {
+            SET(original_trajectory, self->node->m_trajectory_to_modify);
+            self->node->m_trajectory_to_modify.reset();
+        }
+        
     =}
     
     
@@ -268,7 +201,7 @@ reactor behavior_planner {
             trajectory->points.push_back(stopping_point);
         }
         SET(control_trajectory, trajectory);
-    =} STP (60 msec) {=
+    =} STP (1 sec) {=
         // request_stop();
         error_print("Did not receive the modified trajectory in time.");
     =}
