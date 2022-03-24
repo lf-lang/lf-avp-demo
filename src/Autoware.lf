@@ -45,7 +45,11 @@ federated reactor Autoware {
     rsp = new robot_state_publisher();
 
     
-    map_provider = new[5] lanelet2_map_provider();
+    map_provider1 = new lanelet2_map_provider();
+    map_provider2 = new lanelet2_map_provider();
+    map_provider3 = new lanelet2_map_provider();
+    map_provider4 = new lanelet2_map_provider();
+    map_provider5 = new lanelet2_map_provider();
     
 	fat.points_out -> pcf.points_in serializer "ros2";
 	pcf.points_out -> bgd.points_in serializer "ros2";
@@ -56,8 +60,22 @@ federated reactor Autoware {
 	nmp.points_out -> pnl.ndt_map_points_in serializer "ros2";
 	bgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2";
 	
-	bp.map_request, lp.request, pp.request, gp.map_request, omof.request -> map_provider.request serializer "ros2";
-	map_provider.map -> bp.map, lp.map, pp.map, gp.map, omof.map serializer "ros2";
+    //////// Maps /////////
+	bp.map_request -> map_provider1.request serializer "ros2";
+    map_provider1.map -> bp.map serializer "ros2";
+
+    lp.request -> map_provider2.request serializer "ros2";
+    map_provider2.map -> lp.map serializer "ros2";
+
+    pp.request -> map_provider3.request serializer "ros2";
+    map_provider3.map -> pp.map serializer "ros2";
+
+    gp.map_request -> map_provider4.request serializer "ros2";
+    map_provider4.map -> gp.map serializer "ros2";
+
+    omof.request -> map_provider5.request serializer "ros2";
+    map_provider5.map -> omof.map serializer "ros2";
+    /////////////////////
 	
 	li.vehicle_kinematic_state -> bp.vehicle_kinematic_state serializer "ros2";
 	li.state_report -> bp.vehicle_state_report serializer "ros2";
