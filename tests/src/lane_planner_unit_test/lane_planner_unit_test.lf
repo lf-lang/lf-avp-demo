@@ -106,6 +106,7 @@ reactor tester {
         autoware::common::had_map_utils::toBinaryMsg(self->map_ptr, map_bin);  // TODO: Why does this line fail?
 
         SET(map, std::make_shared<autoware_auto_msgs::msg::HADMapBin>(map_bin));
+        schedule(set_route, MSEC(1));
     =}
 
     reaction (set_route) -> route {=
