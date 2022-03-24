@@ -118,6 +118,45 @@ reactor behavior_planner {
         info_print("Received map late.");
     =}
     
+    // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
+    reaction (vehicle_kinematic_state) -> 
+            control_trajectory, 
+            original_trajectory, 
+            vehicle_state_command, 
+            lane_route, 
+            parking_route {=
+        auto requesting_trajectory = self->node->m_requesting_trajectory;
+
+        self->node->on_ego_state(vehicle_kinematic_state->value);
+
+        // Check if any of the state variables are set. If so, send them.
+        if (self->node->m_lane_route != nullptr) {
+            SET(lane_route, self->node->m_lane_route);
+            self->node->m_lane_route.reset();
+        }
+
+        if (self->node->m_parking_route != nullptr) {
+            SET(parking_route, self->node->m_parking_route);
+            self->node->m_parking_route.reset();
+        }
+
+        if (self->node->m_state_command != nullptr) {
+            SET(vehicle_state_command, self->node->m_state_command);
+            self->node->m_state_command.reset();
+        }
+
+        if (self->node->m_trajectory != nullptr) {
+            SET(control_trajectory, self->node->m_trajectory);
+            self->node->m_trajectory.reset();
+        }
+
+        if (self->node->m_trajectory_to_modify != nullptr) {
+            SET(original_trajectory, self->node->m_trajectory_to_modify);
+            self->node->m_trajectory_to_modify.reset();
+        }
+        
+    =}
+
     // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
     reaction (vehicle_state_report) {=
         self->node->on_vehicle_state_report(vehicle_state_report->value);
@@ -147,44 +186,6 @@ reactor behavior_planner {
     =} STP (1 sec) {=
         // request_stop();
         error_print("Sub-planners did not respond in time.");
-    =}
-    
-    // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
-    reaction (vehicle_kinematic_state) -> 
-            control_trajectory, 
-            original_trajectory, 
-            vehicle_state_command, 
-            lane_route, 
-            parking_route {=
-        auto requesting_trajectory = self->node->m_requesting_trajectory;
-
-        self->node->on_ego_state(vehicle_kinematic_state->value);
-
-        if (self->node->m_lane_route != nullptr) {
-            SET(lane_route, self->node->m_lane_route);
-            self->node->m_lane_route.reset();
-        }
-
-        if (self->node->m_parking_route != nullptr) {
-            SET(parking_route, self->node->m_parking_route);
-            self->node->m_parking_route.reset();
-        }
-
-        if (self->node->m_state_command != nullptr) {
-            SET(vehicle_state_command, self->node->m_state_command);
-            self->node->m_state_command.reset();
-        }
-
-        if (self->node->m_trajectory != nullptr) {
-            SET(control_trajectory, self->node->m_trajectory);
-            self->node->m_trajectory.reset();
-        }
-
-        if (self->node->m_trajectory_to_modify != nullptr) {
-            SET(original_trajectory, self->node->m_trajectory_to_modify);
-            self->node->m_trajectory_to_modify.reset();
-        }
-        
     =}
     
     
