@@ -124,12 +124,15 @@ reactor tester {
         if (distance != 0.0) {
             error_print_and_exit("WRONG");
         }
+
+        info_print("SUCCESS");
+        request_stop();
     =}
 }
 
 federated reactor {
     lane_planner = new lane_planner();
-
+    
     tester = new tester();
     tester.map -> lane_planner.map serializer "ROS2";
     tester.route -> lane_planner.route serializer "ROS2";
