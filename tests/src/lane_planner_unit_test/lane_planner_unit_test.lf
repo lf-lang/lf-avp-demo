@@ -1,5 +1,6 @@
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt"
+    cmake-include: "include/CMakeListsExtension.txt",
+    build-type: RelWithDebInfo
 };
 
 import lane_planner from "../../../src/lane_planner/lane_planner_main.lf";
@@ -61,6 +62,9 @@ reactor tester {
     state m_planner_ptr:std::shared_ptr<autoware::lane_planner::LanePlanner>;
 
     reaction(startup) -> set_map {=
+        self->map_ptr = std::shared_ptr<lanelet::LaneletMap>();
+        self->m_planner_ptr = std::shared_ptr<autoware::lane_planner::LanePlanner>();
+    
         const auto vehicle_param = motion::motion_common::VehicleConfig{
             1.0F,  // cg_to_front_m:
             1.0F,  // cg_to_rear_m:
@@ -89,16 +93,19 @@ reactor tester {
         constexpr autoware::common::types::float64_t velocity_mps = 1.0;
         constexpr size_t n_points = 5;
         const auto lanelet_map_ptr = getALaneletMapWithLaneId(self->id, velocity_mps, n_points);
-        self->map_ptr = lanelet_map_ptr;
+        self->map_ptr = std::move(lanelet_map_ptr);
 
         schedule(set_map, MSEC(1));
     =}
 
     reaction(set_map) -> map, set_route {=
-        auto map_bin = std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>();
-        autoware::common::had_map_utils::toBinaryMsg(self->map_ptr, *map_bin);  // TODO: Why does this line fail?
+        auto map_bin = autoware_auto_msgs::msg::HADMapBin();
+        if (self->map_ptr == nullptr) {
+            error_print_and_exit("Map is not set");
+        }
+        autoware::common::had_map_utils::toBinaryMsg(self->map_ptr, map_bin);  // TODO: Why does this line fail?
 
-        SET(map, map_bin);
+        SET(map, std::make_shared<autoware_auto_msgs::msg::HADMapBin>(map_bin));
     =}
 
     reaction (set_route) -> route {=
