@@ -78,7 +78,7 @@ reactor behavior_planner {
             "/**"
         );
         
-        node_options.append_parameter_override("enable_object_collision_estimator", true);
+        node_options.append_parameter_override("enable_object_collision_estimator", false);
         
         self->node = new autoware::behavior_planner_nodes::BehaviorPlannerNode(node_options);
         self->node_shared_ptr = std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node);
