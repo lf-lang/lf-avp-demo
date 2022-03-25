@@ -48,16 +48,6 @@ reactor global_planner {
             autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP);
         
         SET(map_request, request);
-    =} 
-
-    reaction (map) {=
-        // Convert binary map msg to lanelet2 map and set the map for global path planner
-        self->node->lanelet2_global_planner->osm_map = std::make_shared<lanelet::LaneletMap>();
-        autoware::common::had_map_utils::fromBinaryMsg(*map->value, self->node->lanelet2_global_planner->osm_map);
-    
-        // parse lanelet global path planner elements
-        self->node->lanelet2_global_planner->parse_lanelet_element();
-        
     =}
     
     reaction (vehicle_kinematic_state) {=
@@ -75,6 +65,16 @@ reactor global_planner {
             rclcpp::spin_some(self->node_shared_ptr);
             schedule(act, 0);
         }
+    =} 
+
+    reaction (map) {=
+        // Convert binary map msg to lanelet2 map and set the map for global path planner
+        self->node->lanelet2_global_planner->osm_map = std::make_shared<lanelet::LaneletMap>();
+        autoware::common::had_map_utils::fromBinaryMsg(*map->value, self->node->lanelet2_global_planner->osm_map);
+
+        // parse lanelet global path planner elements
+        self->node->lanelet2_global_planner->parse_lanelet_element();
+        
     =}
 }
 
