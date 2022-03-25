@@ -42,10 +42,12 @@ reactor lanelet2_map_provider(num_requestors:int(1)) {
     
     reaction (request) -> map {=
         for (int i = 0; i < request_width; i++) {
-            auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
-            self->node->handle_request(request[i]->value, response);
-            auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
-            SET(map[i], msg);
+            if (request[i]->is_present) {
+                auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
+                self->node->handle_request(request[i]->value, response);
+                auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
+                SET(map[i], msg);
+            }
         }
     =}
 }
