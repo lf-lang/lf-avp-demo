@@ -1,0 +1,14 @@
+unset(BUILD_TESTING)
+
+set(CMAKE_BUILD_TYPE Debug)
+
+set(AUTOWARE_HOME $ENV{AUTOWARE_HOME})
+message(STATUS "Using ${AUTOWARE_HOME} as Autoware's home directory")
+
+find_package(lanelet2_map_provider REQUIRED)
+
+include_directories(${AUTOWARE_HOME}/src/common/had_map_utils/include)
+include_directories(${AUTOWARE_HOME}/src/mapping/had_map/lanelet2_map_provider/include/lanelet2_map_provider)
+include_directories(${AUTOWARE_HOME}/src/common/autoware_auto_common/include)
+
+ament_target_dependencies( ${LF_MAIN_TARGET} lanelet2_map_provider)

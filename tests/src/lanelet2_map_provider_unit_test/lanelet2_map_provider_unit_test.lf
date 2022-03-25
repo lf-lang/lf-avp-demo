@@ -1,0 +1,45 @@
+target CCpp {
+    cmake-include: "include/CMakeListsExtension.txt",
+    build-type: RelWithDebInfo
+};
+
+import lanelet2_map_provider from "../../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf";
+import ndt_map_publisher from "../../../src/ndt_map_publisher/ndt_map_publisher_main.lf";
+import robot_state_publisher from "../../../src/robot_state_publisher/robot_state_publisher_main.lf";
+
+reactor tester(offset:time(0), id:int(0)){
+    preamble {=
+        #include "lanelet2_map_provider_node.hpp" /* This is AUTOWARE node */
+    =}
+    input response:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+    output request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService::Request>;
+
+    timer t(offset, 0);
+
+    reaction(t) -> request {=
+        auto requestPtr = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
+  		requestPtr->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
+        info_print("tester %d is sending a request", self->id);
+  		SET(request, requestPtr);
+    =}
+
+    reaction(response) {=
+        if (response->value->data.size() > 0) {
+            info_print("SUCCESS: Received map");
+        } else {
+            error_print_and_exit("Map is empty");
+        }
+    =}
+}
+
+
+federated reactor {
+    robot_state_publisher = new robot_state_publisher();
+    ndt_map_publisher = new ndt_map_publisher();
+    lanelet2_map_provider = new lanelet2_map_provider(num_requestors = 2);
+    t1 = new tester(offset = 0, id = 0);
+    t2 = new tester(offset = 20 msec, id = 1);
+
+    t1.request, t2.request -> lanelet2_map_provider.request serializer "ROS2";
+    lanelet2_map_provider.map -> t1.response, t2.response serializer "ROS2";
+}

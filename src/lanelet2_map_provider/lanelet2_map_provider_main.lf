@@ -46,7 +46,7 @@ reactor lanelet2_map_provider(num_requestors:int(1)) {
                 auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
                 self->node->handle_request(request[i]->value, response);
                 auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
-                SET(map[i], msg);
+                SET(map[i], std::move(msg));
             }
         }
     =}
