@@ -20,9 +20,9 @@ preamble {=
     static std::string yaml_path = get_xronos_home() + "/src/lanelet2_map_provider/include/lanelet2_map_provider.param.yaml";
 =}
 
-reactor lanelet2_map_provider {
-    input request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
-    output map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+reactor lanelet2_map_provider(num_requestors:int(1)) {
+    input[num_requestors] request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    output[num_requestors] map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
     
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
@@ -41,10 +41,12 @@ reactor lanelet2_map_provider {
 
     
     reaction (request) -> map {=
-        auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
-        self->node->handle_request(request->value, response);
-        auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
-        SET(map, msg);
+        for (int i = 0; i < request_width; i++) {
+            auto response = std::make_shared<autoware_auto_msgs::srv::HADMapService_Response>();
+            self->node->handle_request(request[i]->value, response);
+            auto msg = std::make_shared<autoware_auto_msgs::msg::HADMapBin>(response->map);
+            SET(map[i], msg);
+        }
     =}
 }
 
