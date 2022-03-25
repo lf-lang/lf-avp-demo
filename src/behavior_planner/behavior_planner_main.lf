@@ -89,33 +89,10 @@ reactor behavior_planner {
         // Spin on ROS for a bit to get tf updates
         rclcpp::spin_some(self->node_shared_ptr);
     =}
-   
-    // Corresponds to BehaviorPlannerNode::on_route()
-    reaction (global_path) -> map_request {=
-        if (self->node->m_requesting_trajectory) {
-            info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
-        } else if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
-            info_print("Route was rejected. Route cannot be update while the vehicle is moving");
-        } else {
-            info_print("Received route");
-            self->node->m_route = global_path->value;
-            auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
-            request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
-            SET(map_request, request);
-        }
-    =}
-   
-    // Corresponds to BehaviorPlannerNode::map_response()
-    reaction (map) {=
-        // Pass a future to the callback function
-        self->node->map_response(
-            create_future_from_service<
-            autoware_auto_msgs::srv::HADMapService,
-            autoware_auto_msgs::msg::HADMapBin
-            >(map->value)
-        );
-    =} STP (1 sec) {=
-        info_print("Received map late.");
+
+    // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
+    reaction (vehicle_state_report) {=
+        self->node->on_vehicle_state_report(vehicle_state_report->value);
     =}
     
     // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
@@ -156,10 +133,33 @@ reactor behavior_planner {
         }
         
     =}
+    
+    // Corresponds to BehaviorPlannerNode::on_route()
+    reaction (global_path) -> map_request {=
+       if (self->node->m_requesting_trajectory) {
+           info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
+       } else if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
+           info_print("Route was rejected. Route cannot be update while the vehicle is moving");
+       } else {
+           info_print("Received route");
+           self->node->m_route = global_path->value;
+           auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
+           request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
+           SET(map_request, request);
+       }
+    =}
 
-    // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
-    reaction (vehicle_state_report) {=
-        self->node->on_vehicle_state_report(vehicle_state_report->value);
+    // Corresponds to BehaviorPlannerNode::map_response()
+    reaction (map) {=
+       // Pass a future to the callback function
+       self->node->map_response(
+           create_future_from_service<
+           autoware_auto_msgs::srv::HADMapService,
+           autoware_auto_msgs::msg::HADMapBin
+           >(map->value)
+       );
+    =} STP (1 sec) {=
+       info_print("Received map late.");
     =}
     
     // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
