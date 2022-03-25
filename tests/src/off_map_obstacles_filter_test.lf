@@ -1,5 +1,4 @@
 target CCpp {
-    coordination: decentralized
 };
 
 import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
