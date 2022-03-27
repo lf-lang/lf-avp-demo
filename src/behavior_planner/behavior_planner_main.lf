@@ -102,32 +102,36 @@ reactor behavior_planner {
             vehicle_state_command, 
             lane_route, 
             parking_route {=
-        auto requesting_trajectory = self->node->m_requesting_trajectory;
-
+        info_print("Got a vehicle kinematic state.");
         self->node->on_ego_state(vehicle_kinematic_state->value);
 
         // Check if any of the state variables are set. If so, send them.
         if (self->node->m_lane_route != nullptr) {
+            info_print("Sending lane route.");
             SET(lane_route, self->node->m_lane_route);
             self->node->m_lane_route.reset();
         }
 
         if (self->node->m_parking_route != nullptr) {
+            info_print("Sending parking route.");
             SET(parking_route, self->node->m_parking_route);
             self->node->m_parking_route.reset();
         }
 
         if (self->node->m_state_command != nullptr) {
+            info_print("Sending vehicle state command.");
             SET(vehicle_state_command, self->node->m_state_command);
             self->node->m_state_command.reset();
         }
 
         if (self->node->m_trajectory != nullptr) {
+            info_print("Sending control trajectory.");
             SET(control_trajectory, self->node->m_trajectory);
             self->node->m_trajectory.reset();
         }
 
         if (self->node->m_trajectory_to_modify != nullptr) {
+            info_print("Sending trajectory to be modified.");
             SET(original_trajectory, self->node->m_trajectory_to_modify);
             self->node->m_trajectory_to_modify.reset();
         }
@@ -142,7 +146,7 @@ reactor behavior_planner {
            info_print("Route was rejected. Route cannot be update while the vehicle is moving");
        } else {
            info_print("Received route");
-           self->node->m_route = global_path->value;
+           self->node->m_route = std::move(global_path->value);
            auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
            request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
            SET(map_request, request);
@@ -151,6 +155,7 @@ reactor behavior_planner {
 
     // Corresponds to BehaviorPlannerNode::map_response()
     reaction (map) {=
+       info_print("Received map");
        // Pass a future to the callback function
        self->node->map_response(
            create_future_from_service<
@@ -191,6 +196,7 @@ reactor behavior_planner {
     
     // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
     reaction (modified_trajectory) -> control_trajectory {=
+        info_print("Received modified trajectory.");
         // Initialize with modified trajectory from object collision estimator.
         auto trajectory = modified_trajectory->value;
         

@@ -47,6 +47,6 @@ federated reactor {
             "Number of bounding boxes: %d.",
             omof.modified_bounding_boxes->value->boxes.size()
         );
-    =} 
+    =}
     
 }

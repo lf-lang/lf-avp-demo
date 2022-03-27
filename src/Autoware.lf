@@ -24,7 +24,11 @@ import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
 import mpc_controller from "mpc_controller/mpc_controller_main.lf";
 import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf";
 
+import rviz2 from "rviz/rviz_main.lf";
+
 federated reactor Autoware {
+    // rviz2 = new rviz2();
+
     filter_and_transform = new[2] filter_and_transform();
     point_cloud_fusion = new point_cloud_fusion(in_width = 2);
     voxel_grid_downsampler = new voxel_grid_downsampler();
@@ -72,7 +76,8 @@ federated reactor Autoware {
 	lane_planner.trajectory -> behavior_planner.lane_trajectory serializer "ros2";
 	parking_planner.trajectory -> behavior_planner.parking_trajectory serializer "ros2";
 	
-	behavior_planner.original_trajectory -> object_collision_estimator.original_trajectory serializer "ros2";
+	behavior_planner.original_trajectory ->
+	    object_collision_estimator.original_trajectory serializer "ros2";
 	object_collision_estimator.modified_trajectory -> behavior_planner.modified_trajectory serializer "ros2";
 
     global_planner.global_path -> behavior_planner.global_path serializer "ros2";

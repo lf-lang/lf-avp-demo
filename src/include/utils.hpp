@@ -39,15 +39,15 @@ inline rclcpp::NodeOptions get_node_options_from_yaml(const char* path, const ch
 }
 
 template <typename ServiceT, typename ValueT>
-inline auto create_future_from_service(std::shared_ptr<ValueT> ros_service_msg) {
+auto create_future_from_service(std::shared_ptr<ValueT> ros_service_msg) {
     // The following is how ROS 2 creates a future for a client of a service
     using SharedResponse = typename ServiceT::Response::SharedPtr;
     using Promise = std::promise<SharedResponse>;
     using SharedPromise = std::shared_ptr<Promise>;
     using SharedFuture = std::shared_future<SharedResponse>;
-    SharedPromise promise;
+    SharedPromise promise = std::make_shared<Promise>();
     SharedFuture future(promise->get_future());
-    SharedResponse response;
+    SharedResponse response = std::make_shared<typename ServiceT::Response>();
     response->map = *ros_service_msg.get();
     promise->set_value(response);
     return future;
