@@ -28,34 +28,34 @@ federated reactor Autoware {
     filter_and_transform = new[2] filter_and_transform();
     point_cloud_fusion = new point_cloud_fusion(in_width = 2);
     voxel_grid_downsampler = new voxel_grid_downsampler();
-    // ray_ground_classifier = new ray_ground_classifier();
-    // euclidean_cluster_detector = new euclidean_cluster_detector();
+    ray_ground_classifier = new ray_ground_classifier();
+    euclidean_cluster_detector = new euclidean_cluster_detector();
     ndt_map_publisher = new ndt_map_publisher();
     p2d_ndt_localizer = new p2d_ndt_localizer();
-    // off_map_obstacles_filter = new off_map_obstacles_filter();
+    off_map_obstacles_filter = new off_map_obstacles_filter();
     behavior_planner = new behavior_planner();
     parking_planner = new parking_planner();
     lane_planner = new lane_planner();
     global_planner = new global_planner();
-    // object_collision_estimator = new object_collision_estimator();
+    object_collision_estimator = new object_collision_estimator();
     lgsvl_interface = new lgsvl_interface();
     mpc_controller = new mpc_controller();
     robot_state_publisher = new robot_state_publisher();
     
 	filter_and_transform.points_out -> point_cloud_fusion.points_in serializer "ros2";
 	point_cloud_fusion.points_out -> voxel_grid_downsampler.points_in serializer "ros2";
-	// point_cloud_fusion.points_out -> ray_ground_classifier.points_in serializer "ros2";
-	// ray_ground_classifier.points_non_ground -> euclidean_cluster_detector.points_in serializer "ros2";
-	// euclidean_cluster_detector.bounding_boxes -> off_map_obstacles_filter.original_bounding_boxes serializer "ros2";
-	// off_map_obstacles_filter.modified_bounding_boxes -> object_collision_estimator.filtered_lidar_boxes serializer "ros2";
+	point_cloud_fusion.points_out -> ray_ground_classifier.points_in serializer "ros2";
+	ray_ground_classifier.points_non_ground -> euclidean_cluster_detector.points_in serializer "ros2";
+	euclidean_cluster_detector.bounding_boxes -> off_map_obstacles_filter.original_bounding_boxes serializer "ros2";
+	off_map_obstacles_filter.modified_bounding_boxes -> object_collision_estimator.filtered_lidar_boxes serializer "ros2";
 	ndt_map_publisher.points_out -> p2d_ndt_localizer.ndt_map_points_in serializer "ros2";
 	voxel_grid_downsampler.points_out -> p2d_ndt_localizer.fused_downsampled_points_in serializer "ros2";
 	
     //////// Maps /////////
-    map_provider = new lanelet2_map_provider(num_requestors = 4);
+    map_provider = new lanelet2_map_provider(num_requestors = 5);
 
-	behavior_planner.map_request, lane_planner.request, parking_planner.request, global_planner.map_request -> map_provider.request serializer "ros2";
-    map_provider.map -> behavior_planner.map, lane_planner.map, parking_planner.map, global_planner.map serializer "ros2";
+    behavior_planner.map_request, lane_planner.request, parking_planner.request, global_planner.map_request, off_map_obstacles_filter.request -> map_provider.request serializer "ros2";
+    map_provider.map -> behavior_planner.map, lane_planner.map, parking_planner.map, global_planner.map, off_map_obstacles_filter.map serializer "ros2";
     /////////////////////
 	
 	lgsvl_interface.vehicle_kinematic_state -> behavior_planner.vehicle_kinematic_state serializer "ros2";
@@ -72,8 +72,8 @@ federated reactor Autoware {
 	lane_planner.trajectory -> behavior_planner.lane_trajectory serializer "ros2";
 	parking_planner.trajectory -> behavior_planner.parking_trajectory serializer "ros2";
 	
-	// behavior_planner.original_trajectory -> object_collision_estimator.original_trajectory serializer "ros2";
-	// object_collision_estimator.modified_trajectory -> behavior_planner.modified_trajectory serializer "ros2";
+	behavior_planner.original_trajectory -> object_collision_estimator.original_trajectory serializer "ros2";
+	object_collision_estimator.modified_trajectory -> behavior_planner.modified_trajectory serializer "ros2";
 
     global_planner.global_path -> behavior_planner.global_path serializer "ros2";
     

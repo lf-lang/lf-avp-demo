@@ -29,7 +29,7 @@ reactor filter_and_transform (
     lidar_topic_names:std::vector<char*>({=std::vector<char*>{"/lidar_front/points_raw", "/lidar_rear/points_raw"}=})
 ) {
     // Point in come from ROS
-    timer points_in(4 sec, 100 msec);
+    timer points_in(0, 100 msec);
     output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
     state count:int(0);
     state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;

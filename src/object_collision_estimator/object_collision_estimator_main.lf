@@ -29,12 +29,18 @@ reactor object_collision_estimator {
         self->node = new motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode>(self->node);
     =}
+
+    timer ros_spin(0, 10 msec);
+    reaction (ros_spin) {=
+        // For tf stuff
+        rclcpp::spin_some(self->node_shared_ptr);
+    =}
 	
     
     reaction (filtered_lidar_boxes) {=
         self->node->on_bounding_box(filtered_lidar_boxes->value);
         
-        info_print("Updated obstacles.");
+        // info_print("Updated obstacles.");
 	=}
 	
 	reaction(original_trajectory) -> modified_trajectory {=

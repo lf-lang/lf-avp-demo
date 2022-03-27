@@ -41,14 +41,17 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
   		info_print("Requesting map.");
 
     =}
-    
-    reaction (original_bounding_boxes) -> modified_bounding_boxes {=
-        // Try to get tf data
+
+    timer ros_spin(0, 10 msec);
+    reaction (ros_spin) {=
+        // For tf stuff
         rclcpp::spin_some(self->node_shared_ptr);
-        
+    =}
+    
+    reaction (original_bounding_boxes) -> modified_bounding_boxes {=        
         self->node->process_bounding_boxes(original_bounding_boxes->value);
         
-        info_print("Filtered boxes = %d", original_bounding_boxes->value->boxes.size());
+        // info_print("Filtered boxes = %d", original_bounding_boxes->value->boxes.size());
         
         SET(modified_bounding_boxes, original_bounding_boxes->value);
 
@@ -58,8 +61,8 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
     reaction (map) {=
         info_print("Got the map.");
         auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-          autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
-         self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
+        autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
+        self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
         self->wait_for_map = 0;
     =} STP (wait_for_map) {=
         // Don't need to wait for the map anymore.

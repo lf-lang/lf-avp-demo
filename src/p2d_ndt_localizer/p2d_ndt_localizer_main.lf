@@ -52,10 +52,7 @@ reactor p2d_ndt_localizer {
         // RelativeLocalizerNode in localization_node.hpp.
 	=}
 	
-	reaction (fused_downsampled_points_in) {=        
-        if (!self->node->m_external_pose_available) {
-            return;
-        }
+	reaction (fused_downsampled_points_in) {=
         self->node->observation_callback(fused_downsampled_points_in->value);   
     =}
 
