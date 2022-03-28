@@ -79,7 +79,7 @@ reactor mpc_controller {
         // } catch (...) {
         //     self->node->on_bad_trajectory(std::current_exception());
         // }
-
+        info_print("(YOLO)>>> MPC received trajectory at: {%lu}", get_elapsed_physical_time());
         self->node->on_trajectory(trajectory->value);
 
         // Check if there is a command to send after processing the state.

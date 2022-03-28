@@ -68,6 +68,7 @@ reactor lgsvl_interface {
             // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
             SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
             self->node->m_interface->m_vse_t.reset();
+            info_print("(YOLO)>>> Published kinematic state at: {%lu}", get_elapsed_physical_time());
         }
     =}
      
