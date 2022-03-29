@@ -1,4 +1,8 @@
-f_name = input("file name: ")
+import sys
+if len(sys.argv) != 2:
+    print("ERROR: must specify log file name as argument")
+    exit(1)
+f_name = sys.argv[1]
 
 trajectories = []
 kinematic = []
