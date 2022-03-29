@@ -16,10 +16,13 @@ with open(f_name, "r") as f:
 
 diffs = []
 for i, j in zip(trajectories, kinematic):
-    i_l = i.find("{")
-    traj_t = int(i[i_l + 1:i.find("}", i_l + 1)])
-    j_l = j.find("{")
-    kine_t = int(j[j_l + 1:j.find("}", j_l + 1)])
-    diffs.append(traj_t - kine_t)
+    try:
+        i_l = i.find("{")
+        traj_t = int(i[i_l + 1:i.find("}", i_l + 1)])
+        j_l = j.find("{")
+        kine_t = int(j[j_l + 1:j.find("}", j_l + 1)])
+        diffs.append((traj_t - kine_t) // 1_000_000)
+    except:
+        pass
 
 print(diffs)
