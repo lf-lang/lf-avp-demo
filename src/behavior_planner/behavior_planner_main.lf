@@ -126,6 +126,7 @@ reactor behavior_planner {
 
         if (self->node->m_trajectory != nullptr) {
             info_print("Sending control trajectory.");
+            self->node->m_trajectory->sequence_number = vehicle_kinematic_state->value->sequence_number;
             SET(control_trajectory, self->node->m_trajectory);
             self->node->m_trajectory.reset();
         }

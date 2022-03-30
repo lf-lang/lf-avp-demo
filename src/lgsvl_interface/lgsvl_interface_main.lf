@@ -25,7 +25,7 @@ reactor lgsvl_interface {
     input vehicle_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
     output state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
     output vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
-
+    state sequence_number:uint32_t;
     state node:lgsvl_interface::LgsvlInterfaceNode*;
     state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
     
@@ -55,6 +55,7 @@ reactor lgsvl_interface {
         
         self->node = new lgsvl_interface::LgsvlInterfaceNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
+        self->sequence_number = 0;
         rclcpp::spin_some(self->node_shared_ptr);       
     
     =}
@@ -66,9 +67,10 @@ reactor lgsvl_interface {
         // If the vehicle kinematic state is not null
         if (self->node->m_interface->m_vse_t) {
             // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
+            self->node->m_interface->m_vse_t->sequence_number = self->sequence_number++;
             SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
             self->node->m_interface->m_vse_t.reset();
-            info_print("(YOLO)>>> Published kinematic state at: {%lu}", get_elapsed_physical_time());
+            info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), self->sequence_number);
         }
     =}
      
@@ -98,6 +100,7 @@ reactor lgsvl_interface {
     reaction (vehicle_command) {=
         try {
             self->node->on_command_message(*vehicle_command->value);
+            info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), vehicle_command->value->sequence_number);
         } catch (...) {
             self->node->on_error(std::current_exception());
         }
