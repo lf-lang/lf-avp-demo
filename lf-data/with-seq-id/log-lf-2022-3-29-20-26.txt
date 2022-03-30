@@ -1,0 +1,42 @@
+Federate Autoware in Federation ID '131220deb01ec63d1778fa2b719d1bab9eb72c52dfdb4271'
+#### Launching the runtime infrastructure (RTI).
+#### Launching the federate filter_and_transform__0.
+#### Launching the federate filter_and_transform__1.
+#### Launching the federate point_cloud_fusion.
+#### Launching the federate voxel_grid_downsampler.
+#### Launching the federate ray_ground_classifier.
+#### Launching the federate euclidean_cluster_detector.
+#### Launching the federate ndt_map_publisher.
+#### Launching the federate p2d_ndt_localizer.
+#### Launching the federate off_map_obstacles_filter.
+#### Launching the federate behavior_planner.
+#### Launching the federate parking_planner.
+#### Launching the federate lane_planner.
+#### Launching the federate global_planner.
+#### Launching the federate object_collision_estimator.
+#### Launching the federate lgsvl_interface.
+#### Launching the federate mpc_controller.
+#### Launching the federate robot_state_publisher.
+#### Launching the federate map_provider.
+#### Bringing the RTI back to foreground so it can receive Control-C.
+RTI -i ${FEDERATION_ID} -n 18 -c init exchanges-per-interval 10
+#### Received ERR signal on line 116. Invoking cleanup().
+Killing federate 62174.
+Killing federate 62175.
+Killing federate 62176.
+Killing federate 62177.
+Killing federate 62178.
+Killing federate 62179.
+Killing federate 62180.
+Killing federate 62181.
+Killing federate 62182.
+Killing federate 62183.
+Killing federate 62184.
+Killing federate 62185.
+Killing federate 62186.
+Killing federate 62187.
+Killing federate 62188.
+Killing federate 62189.
+Killing federate 62190.
+Killing federate 62191.
+#### Killing RTI 62172.
