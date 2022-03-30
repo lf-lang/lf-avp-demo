@@ -1,0 +1,844 @@
+Federate Autoware in Federation ID '6701f35f298c64a6221b45c7677a64515b0c92dc74616458'
+#### Launching the runtime infrastructure (RTI).
+#### Launching the federate filter_and_transform__0.
+#### Launching the federate filter_and_transform__1.
+#### Launching the federate point_cloud_fusion.
+#### Launching the federate voxel_grid_downsampler.
+#### Launching the federate ray_ground_classifier.
+#### Launching the federate euclidean_cluster_detector.
+#### Launching the federate ndt_map_publisher.
+#### Launching the federate p2d_ndt_localizer.
+#### Launching the federate off_map_obstacles_filter.
+#### Launching the federate behavior_planner.
+#### Launching the federate parking_planner.
+#### Launching the federate lane_planner.
+#### Launching the federate global_planner.
+#### Launching the federate object_collision_estimator.
+#### Launching the federate lgsvl_interface.
+#### Launching the federate mpc_controller.
+#### Launching the federate robot_state_publisher.
+#### Launching the federate map_provider.
+#### Bringing the RTI back to foreground so it can receive Control-C.
+RTI -i ${FEDERATION_ID} -n 18 -c init exchanges-per-interval 10
+Federation ID for executable /home/wonghouseng/XronOS/bin/Autoware_behavior_planner: 6701f35f298c64a6221b45c7677a64515b0c92dc74616458
+Federate 9: Connected to RTI at localhost:15045.
+---- Start execution at time Wed Mar 30 10:53:53 2022
+---- plus 850762436 nanoseconds.
+Federate 9: ---- Using 28 workers.
+Federate 9: Starting timestamp is: 1648662834864595589.
+Federate 9: Got a vehicle kinematic state.
+Federation ID for executable /home/wonghouseng/XronOS/bin/Autoware_global_planner: 6701f35f298c64a6221b45c7677a64515b0c92dc74616458
+Federate 12: Connected to RTI at localhost:15045.
+---- Start execution at time Wed Mar 30 10:53:53 2022
+---- plus 854259435 nanoseconds.
+Federate 12: ---- Using 28 workers.
+Federate 12: Starting timestamp is: 1648662834864595589.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federation ID for executable /home/wonghouseng/XronOS/bin/Autoware_lgsvl_interface: 6701f35f298c64a6221b45c7677a64515b0c92dc74616458
+Federate 14: Connected to RTI at localhost:15045.
+---- Start execution at time Wed Mar 30 10:53:53 2022
+---- plus 849728949 nanoseconds.
+Federate 14: ---- Using 28 workers.
+Federate 14: Starting timestamp is: 1648662834864595589.
+Federate 14: (YOLO)>>> Published kinematic state at: {9790348109} for seq: {1}
+Federate 14: (YOLO)>>> Published kinematic state at: {9837037401} for seq: {2}
+Federate 14: (YOLO)>>> Published kinematic state at: {9925334110} for seq: {3}
+Federate 14: (YOLO)>>> Published kinematic state at: {9969258084} for seq: {4}
+Federate 14: (YOLO)>>> Published kinematic state at: {10013214730} for seq: {5}
+Federate 14: (YOLO)>>> Published kinematic state at: {10101587159} for seq: {6}
+Federate 14: (YOLO)>>> Published kinematic state at: {10145429515} for seq: {7}
+Federate 14: (YOLO)>>> Published kinematic state at: {10189372134} for seq: {8}
+Federate 14: (YOLO)>>> Published kinematic state at: {10277296161} for seq: {9}
+Federate 14: (YOLO)>>> Published kinematic state at: {10365011036} for seq: {10}
+Federate 14: (YOLO)>>> Published kinematic state at: {10408741878} for seq: {11}
+Federate 14: (YOLO)>>> Published kinematic state at: {10497052412} for seq: {12}
+Federate 14: (YOLO)>>> Published kinematic state at: {10540876562} for seq: {13}
+Federate 14: (YOLO)>>> Published kinematic state at: {10596537180} for seq: {14}
+Federate 14: (YOLO)>>> Published kinematic state at: {10685520969} for seq: {15}
+Federate 14: (YOLO)>>> Published kinematic state at: {10686781858} for seq: {16}
+Federate 14: (YOLO)>>> Published kinematic state at: {10688243192} for seq: {17}
+Federate 14: (YOLO)>>> Published kinematic state at: {10732700146} for seq: {18}
+Federate 14: (YOLO)>>> Published kinematic state at: {10820436838} for seq: {19}
+Federate 14: (YOLO)>>> Published kinematic state at: {10821507884} for seq: {20}
+Federate 14: (YOLO)>>> Published kinematic state at: {10865383311} for seq: {21}
+Federate 14: (YOLO)>>> Published kinematic state at: {10952540751} for seq: {22}
+Federate 14: (YOLO)>>> Published kinematic state at: {10961128596} for seq: {23}
+Federate 14: (YOLO)>>> Published kinematic state at: {11005217121} for seq: {24}
+Federate 14: (YOLO)>>> Published kinematic state at: {11050465998} for seq: {25}
+Federate 14: (YOLO)>>> Published kinematic state at: {11052334447} for seq: {26}
+Federate 14: (YOLO)>>> Published kinematic state at: {11140740022} for seq: {27}
+Federate 14: (YOLO)>>> Published kinematic state at: {11228672062} for seq: {28}
+Federate 14: (YOLO)>>> Published kinematic state at: {11288492547} for seq: {29}
+Federate 14: (YOLO)>>> Published kinematic state at: {11332744689} for seq: {30}
+Federate 14: (YOLO)>>> Published kinematic state at: {11381244562} for seq: {31}
+Federate 14: (YOLO)>>> Published kinematic state at: {11424690582} for seq: {32}
+Federate 14: (YOLO)>>> Published kinematic state at: {11468493111} for seq: {33}
+Federate 14: (YOLO)>>> Published kinematic state at: {11516389809} for seq: {34}
+Federate 14: (YOLO)>>> Published kinematic state at: {11605989319} for seq: {35}
+Federate 14: (YOLO)>>> Published kinematic state at: {11607017878} for seq: {36}
+Federate 14: (YOLO)>>> Published kinematic state at: {11608004803} for seq: {37}
+Federate 14: (YOLO)>>> Published kinematic state at: {11653018302} for seq: {38}
+Federate 14: (YOLO)>>> Published kinematic state at: {11744479193} for seq: {39}
+Federate 14: (YOLO)>>> Published kinematic state at: {11789215804} for seq: {40}
+Federate 14: (YOLO)>>> Published kinematic state at: {11952593539} for seq: {41}
+Federate 14: (YOLO)>>> Published kinematic state at: {11997867138} for seq: {42}
+Federate 14: (YOLO)>>> Published kinematic state at: {12041185527} for seq: {43}
+Federate 14: (YOLO)>>> Published kinematic state at: {12084357591} for seq: {44}
+Federate 14: (YOLO)>>> Published kinematic state at: {12173263548} for seq: {45}
+Federate 14: (YOLO)>>> Published kinematic state at: {12220484873} for seq: {46}
+Federate 14: (YOLO)>Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Received route
+Federate 9: Received map
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending lane route.
+Federate 9: Received trajectory from planner
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federa>> Published kinematic state at: {12297605216} for seq: {47}
+Federate 14: (YOLO)>>> Published kinematic state at: {12413017365} for seq: {48}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12510773641} for seq: {47}
+Federate 14: (YOLO)>>> Published kinematic state at: {12511297246} for seq: {49}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12596148726} for seq: {47}
+Federate 14: (YOLO)>>> Published kinematic state at: {12596679963} for seq: {50}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12640940800} for seq: {48}
+Federate 14: (YOLO)>>> Published kinematic state at: {12684980517} for seq: {51}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12728184766} for seq: {49}
+Federate 14: (YOLO)>>> Published kinematic state at: {12728604119} for seq: {52}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12761526811} for seq: {50}
+Federate 14: (YOLO)>>> Published kinematic state at: {12762226731} for seq: {53}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12809540892} for seq: {51}
+Federate 14: (YOLO)>>> Published kinematic state at: {12810355664} for seq: {54}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12852840656} for seq: {52}
+Federate 14: (YOLO)>>> Published kinematic state at: {12896983580} for seq: {55}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {12945202526} for seq: {53}
+Federate 14: (YOLO)>>> Published kinematic state at: {12945573874} for seq: {56}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13032581334} for seq: {54}
+Federate 14: (YOLO)>>> Published kinematic state at: {13032905483} for seq: {57}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13120575158} for seq: {55}
+Federate 14: (YOLO)>>> Published kinematic state at: {13164743030} for seq: {58}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13252185571} for seq: {56}
+Federate 14: (YOLO)>>> Published kinematic state at: {13252676758} for seq: {59}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13303527136} for seq: {57}
+Federate 14: (YOLO)>>> Published kinematic state at: {13303854111} for seq: {60}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13388769052} for seq: {58}
+Federate 14: (YOLO)>>> Published kinematic state at: {13433301532} for seq: {61}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13482374239} for seq: {59}
+Federate 14: (YOLO)>>> Published kinematic state at: {13483123729} for seq: {62}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13528207339} for seq: {60}
+Federate 14: (YOLO)>>> Published kinematic state at: {13529224229} for seq: {63}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13616210439} for seq: {61}
+Federate 14: (YOLO)>>> Published kinematic state at: {13616963364} for seq: {64}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13665582985} for seq: {62}
+Federate 14: (YOLO)>>> Published kinematic state at: {13666454482} for seq: {65}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13709339196} for seq: {63}
+Federate 14: (YOLO)>>> Published kinematic state at: {13736517520} for seq: {66}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13781107169} for seq: {64}
+Federate 14: (YOLO)>>> Published kinematic state at: {13781882065} for seq: {67}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {13868700505} for seq: {65}
+Federate 14: (YOLO)>>> Published kinematic state at: {13912968465} for seq: {68}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14000190116} for seq: {66}
+Federate 14: (YOLO)>>> Published kinematic state at: {14000581427} for seq: {69}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14045556985} for seq: {67}
+Federate 14: (YOLO)>>> Published kinematic state at: {14046053713} for seq: {70}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14132399129} for seq: {68}
+Federate 14: (YOLO)>>> Published kinematic state at: {14176647217} for seq: {71}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14221345121} for seq: {69}
+Federate 14: (YOLO)>>> Publte 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9ished kinematic state at: {14222031972} for seq: {72}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14264897415} for seq: {70}
+Federate 14: (YOLO)>>> Published kinematic state at: {14265265944} for seq: {73}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14308765827} for seq: {71}
+Federate 14: (YOLO)>>> Published kinematic state at: {14353087441} for seq: {74}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14397147508} for seq: {72}
+Federate 14: (YOLO)>>> Published kinematic state at: {14397884002} for seq: {75}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14444158820} for seq: {73}
+Federate 14: (YOLO)>>> Published kinematic state at: {14444512129} for seq: {76}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14532708223} for seq: {74}
+Federate 14: (YOLO)>>> Published kinematic state at: {14533350345} for seq: {77}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14581824671} for seq: {75}
+Federate 14: (YOLO)>>> Published kinematic state at: {14672409765} for seq: {78}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14717220437} for seq: {76}
+Federate 14: (YOLO)>>> Published kinematic state at: {14718152248} for seq: {79}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14765139205} for seq: {77}
+Federate 14: (YOLO)>>> Published kinematic state at: {14765528225} for seq: {80}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14809164034} for seq: {78}
+Federate 14: (YOLO)>>> Published kinematic state at: {14852788720} for seq: {81}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14901572006} for seq: {79}
+Federate 14: (YOLO)>>> Published kinematic state at: {14901904615} for seq: {82}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14945113799} for seq: {80}
+Federate 14: (YOLO)>>> Published kinematic state at: {14947560652} for seq: {83}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {14990148738} for seq: {81}
+Federate 14: (YOLO)>>> Published kinematic state at: {15056632083} for seq: {84}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15101130559} for seq: {82}
+Federate 14: (YOLO)>>> Published kinematic state at: {15102015443} for seq: {85}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15145361324} for seq: {83}
+Federate 14: (YOLO)>>> Published kinematic state at: {15145686225} for seq: {86}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15188832221} for seq: {84}
+Federate 14: (YOLO)>>> Published kinematic state at: {15189328268} for seq: {87}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15233512879} for seq: {85}
+Federate 14: (YOLO)>>> Published kinematic state at: {15288658741} for seq: {88}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15333102834} for seq: {86}
+Federate 14: (YOLO)>>> Published kinematic state at: {15333449550} for seq: {89}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15376705983} for seq: {87}
+Federate 14: (YOLO)>>> Published kinematic state at: {15377523615} for seq: {90}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15422907431} for seq: {88}
+Federate 14: (YOLO)>>> Published kinematic state at: {15464959598} for seq: {91}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15489470614} for seq: {89}
+Federate 14: (YOLO)>>> Published kinematic state at: {15489857739} for seq: {92}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15533337565} for seq: {90}
+Federate 14: (YOLO)>>> Published kinematic state at: {15533756966} for seq: {93}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15577511296} for seq: {91}
+Federate 14: (YOLO)>>> Published kinematic state at: {15579352928} for seq: {94}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15580924837} for seq: {92}
+Federate 14: (YOLO)>>> Published kinematic state at: {15628436747} for seq: {95}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15673627106} for seq: {93}
+Federate 14: (YOLO)>>> Published kinematic state at: {15674005911} for seq: {96}
+Federate 14: (YOLO)>>> LGSVL receiFederation ID for executable /home/wonghouseng/XronOS/bin/Autoware_mpc_controller: 6701f35f298c64a6221b45c7677a64515b0c92dc74616458
+Federate 15: Connected to RTI at localhost:15045.
+---- Start execution at time Wed Mar 30 10:53:53 2022
+---- plus 848905937 nanoseconds.
+Federate 15: ---- Using 28 workers.
+Federate 15: Starting timestamp is: 1648662834864595589.
+Federate 15: (YOLO)>>> MPC received trajectory at: {12457215502} seq: {47}
+Federate 15: (YOLO)>>> MPC received trajectory at: {12552936824} seq: {48}
+Federate 15: (YOLO)>>> MPC received trajectory at: {12640685461} seq: {49}
+Federate 15: (YOLO)>>> MPC received trajectory at: {12686688436} seq: {50}
+Federate 15: (YOLO)>>> MPC received trajectory at: {12761253371} seq: {51}
+Federate 15: (YOLO)>>> MPC received trajectory at: {12809253972} seq: {52}
+Federate 15: (YOLO)>>> MPC received trajectory at: {12852586086} seq: {53}
+Federate 15: (YOLO)>>> MPC received trajectory at: {12945008371} seq: {54}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13032339458} seq: {55}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13120402135} seq: {56}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13209326786} seq: {57}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13303088646} seq: {58}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13388534419} seq: {59}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13482135854} seq: {60}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13484848040} seq: {61}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13573528759} seq: {62}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13665351233} seq: {63}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13708900471} seq: {64}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13780841000} seq: {65}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13868530770} seq: {66}
+Federate 15: (YOLO)>>> MPC received trajectory at: {13957368799} seq: {67}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14045354392} seq: {68}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14132188839} seq: {69}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14221105737} seq: {70}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14264668097} seq: {71}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14308497311} seq: {72}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14396899121} seq: {73}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14440536366} seq: {74}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14532474090} seq: {75}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14581584780} seq: {76}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14717035619} seq: {77}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14764938072} seq: {78}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14808924745} seq: {79}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14901410464} seq: {80}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14944900806} seq: {81}
+Federate 15: (YOLO)>>> MPC received trajectory at: {14989938357} seq: {82}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15100924184} seq: {83}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15145065166} seq: {84}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15188637259} seq: {85}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15233107725} seq: {86}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15332904631} seq: {87}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15376486502} seq: {88}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15422572233} seq: {89}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15489013116} seq: {90}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15533161206} seq: {91}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15577296278} seq: {92}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15580737731} seq: {93}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15673224190} seq: {94}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15717022484} seq: {95}
+Federate 15: (YOLO)>>> MPC received trajectory at: {1576131ved vehicle command at: {15717228148} for seq: {94}
+Federate 14: (YOLO)>>> Published kinematic state at: {15717819247} for seq: {97}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15761570482} for seq: {95}
+Federate 14: (YOLO)>>> Published kinematic state at: {15762056825} for seq: {98}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15805407243} for seq: {96}
+Federate 14: (YOLO)>>> Published kinematic state at: {15806121721} for seq: {99}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15849112588} for seq: {97}
+Federate 14: (YOLO)>>> Published kinematic state at: {15892902092} for seq: {100}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15937363286} for seq: {98}
+Federate 14: (YOLO)>>> Published kinematic state at: {15937728034} for seq: {101}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {15980908199} for seq: {99}
+Federate 14: (YOLO)>>> Published kinematic state at: {15981237852} for seq: {102}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16031646672} for seq: {100}
+Federate 14: (YOLO)>>> Published kinematic state at: {16077310430} for seq: {103}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16120819854} for seq: {101}
+Federate 14: (YOLO)>>> Published kinematic state at: {16160509532} for seq: {104}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16209734937} for seq: {102}
+Federate 14: (YOLO)>>> Published kinematic state at: {16210390386} for seq: {105}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16253021550} for seq: {103}
+Federate 14: (YOLO)>>> Published kinematic state at: {16254270050} for seq: {106}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16296520351} for seq: {104}
+Federate 14: (YOLO)>>> Published kinematic state at: {16297010815} for seq: {107}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16342267532} for seq: {105}
+Federate 14: (YOLO)>>> Published kinematic state at: {16342715545} for seq: {108}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16384832203} for seq: {106}
+Federate 14: (YOLO)>>> Published kinematic state at: {16385147448} for seq: {109}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16429417506} for seq: {107}
+Federate 14: (YOLO)>>> Published kinematic state at: {16544417171} for seq: {110}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16589143785} for seq: {108}
+Federate 14: (YOLO)>>> Published kinematic state at: {16589836896} for seq: {111}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16637289290} for seq: {109}
+Federate 14: (YOLO)>>> Published kinematic state at: {16637585738} for seq: {112}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16680174062} for seq: {110}
+Federate 14: (YOLO)>>> Published kinematic state at: {16681427257} for seq: {113}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16724896583} for seq: {111}
+Federate 14: (YOLO)>>> Published kinematic state at: {16725621189} for seq: {114}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16769194514} for seq: {112}
+Federate 14: (YOLO)>>> Published kinematic state at: {16800605525} for seq: {115}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16846482068} for seq: {113}
+Federate 14: (YOLO)>>> Published kinematic state at: {16889155847} for seq: {116}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16933073182} for seq: {114}
+Federate 14: (YOLO)>>> Published kinematic state at: {16933387947} for seq: {117}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {16981141837} for seq: {115}
+Federate 14: (YOLO)>>> Published kinematic state at: {16981683625} for seq: {118}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17068959327} for seq: {116}
+Federate 14: (YOLO)>>> Published kinematic state at: {17069470273} for seq: {119}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17113164240} for seq: {117}
+Federate 14: (YOLO)>>> Published kinematic state at: {17200434538} for seq: {120}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17246215629} for seq: {1: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Go18}
+Federate 14: (YOLO)>>> Published kinematic state at: {17246571979} for seq: {121}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17289219820} for seq: {119}
+Federate 14: (YOLO)>>> Published kinematic state at: {17292473484} for seq: {122}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17337064512} for seq: {120}
+Federate 14: (YOLO)>>> Published kinematic state at: {17384936789} for seq: {123}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17432879077} for seq: {121}
+Federate 14: (YOLO)>>> Published kinematic state at: {17433246455} for seq: {124}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17520530570} for seq: {122}
+Federate 14: (YOLO)>>> Published kinematic state at: {17521113903} for seq: {125}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17612528697} for seq: {123}
+Federate 14: (YOLO)>>> Published kinematic state at: {17661019854} for seq: {126}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17749896289} for seq: {124}
+Federate 14: (YOLO)>>> Published kinematic state at: {17750424988} for seq: {127}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17793512036} for seq: {125}
+Federate 14: (YOLO)>>> Published kinematic state at: {17793795540} for seq: {128}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17837200688} for seq: {126}
+Federate 14: (YOLO)>>> Published kinematic state at: {17852375328} for seq: {129}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17901133977} for seq: {127}
+Federate 14: (YOLO)>>> Published kinematic state at: {17901967069} for seq: {130}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17945232604} for seq: {128}
+Federate 14: (YOLO)>>> Published kinematic state at: {17946433884} for seq: {131}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {17989409543} for seq: {129}
+Federate 14: (YOLO)>>> Published kinematic state at: {17989853475} for seq: {132}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18032944917} for seq: {130}
+Federate 14: (YOLO)>>> Published kinematic state at: {18077043212} for seq: {133}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18120776234} for seq: {131}
+Federate 14: (YOLO)>>> Published kinematic state at: {18121088948} for seq: {134}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18168885758} for seq: {132}
+Federate 14: (YOLO)>>> Published kinematic state at: {18204539507} for seq: {135}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18292601312} for seq: {133}
+Federate 14: (YOLO)>>> Published kinematic state at: {18336761401} for seq: {136}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18381030454} for seq: {134}
+Federate 14: (YOLO)>>> Published kinematic state at: {18381399089} for seq: {137}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18425213164} for seq: {135}
+Federate 14: (YOLO)>>> Published kinematic state at: {18426170123} for seq: {138}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18468806188} for seq: {136}
+Federate 14: (YOLO)>>> Published kinematic state at: {18516490348} for seq: {139}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18567261414} for seq: {137}
+Federate 14: (YOLO)>>> Published kinematic state at: {18567584270} for seq: {140}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18652171809} for seq: {138}
+Federate 14: (YOLO)>>> Published kinematic state at: {18652525975} for seq: {141}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18697536332} for seq: {139}
+Federate 14: (YOLO)>>> Published kinematic state at: {18698266096} for seq: {142}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18741312584} for seq: {140}
+Federate 14: (YOLO)>>> Published kinematic state at: {18784848653} for seq: {143}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18852605015} for seq: {141}
+Federate 14: (YOLO)>>> Published kinematic state at: {18853655330} for seq: {144}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18944630086} for seq: {142}
+Federate 14: (YOLO)>>> Published kin7885} seq: {96}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15805190029} seq: {97}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15848880533} seq: {98}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15937168543} seq: {99}
+Federate 15: (YOLO)>>> MPC received trajectory at: {15980714818} seq: {100}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16031237133} seq: {101}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16120625362} seq: {102}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16209501473} seq: {103}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16252615011} seq: {104}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16296219636} seq: {105}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16342088124} seq: {106}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16384606285} seq: {107}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16428910114} seq: {108}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16588837375} seq: {109}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16637139707} seq: {110}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16641259683} seq: {111}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16724716639} seq: {112}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16769001351} seq: {113}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16845867870} seq: {114}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16932883007} seq: {115}
+Federate 15: (YOLO)>>> MPC received trajectory at: {16980930915} seq: {116}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17068564004} seq: {117}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17112961635} seq: {118}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17245950403} seq: {119}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17289037165} seq: {120}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17336708954} seq: {121}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17432689935} seq: {122}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17520354182} seq: {123}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17612355954} seq: {124}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17748631854} seq: {125}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17793303002} seq: {126}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17836996155} seq: {127}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17900898905} seq: {128}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17945064859} seq: {129}
+Federate 15: (YOLO)>>> MPC received trajectory at: {17989009992} seq: {130}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18032748280} seq: {131}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18120576308} seq: {132}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18168689223} seq: {133}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18292391669} seq: {134}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18380875300} seq: {135}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18425019198} seq: {136}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18468622296} seq: {137}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18567003971} seq: {138}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18609295601} seq: {139}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18697266392} seq: {140}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18741079226} seq: {141}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18852345223} seq: {142}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18944393293} seq: {143}
+Federate 15: (YOLO)>>> MPC received trajectory at: {18992371631} seq: {144}
+Federate 15: (YOLO)>>> MPC received trajectory at: {19038823402} seq: {145}
+Federate 15: (YOLO)>>> MPC received trajectory at: {19045594071} seq: {146}
+Federate 15: (YOLO)>>> MPC received trajectory at: {19221225206} seq: {147}
+Federate 15: (YOLO)>>> MPC received trajectory at: {19223454392} seq: {148}
+Federate 15: (YOLO)>>> MPC received trajectory at: {19309198410} seq: {149}
+Federate 15: (YOLO)>>> MPC received trajectory at: {193t a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a vehicle kinematic state.
+Federate 9: Sending trajectory to be modified.
+Federate 9: Received modified trajectory.
+Federate 9: Got a ematic state at: {18945396049} for seq: {145}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {18992595850} for seq: {143}
+Federate 14: (YOLO)>>> Published kinematic state at: {19037407927} for seq: {146}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19038970426} for seq: {144}
+Federate 14: (YOLO)>>> Published kinematic state at: {19039477151} for seq: {147}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19047397049} for seq: {145}
+Federate 14: (YOLO)>>> Published kinematic state at: {19177223358} for seq: {148}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19221463417} for seq: {146}
+Federate 14: (YOLO)>>> Published kinematic state at: {19222256529} for seq: {149}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19264196390} for seq: {147}
+Federate 14: (YOLO)>>> Published kinematic state at: {19264894759} for seq: {150}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19309437751} for seq: {148}
+Federate 14: (YOLO)>>> Published kinematic state at: {19310045100} for seq: {151}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19353939448} for seq: {149}
+Federate 14: (YOLO)>>> Published kinematic state at: {19400444676} for seq: {152}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19444720736} for seq: {150}
+Federate 14: (YOLO)>>> Published kinematic state at: {19445678795} for seq: {153}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19489591512} for seq: {151}
+Federate 14: (YOLO)>>> Published kinematic state at: {19490355657} for seq: {154}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19536985533} for seq: {152}
+Federate 14: (YOLO)>>> Published kinematic state at: {19580537050} for seq: {155}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19625184497} for seq: {153}
+Federate 14: (YOLO)>>> Published kinematic state at: {19625675261} for seq: {156}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19669183644} for seq: {154}
+Federate 14: (YOLO)>>> Published kinematic state at: {19669582659} for seq: {157}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19714010391} for seq: {155}
+Federate 14: (YOLO)>>> Published kinematic state at: {19757182025} for seq: {158}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19805176324} for seq: {156}
+Federate 14: (YOLO)>>> Published kinematic state at: {19805971325} for seq: {159}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19852725740} for seq: {157}
+Federate 14: (YOLO)>>> Published kinematic state at: {19853280314} for seq: {160}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19901917358} for seq: {158}
+Federate 14: (YOLO)>>> Published kinematic state at: {19902857720} for seq: {161}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19946264324} for seq: {159}
+Federate 14: (YOLO)>>> Published kinematic state at: {19952378169} for seq: {162}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {19997319890} for seq: {160}
+Federate 14: (YOLO)>>> Published kinematic state at: {19997676284} for seq: {163}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {20044634178} for seq: {161}
+Federate 14: (YOLO)>>> Published kinematic state at: {20044950080} for seq: {164}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {20092878283} for seq: {162}
+Federate 14: (YOLO)>>> Published kinematic state at: {20140486116} for seq: {165}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {20185146507} for seq: {163}
+Federate 14: (YOLO)>>> Published kinematic state at: {20185849533} for seq: {166}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {20233405839} for seq: {164}
+Federate 14: (YOLO)>>> Published kinematic state at: {20233980157} for seq: {167}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {20277166873} for seq: {165}
+Federate 14: (YOLO)>>> Published kinematic state at: {20320855374} for seq: {168}
+Federate 14: (YOLO)>>> LGSVL received vehicle command at: {20365871964} for seq: {166}
+Federate 14: (YOLO)>>> Published kinematic state at: {20366634529} for seq: Federation ID for executable /home/wonghouseng/XronOS/bin/Autoware_p2d_ndt_localizer: 6701f35f298c64a6221b45c7677a64515b0c92dc74616458
+Federate 7: Connected to RTI at localhost:15045.
+---- Start execution at time Wed Mar 30 10:53:53 2022
+---- plus 864585555 nanoseconds.
+Federate 7: ---- Using 28 workers.
+Federate 7: Starting timestamp is: 1648662834864595589.
+---- Elapsed logical time (in nsec): 20,350,000,000
+---- Elapsed physical time (in nsec): 20,432,408,031
+#### Received ERR signal on line 116. Invoking cleanup().
+Killing federate 17287.
+Killing federate 17288.
+Killing federate 17289.
+Killing federate 17290.
+Killing federate 17291.
+Killing federate 17292.
+Killing federate 17293.
+Killing federate 17294.
+Killing federate 17295.
+Killing federate 17296.
+Killing federate 17297.
+Killing federate 17298.
+Killing federate 17299.
+Killing federate 17300.
+Killing federate 17301.
+Killing federate 17302.
+Killing federate 17303.
+Killing federate 17304.
+#### Killing RTI 17285.

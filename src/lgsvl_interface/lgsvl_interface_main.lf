@@ -98,9 +98,9 @@ reactor lgsvl_interface {
     
     // To the simulator
     reaction (vehicle_command) {=
+        info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
         try {
             self->node->on_command_message(*vehicle_command->value);
-            info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
         } catch (...) {
             self->node->on_error(std::current_exception());
         }
