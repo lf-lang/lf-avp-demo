@@ -70,7 +70,7 @@ reactor lgsvl_interface {
             self->node->m_interface->m_vse_t->sequence_number = self->sequence_number++;
             SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
             self->node->m_interface->m_vse_t.reset();
-            info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), self->sequence_number);
+            info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) self->sequence_number);
         }
     =}
      
@@ -100,7 +100,7 @@ reactor lgsvl_interface {
     reaction (vehicle_command) {=
         try {
             self->node->on_command_message(*vehicle_command->value);
-            info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), vehicle_command->value->sequence_number);
+            info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
         } catch (...) {
             self->node->on_error(std::current_exception());
         }
