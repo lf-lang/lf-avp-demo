@@ -13,6 +13,11 @@ def get_time(line):
     start = line.find("{")
     return int(line[start+1:line.find("}", start+1)])
 
+def check(lgsvl_kms, mpc_trajectory, lgsvl_command):
+    return "Published kinematic state at:" in lgsvl_kms and "LGSVL" not in lgsvl_kms and "MPC" not in lgsvl_kms and \
+           "MPC received trajectory at:" in mpc_trajectory and "Published" not in mpc_trajectory and "LGSVL" not in mpc_trajectory and \
+           "LGSVL received vehicle command at:" in lgsvl_command and "Published" not in lgsvl_command and "MPC" not in lgsvl_command
+
 
 for f_name in f_names:
     with open(f_name, "r") as f:
@@ -41,6 +46,8 @@ for f_name in f_names:
             if len(yolo_lines_by_id[seq_id]) == 3:
                 # print(yolo_lines_by_id[seq_id])
                 lgsvl_kms, mpc_trajectory, lgsvl_command = sorted(yolo_lines_by_id[seq_id])[::-1]
+                if not check(lgsvl_kms, mpc_trajectory, lgsvl_command):
+                    continue
                 diffs.append((get_time(lgsvl_command) - get_time(lgsvl_kms)) // 1_000_000)
                 if diffs[-1] < 0:
                     print(sorted(yolo_lines_by_id[seq_id]))
