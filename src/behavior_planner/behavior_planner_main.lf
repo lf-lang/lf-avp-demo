@@ -164,8 +164,6 @@ reactor behavior_planner {
            autoware_auto_msgs::msg::HADMapBin
            >(map->value)
        );
-    =} STP (1 sec) {=
-       info_print("Received map late.");
     =}
     
     // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
@@ -189,9 +187,6 @@ reactor behavior_planner {
 
         // finished requesting trajectory
         self->node->m_requesting_trajectory = false;
-    =} STP (1 sec) {=
-        // request_stop();
-        error_print("Sub-planners did not respond in time.");
     =}
     
     
@@ -209,9 +204,6 @@ reactor behavior_planner {
             trajectory->points.push_back(stopping_point);
         }
         SET(control_trajectory, trajectory);
-    =} STP (1 sec) {=
-        // request_stop();
-        error_print("Did not receive the modified trajectory in time.");
     =}
 }
 
