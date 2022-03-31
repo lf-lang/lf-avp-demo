@@ -1,0 +1,22 @@
+Federate AutowarePhysical in Federation ID '40a662e9a51d4748983bd1a9ea7a681472690f1b8fda6136'
+#### Launching the runtime infrastructure (RTI).
+#### Launching the federate filter_and_transform__0.
+#### Launching the federate filter_and_transform__1.
+#### Launching the federate point_cloud_fusion.
+#### Launching the federate voxel_grid_downsampler.
+#### Launching the federate ray_ground_classifier.
+#### Launching the federate euclidean_cluster_detector.
+#### Launching the federate ndt_map_publisher.
+#### Launching the federate p2d_ndt_localizer.
+#### Launching the federate off_map_obstacles_filter.
+#### Launching the federate behavior_planner.
+#### Launching the federate parking_planner.
+#### Launching the federate lane_planner.
+#### Launching the federate global_planner.
+#### Launching the federate object_collision_estimator.
+#### Launching the federate lgsvl_interface.
+#### Launching the federate mpc_controller.
+#### Launching the federate robot_state_publisher.
+#### Launching the federate map_provider.
+#### Bringing the RTI back to foreground so it can receive Control-C.
+RTI -i ${FEDERATION_ID} -n 18 -c init exchanges-per-interval 10
