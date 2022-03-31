@@ -64,16 +64,7 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
         autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
         self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
         self->wait_for_map = 0;
-    =} STP (wait_for_map) {=
-        // Don't need to wait for the map anymore.
-        self->wait_for_map = 0;
-        error_print("Received the map late");
-        auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-        autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
-        self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);
     =}
-
-
 }
 
 main reactor {
