@@ -1,11 +1,12 @@
 import sys
 import glob
-# if len(sys.argv) != 2:
-#     print("ERROR: must specify log file name as argument")
-#     exit(1)
-# f_name = sys.argv[1]
+import os
+if len(sys.argv) != 2:
+    print("ERROR: must specify log folder name as argument")
+    exit(1)
+folder_name = sys.argv[1]
 
-f_names = glob.glob("log*.txt")
+f_names = glob.glob(os.path.join(folder_name, "log*.txt"))
 total_diffs = []
 first = 5
 
@@ -58,20 +59,24 @@ with open("results.txt", "w") as f:
         f.write(str(i) + "\n")
 
 
-# with open("results.txt", "r") as f:
-#     s = f.read().split("\n")
-#     c = 0
-#     ave = 0
-#     maxi = -float('inf')
-#     mini = float('inf')
-#     for l in s:
-#         try:
-#             ave = (c * ave + int(l)) / (c + 1)
-#             c += 1
-#             maxi = max(maxi, int(l))
-#             mini = min(mini, int(l))
-#         except:
-#             pass
-#     print("Average: ", ave)
-#     print("Max: ", maxi)
-#     print("Min: ", mini)
+with open("results.txt", "r") as f:
+    s = f.read().split("\n")
+    c = 0
+    ave = 0
+    maxi = -float('inf')
+    mini = float('inf')
+    for l in s:
+        try:
+            ave = (c * ave + int(l)) / (c + 1)
+            c += 1
+            maxi = max(maxi, int(l))
+            mini = min(mini, int(l))
+        except:
+            pass
+    print("Average: ", ave)
+    print("Max: ", maxi)
+    print("Min: ", mini)
+
+import matplotlib.pyplot as plt
+plt.hist(total_diffs)
+plt.show()

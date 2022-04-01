@@ -1,11 +1,11 @@
 import sys
 import glob
-# if len(sys.argv) != 2:
-#     print("ERROR: must specify log file name as argument")
-#     exit(1)
-# f_name = sys.argv[1]
+if len(sys.argv) != 2:
+    print("ERROR: must specify log file name as argument")
+    exit(1)
+folder_name = sys.argv[1]
 
-f_names = glob.glob("lf-data/log*.txt")
+f_names = glob.glob(os.path.join(folder_name, "log*.txt"))
 
 first = 5
 total_diffs = []
