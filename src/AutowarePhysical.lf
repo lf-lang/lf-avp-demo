@@ -2,7 +2,8 @@ target CCpp {
     files: ["include/utils.hpp"],
     flags: ["-Wno-write-strings"],
     build-type: RelWithDebInfo,
-    coordination: decentralized
+    coordination: decentralized,
+    workers: 1
     // logging: INFO
 };
 
