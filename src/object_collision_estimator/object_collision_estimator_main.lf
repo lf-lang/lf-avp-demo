@@ -36,7 +36,6 @@ reactor object_collision_estimator {
         // For tf stuff
         rclcpp::spin_some(self->node_shared_ptr);
     =}
-	
     
     reaction (filtered_lidar_boxes) {=
         self->node->on_bounding_box(filtered_lidar_boxes->value);
