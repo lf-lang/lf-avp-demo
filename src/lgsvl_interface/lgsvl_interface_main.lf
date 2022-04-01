@@ -18,6 +18,16 @@ preamble {=
     #include "lgsvl_interface/lgsvl_interface.hpp"
     #include "utils.hpp"
     std::string yaml_path = get_xronos_home() + "/src/lgsvl_interface/include/lgsvl_interface.param.yaml";
+
+    void* spin_node(void* args) {
+        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>*>(args);
+        auto node_shared_ptr = *node_shared_ptr_ptr;
+        while (rclcpp::ok()) {
+            rclcpp::spin(node_shared_ptr);
+        }
+        delete node_shared_ptr_ptr;
+        return 0;
+    }
 =}
 
 reactor lgsvl_interface {    
@@ -56,14 +66,17 @@ reactor lgsvl_interface {
         self->node = new lgsvl_interface::LgsvlInterfaceNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
         self->sequence_number = 0;
-        rclcpp::spin_some(self->node_shared_ptr);       
-    
+        pthread_t spinner_thread;
+        pthread_create(
+            &spinner_thread, 
+            NULL, 
+            &spin_node, 
+            static_cast<void*>(new std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node_shared_ptr))); 
     =}
     
     // Comes from the LGSVL interface
     timer gps_odom(0, 10 msec);   
     reaction (gps_odom) -> vehicle_kinematic_state {=
-        rclcpp::spin_some(self->node_shared_ptr);
         // If the vehicle kinematic state is not null
         if (self->node->m_interface->m_vse_t) {
             // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
@@ -77,8 +90,6 @@ reactor lgsvl_interface {
     // Comes from the LGSVL interface
     timer can_bus(33 msec, 33 msec);
     reaction (can_bus) -> state_report {=
-        rclcpp::spin_some(self->node_shared_ptr);
-        
         if (self->node->m_interface->m_state_report_set) {
             auto msg =
             std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(
@@ -104,15 +115,11 @@ reactor lgsvl_interface {
         } catch (...) {
             self->node->on_error(std::current_exception());
         }
-        
-        rclcpp::spin_some(self->node_shared_ptr);
     =}
     
     // To the simulator
     reaction (state_command) {=
         self->node->m_last_state_command = *state_command->value;
-        
-        rclcpp::spin_some(self->node_shared_ptr);
     =}
 }
 
