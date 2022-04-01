@@ -17,10 +17,10 @@ preamble {=
     #include "lanelet2_core/LaneletMap.h"
     #include "had_map_utils/had_map_conversion.hpp"
     #include "had_map_utils/had_map_query.hpp"
-    #include "lane_planner_node.hpp"
+    #include "motion_common/motion_common.hpp"
+    #include "lane_planner_nodes/lane_planner_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANE_PLANNER_PARAM;
 =}
 
 reactor lane_planner {
@@ -35,6 +35,8 @@ reactor lane_planner {
     state node_shared_ptr:std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>;
         
     reaction (startup) {=
+        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANE_PLANNER_PARAM;
+
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             yaml_path.c_str(),
             "/**"

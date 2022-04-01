@@ -38,7 +38,7 @@ reactor robot_state_publisher {
     =}
    timer ros_spin (0, 10 msec);
    reaction (ros_spin) {=
-        rclcpp::spin_some(self->node_shared_ptr);
+        rclcpp::spin_some(self->node_shared_ptr); // FIXME: spin() concurrent thread
    =}
 }
 

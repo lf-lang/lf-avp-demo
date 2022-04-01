@@ -9,7 +9,6 @@ preamble {=
     #include "visualize.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + OBJ_COLLISION_EST_PARAM;
 =}
 
 reactor object_collision_estimator {
@@ -20,7 +19,9 @@ reactor object_collision_estimator {
 	state node:motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode*;
 	state node_shared_ptr:std::shared_ptr<motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode>;
 	
-	reaction (startup) {=        
+	reaction (startup) {= 
+        std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + OBJ_COLLISION_EST_PARAM;
+       
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             yaml_path.c_str(), 
             "/**"

@@ -17,7 +17,6 @@ preamble {=
     #include "ndt_localizer_nodes.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
 =}
 
 reactor p2d_ndt_localizer {
@@ -30,6 +29,8 @@ reactor p2d_ndt_localizer {
     timer spin_timer(0, 10 msec);
 
     reaction (startup) {=
+        std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
+
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             yaml_path.c_str(),
             "/**"

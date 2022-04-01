@@ -9,7 +9,6 @@ preamble {=
     #include <stdlib.h>
     #include <string>
     #include "utils.hpp"
-    std::string yaml_path = get_xronos_home() + "/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml";
 =}
 
 reactor ray_ground_classifier {
@@ -22,6 +21,8 @@ reactor ray_ground_classifier {
 	
         
     reaction (startup) {=
+        std::string yaml_path = get_xronos_home() + "/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml";
+
         char *argv[] = {
             "ray_ground_classifier_cloud_node",
             "--ros-args",

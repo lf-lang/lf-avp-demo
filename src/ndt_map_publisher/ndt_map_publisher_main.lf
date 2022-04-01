@@ -18,7 +18,6 @@ preamble {=
     #include "map_publisher.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_MAP_PUBLISHER_PARAM;
 =}
 
 reactor ndt_map_publisher {
@@ -28,6 +27,8 @@ reactor ndt_map_publisher {
     state node_shared_ptr:std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>;
     
     reaction (startup) -> points_out {=
+        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_MAP_PUBLISHER_PARAM;
+
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             yaml_path.c_str(),
             "/**"
