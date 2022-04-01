@@ -18,6 +18,16 @@ target CCpp {
 preamble {=
     #include "lanelet2_global_planner_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
+
+    void* spin_node(void* args) {
+        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>*>(args);
+        auto node_shared_ptr = *node_shared_ptr_ptr;
+        while (rclcpp::ok()) {
+            rclcpp::spin(node_shared_ptr);
+        }
+        delete node_shared_ptr_ptr;
+        return 0;
+    }
 =}
 
 reactor global_planner {
@@ -42,6 +52,13 @@ reactor global_planner {
         
         self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node);
+
+        pthread_t spinner_thread;
+        pthread_create(
+            &spinner_thread, 
+            NULL, 
+            &spin_node, 
+            static_cast<void*>(new std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node_shared_ptr)));
         
         auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
         request->requested_primitives.push_back(
@@ -62,7 +79,6 @@ reactor global_planner {
             SET(global_path, msg);
             self->node->global_route_set = false;
         } else {
-            rclcpp::spin_some(self->node_shared_ptr);
             schedule(act, 0);
         }
     =} 
