@@ -64,7 +64,9 @@ reactor filter_and_transform (
 
     reaction (points_in) -> points_out {=
         // Process some events
+        
         SET(points_out, points_in->value);
+        self->_lf__points_in.token->ok_to_free = token_only;
     =}
 }
 
