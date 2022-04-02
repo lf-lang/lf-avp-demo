@@ -8,7 +8,6 @@ preamble {=
     #include "euclidean_cluster_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + EUCLIDEAN_CLUSTER_DETECTOR_PARAM;
 =}
 
 reactor euclidean_cluster_detector {
@@ -19,6 +18,8 @@ reactor euclidean_cluster_detector {
     state node:autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode*;
     
     reaction (startup) {=
+        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + EUCLIDEAN_CLUSTER_DETECTOR_PARAM;
+
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             yaml_path.c_str(), 
             "/**"

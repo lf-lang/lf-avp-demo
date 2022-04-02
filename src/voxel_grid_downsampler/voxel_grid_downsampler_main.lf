@@ -8,7 +8,6 @@ preamble {=
     #include "voxel_cloud_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    std::string yaml_path = get_xronos_home() + "/src/voxel_grid_downsampler/include/scan_downsampler_ms3.param.yaml";
 =}
 
 reactor voxel_grid_downsampler {
@@ -18,6 +17,8 @@ reactor voxel_grid_downsampler {
     state node:autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode*;
     
     reaction (startup) {=
+        std::string yaml_path = get_xronos_home() + "/src/voxel_grid_downsampler/include/scan_downsampler_ms3.param.yaml";
+
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             yaml_path.c_str(), 
             "/**"

@@ -8,7 +8,6 @@ preamble {=
     #include "sensor_msgs/msg/point_cloud2.hpp"
     #include "point_cloud_fusion_node.hpp"
     #include "utils.hpp"
-    std::string yaml_path = get_xronos_home() + "/src/point_cloud_fusion/include/vlp16_sim_lexus_pc_fusion.param.yaml";
 =}
 
 reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
@@ -18,6 +17,8 @@ reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
 	state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode*;
 	
 	reaction (startup) {=
+        std::string yaml_path = get_xronos_home() + "/src/point_cloud_fusion/include/vlp16_sim_lexus_pc_fusion.param.yaml";
+
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             yaml_path.c_str(), 
             "/**"

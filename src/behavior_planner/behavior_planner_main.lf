@@ -24,8 +24,6 @@ preamble {=
     #include "behavior_planner_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
-
     void* spin_node(void* args) {
         auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>*>(args);
         auto node_shared_ptr = *node_shared_ptr_ptr;
@@ -83,6 +81,8 @@ reactor behavior_planner {
     state previous_output:std::chrono::time_point<std::chrono::system_clock>;
         
     reaction (startup) {=
+        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
+
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             yaml_path.c_str(),
             "/**"
@@ -112,37 +112,37 @@ reactor behavior_planner {
             vehicle_state_command, 
             lane_route, 
             parking_route {=
-        info_print("Got a vehicle kinematic state.");
+        // info_print("Got a vehicle kinematic state.");
         self->node->on_ego_state(vehicle_kinematic_state->value);
 
         // Check if any of the state variables are set. If so, send them.
         if (self->node->m_lane_route != nullptr) {
-            info_print("Sending lane route.");
+            // info_print("Sending lane route.");
             SET(lane_route, self->node->m_lane_route);
             self->node->m_lane_route.reset();
         }
 
         if (self->node->m_parking_route != nullptr) {
-            info_print("Sending parking route.");
+            // info_print("Sending parking route.");
             SET(parking_route, self->node->m_parking_route);
             self->node->m_parking_route.reset();
         }
 
         if (self->node->m_state_command != nullptr) {
-            info_print("Sending vehicle state command.");
+            // info_print("Sending vehicle state command.");
             SET(vehicle_state_command, self->node->m_state_command);
             self->node->m_state_command.reset();
         }
 
         if (self->node->m_trajectory != nullptr) {
-            info_print("Sending control trajectory.");
+            // info_print("Sending control trajectory.");
             self->node->m_trajectory->sequence_number = vehicle_kinematic_state->value->sequence_number;
             SET(control_trajectory, self->node->m_trajectory);
             self->node->m_trajectory.reset();
         }
 
         if (self->node->m_trajectory_to_modify != nullptr) {
-            info_print("Sending trajectory to be modified.");
+            // info_print("Sending trajectory to be modified.");
             self->node->m_trajectory_to_modify->sequence_number = vehicle_kinematic_state->value->sequence_number;
             SET(original_trajectory, self->node->m_trajectory_to_modify);
             self->node->m_trajectory_to_modify.reset();
@@ -203,7 +203,7 @@ reactor behavior_planner {
     
     // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
     reaction (modified_trajectory) -> control_trajectory {=
-        info_print("Received modified trajectory.");
+        // info_print("Received modified trajectory.");
         // Initialize with modified trajectory from object collision estimator.
         auto trajectory = modified_trajectory->value;
         

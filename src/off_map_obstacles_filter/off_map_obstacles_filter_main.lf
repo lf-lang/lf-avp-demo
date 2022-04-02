@@ -9,8 +9,6 @@ preamble {=
     #include "had_map_utils/had_map_conversion.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + OFF_MAP_OBSTACLES_FILTER_PARAM;
-
     void* spin_node(void* args) {
         auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>*>(args);
         auto node_shared_ptr = *node_shared_ptr_ptr;
@@ -35,6 +33,8 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
 	state node_shared_ptr:std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>;
 
 	 reaction (startup) -> request {=
+        std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + OFF_MAP_OBSTACLES_FILTER_PARAM;
+
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             yaml_path.c_str(), 
             "/**"

@@ -13,11 +13,12 @@ preamble {=
     #include "utils.hpp"
     #include "constants.hpp"
     #include <stdlib.h>
-    static std::string rviz_config = get_autoware_home() + "/" + AVP_DEMO_CONFIG_PATH + "/" + RVIZ_CONFIG;
 =}
 
 reactor rviz2 {
     reaction (startup) {=
+        static std::string rviz_config = get_autoware_home() + "/" + AVP_DEMO_CONFIG_PATH + "/" + RVIZ_CONFIG;
+
         int argc = 3;
         char *argv[] = {
             "lf_rviz",

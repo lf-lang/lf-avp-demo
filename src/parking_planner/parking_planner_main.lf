@@ -17,11 +17,9 @@ preamble {=
     #include "lanelet2_core/LaneletMap.h"
     #include "had_map_utils/had_map_conversion.hpp"
     #include "had_map_utils/had_map_query.hpp"
-    #include "parking_planner_node.hpp"
+    #include "parking_planner_nodes/parking_planner_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + PARKING_PLANNER_PARAM;
-
     void* spin_node(void* args) {
         auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>*>(args);
         auto node_shared_ptr = *node_shared_ptr_ptr;
@@ -45,6 +43,8 @@ reactor parking_planner {
     state node_shared_ptr:std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>;
         
     reaction (startup) {=
+        std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + PARKING_PLANNER_PARAM;
+
         rclcpp::NodeOptions node_options = get_node_options_from_yaml(
             yaml_path.c_str(),
             "/**"

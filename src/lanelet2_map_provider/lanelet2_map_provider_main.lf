@@ -17,7 +17,6 @@ preamble {=
     #include "lanelet2_map_provider_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
     #include "constants.hpp"
-    static std::string yaml_path = get_xronos_home() + "/src/lanelet2_map_provider/include/lanelet2_map_provider.param.yaml";
 =}
 
 reactor lanelet2_map_provider(num_requestors:int(1)) {
@@ -29,6 +28,8 @@ reactor lanelet2_map_provider(num_requestors:int(1)) {
     state node:autoware::lanelet2_map_provider::Lanelet2MapProviderNode*;
     
     reaction (startup) {=
+        static std::string yaml_path = get_xronos_home() + "/src/lanelet2_map_provider/include/lanelet2_map_provider.param.yaml";
+
         rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
             yaml_path.c_str(), 
             "/**"
