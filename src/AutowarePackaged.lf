@@ -1,3 +1,8 @@
+/**
+* This is a version of Autoware.lf where sometimes multiple nodes are packaged
+* into one federate. Some federates that need a ROS spin() are not packaged together
+* due to limitations in ROS.
+*/
 target CCpp {
     build-type: RelWithDebInfo
 };
@@ -5,7 +10,10 @@ target CCpp {
 import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
 
 import Lidar from "Packages/Lidar.lf";
-import Localization from "Packages/Localization.lf"
+
+import ndt_map_publisher from "ndt_map_publisher/ndt_map_publisher_main.lf";
+import p2d_ndt_localizer from "p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
+
 import Perception from "Packages/Perception.lf"
 import Planning from "Packages/Planning.lf"
 
@@ -23,11 +31,13 @@ federated reactor {
     filter_and_transform = new[2] filter_and_transform();
     lidar = new Lidar();
 
-	filter_and_transform.points_out -> lidar.points_in
+	filter_and_transform.points_out -> lidar.points_in serializer "ros2";
+    
+    ndt_map_publisher = new ndt_map_publisher();
+    p2d_ndt_localizer = new p2d_ndt_localizer();
 
-    localization = new Localization();
-
-	lidar.downsampled_points -> localization.downsampled_points serializer "ros2";
+    lidar.downsampled_points -> p2d_ndt_localizer.fused_downsampled_points_in serializer "ros2";
+	ndt_map_publisher.points_out -> p2d_ndt_localizer.ndt_map_points_in serializer "ros2";
     
     perception = new Perception();
     planning = new Planning();
@@ -37,15 +47,15 @@ federated reactor {
     robot_state_publisher = new robot_state_publisher();
     
     
-    reaction(lidar.downsampled_points) {=
-        info_print("Produced downsampled points.");
-    =}
+    // reaction(lidar.downsampled_points) {=
+    //     info_print("Produced downsampled points.");
+    // =}
     
     lidar.fused_points -> perception.fused_points serializer "ros2";
 	perception.bounding_boxes -> planning.filtered_bounding_boxes serializer "ros2";
-    reaction(perception.bounding_boxes) {=
-        info_print("Produced bounding boxes.");
-    =}
+    // reaction(perception.bounding_boxes) {=
+    //     info_print("Produced bounding boxes.");
+    // =}
 
     //////// Maps /////////
     map_provider = new lanelet2_map_provider(num_requestors = 5);
