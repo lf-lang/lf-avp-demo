@@ -69,4 +69,15 @@ std::string get_xronos_home() {
 	return std::string(xronos_home);
 }
 
+template <typename T>
+void* spin_node(void* args) {
+	auto node_shared_ptr_ptr = static_cast<T*>(args);
+	auto node_shared_ptr = *node_shared_ptr_ptr;
+	while (rclcpp::ok()) {
+		rclcpp::spin(node_shared_ptr);
+	}
+	delete node_shared_ptr_ptr;
+	return 0;
+}
+
 #endif // XRONOS_UTILS_HPP
