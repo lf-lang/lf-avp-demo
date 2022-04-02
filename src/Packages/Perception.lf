@@ -1,0 +1,27 @@
+target CCpp {
+    cmake-include: "include/perception.cmake"
+};
+
+import euclidean_cluster_detector from "../euclidean_cluster_detector/euclidean_cluster_detector_main.lf";
+import off_map_obstacles_filter from "../off_map_obstacles_filter/off_map_obstacles_filter_main.lf";
+
+reactor Perception {
+    input fused_points : std::shared_ptr<sensor_msgs::msg::PointCloud2>;
+    input map : std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+
+    output bounding_boxes : std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>;
+    output map_request : std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>
+    
+    euclidean_cluster_detector = new euclidean_cluster_detector();
+    off_map_obstacles_filter = new off_map_obstacles_filter();
+
+    // Map
+    map -> off_map_obstacles_filter.map;
+    off_map_obstacles_filter.request -> map_request;
+
+    fused_points -> euclidean_cluster_detector.points_in;
+	euclidean_cluster_detector.bounding_boxes -> off_map_obstacles_filter.original_bounding_boxes;
+	
+    off_map_obstacles_filter.modified_bounding_boxes -> bounding_boxes;
+
+}

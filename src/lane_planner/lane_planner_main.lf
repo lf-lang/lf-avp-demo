@@ -61,7 +61,7 @@ reactor lane_planner {
             self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
         
         // This node publishes some stuff to rviz2, so we need to spin for them to work
-        rclcpp::spin_some(self->node_shared_ptr);
+        // rclcpp::spin_some(self->node_shared_ptr);
         
         // Only publish the trajectory if it is valid        
         if (self->node->is_trajectory_valid(*trajectory_msg)) {	

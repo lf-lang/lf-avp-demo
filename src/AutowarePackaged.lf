@@ -1,0 +1,54 @@
+target CCpp {
+    files: ["include/utils.hpp"],
+    flags: ["-Wno-write-strings"],
+    build-type: RelWithDebInfo
+};
+
+import Lidar from "Packages/Lidar.lf";
+import Localization from "Packages/Localization.lf"
+import Perception from "Packages/Perception.lf"
+import Planning from "Packages/Planning.lf"
+
+import lanelet2_map_provider from "lanelet2_map_provider/lanelet2_map_provider_main.lf"
+
+
+import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
+import mpc_controller from "mpc_controller/mpc_controller_main.lf";
+import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf";
+
+import rviz2 from "rviz/rviz_main.lf";
+
+federated reactor {
+    // rviz2 = new rviz2();
+    lidar = new Lidar();
+    localization = new Localization();
+    perception = new Perception();
+    planning = new Planning();
+
+    lgsvl_interface = new lgsvl_interface();
+    mpc_controller = new mpc_controller();
+    robot_state_publisher = new robot_state_publisher();
+    
+	lidar.downsampled_points -> localization.downsampled_points serializer "ros2";
+    
+    lidar.fused_points -> perception.fused_points serializer "ros2";
+	perception.bounding_boxes -> planning.filtered_bounding_boxes serializer "ros2";
+
+    //////// Maps /////////
+    map_provider = new lanelet2_map_provider(num_requestors = 5);
+
+    planning.map_request, perception.map_request -> map_provider.request serializer "ros2";
+    map_provider.map -> planning.map, perception.map serializer "ros2";
+    /////////////////////
+	
+	lgsvl_interface.vehicle_kinematic_state -> planning.vehicle_kinematic_state serializer "ros2";
+	lgsvl_interface.state_report -> planning.vehicle_state_report serializer "ros2";
+	lgsvl_interface.vehicle_kinematic_state -> mpc_controller.vehicle_kinematic_state serializer "ros2";
+	
+	
+	planning.vehicle_state_command -> lgsvl_interface.state_command serializer "ros2";
+	planning.control_trajectory -> mpc_controller.trajectory serializer "ros2";
+    
+    mpc_controller.command -> lgsvl_interface.vehicle_command serializer "ros2";
+	
+}

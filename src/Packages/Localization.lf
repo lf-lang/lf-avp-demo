@@ -1,0 +1,17 @@
+target CCpp {
+    cmake-include: "include/localization.cmake"
+};
+
+import ndt_map_publisher from "../ndt_map_publisher/ndt_map_publisher_main.lf";
+import p2d_ndt_localizer from "../p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
+
+reactor Localization {
+    input downsampled_points : std::shared_ptr<sensor_msgs::msg::PointCloud2>;
+
+    ndt_map_publisher = new ndt_map_publisher();
+    p2d_ndt_localizer = new p2d_ndt_localizer();
+
+    downsampled_points -> p2d_ndt_localizer.fused_downsampled_points_in;
+	ndt_map_publisher.points_out -> p2d_ndt_localizer.ndt_map_points_in;
+    
+}
