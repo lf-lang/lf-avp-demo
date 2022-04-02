@@ -2,21 +2,19 @@ target CCpp {
     cmake-include: "include/lidar.cmake"
 };
 
-import filter_and_transform from "../filter_and_transform/filter_and_transform_main.lf";
 import point_cloud_fusion from "../point_cloud_fusion/point_cloud_fusion_main.lf";
 import voxel_grid_downsampler from "../voxel_grid_downsampler/voxel_grid_downsampler_main.lf";
 import ray_ground_classifier from "../ray_ground_classifier/ray_ground_classifier_main.lf";
 
 reactor Lidar {
+    input points_in : std::shared_ptr<sensor_msgs::msg::PointCloud2>;
     output fused_points : std::shared_ptr<sensor_msgs::msg::PointCloud2>;
     output downsampled_points : std::shared_ptr<sensor_msgs::msg::PointCloud2>;
 
-    filter_and_transform = new[2] filter_and_transform();
     point_cloud_fusion = new point_cloud_fusion(in_width = 2);
     voxel_grid_downsampler = new voxel_grid_downsampler();
     ray_ground_classifier = new ray_ground_classifier();
 
-	filter_and_transform.points_out -> point_cloud_fusion.points_in
 	point_cloud_fusion.points_out -> voxel_grid_downsampler.points_in
     point_cloud_fusion.points_out -> ray_ground_classifier.points_in;
 

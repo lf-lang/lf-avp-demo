@@ -1,8 +1,8 @@
 target CCpp {
-    files: ["include/utils.hpp"],
-    flags: ["-Wno-write-strings"],
     build-type: RelWithDebInfo
 };
+
+import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
 
 import Lidar from "Packages/Lidar.lf";
 import Localization from "Packages/Localization.lf"
@@ -20,8 +20,15 @@ import rviz2 from "rviz/rviz_main.lf";
 
 federated reactor {
     // rviz2 = new rviz2();
+    filter_and_transform = new[2] filter_and_transform();
     lidar = new Lidar();
+
+	filter_and_transform.points_out -> lidar.points_in
+
     localization = new Localization();
+
+	lidar.downsampled_points -> localization.downsampled_points serializer "ros2";
+    
     perception = new Perception();
     planning = new Planning();
 
@@ -29,10 +36,16 @@ federated reactor {
     mpc_controller = new mpc_controller();
     robot_state_publisher = new robot_state_publisher();
     
-	lidar.downsampled_points -> localization.downsampled_points serializer "ros2";
+    
+    reaction(lidar.downsampled_points) {=
+        info_print("Produced downsampled points.");
+    =}
     
     lidar.fused_points -> perception.fused_points serializer "ros2";
 	perception.bounding_boxes -> planning.filtered_bounding_boxes serializer "ros2";
+    reaction(perception.bounding_boxes) {=
+        info_print("Produced bounding boxes.");
+    =}
 
     //////// Maps /////////
     map_provider = new lanelet2_map_provider(num_requestors = 5);
