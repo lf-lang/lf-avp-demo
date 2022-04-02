@@ -20,15 +20,6 @@ preamble {=
     #include "constants.hpp"
     #include <cstdlib>
     #include <string>
-    void* spin_node(void* args) {
-        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>*>(args);
-        auto node_shared_ptr = *node_shared_ptr_ptr;
-        while (rclcpp::ok()) {
-            rclcpp::spin(node_shared_ptr);
-        }
-        delete node_shared_ptr_ptr;
-        return 0;
-    }
 =}
 
 reactor filter_and_transform (
@@ -37,13 +28,13 @@ reactor filter_and_transform (
     lidar_topic_names:std::vector<char*>({=std::vector<char*>{"/lidar_front/points_raw", "/lidar_rear/points_raw"}=})
 ) {
     // Point in come from ROS
-    timer points_in(0, 100 msec);
     output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
     state count:int(0);
     state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
     state node_shared_ptr:std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>;
+    physical action points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
 
-    reaction (startup) {=
+    reaction (startup) -> points_in {=
         static std::string yaml_path = get_xronos_home() + "/src/filter_and_transform/include/pc_filter_transform.param.yaml";
 
         char program_name[200], topic_cmd[200];
@@ -56,28 +47,24 @@ reactor filter_and_transform (
             5,
             argv
         );
-        self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(nodeOptions);
+        self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(
+            nodeOptions,
+            points_in,
+            &schedule_value
+        );
         self->node_shared_ptr = std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>(self->node);
         pthread_t spinner_thread;
         pthread_create(
             &spinner_thread, 
             NULL, 
-            &spin_node, 
+            &spin_node<std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>>, 
             static_cast<void*>(new std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>(self->node_shared_ptr)));
     =}
 
 
     reaction (points_in) -> points_out {=
         // Process some events
-        // info_print("Input width = %d", self->node->m_filtered_transformed_msg.width);
-        // const auto filtered_transformed_msg = self->node->filter_and_transform(points_in->value);
-        // Let the callback function in ROS process the pointcloud messages.
-        // Instead of publishing, it will put the results in m_filtered_transformed_msg
-        if (self->node->has_points) {
-            auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_filtered_transformed_msg);
-            self->node->has_points = false;
-            SET(points_out, msg);
-        }
+        SET(points_out, points_in->value);
     =}
 }
 
