@@ -28,8 +28,8 @@ reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
     =}
         
     reaction (points_in) -> points_out {=
-        if (!points_in[0]->is_present || !points_in[0]->is_present) {
-            error_print("Expected both point clouds.");
+        // Make sure point clouds are not null
+        if (points_in[0]->value == nullptr || points_in[1]->value == nullptr) {
             return;
         }
         // info_print("Calling pointcloud_callback %d %d.", points_in[0]->value->width, points_in[1]->value->width);
