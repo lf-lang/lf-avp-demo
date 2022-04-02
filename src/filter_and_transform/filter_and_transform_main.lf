@@ -32,7 +32,7 @@ reactor filter_and_transform (
     state count:int(0);
     state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
     state node_shared_ptr:std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>;
-    physical action points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
+    physical action points_in:sensor_msgs::msg::PointCloud2*;
 
     reaction (startup) -> points_in {=
         static std::string yaml_path = get_xronos_home() + "/src/filter_and_transform/include/pc_filter_transform.param.yaml";
@@ -64,9 +64,13 @@ reactor filter_and_transform (
 
     reaction (points_in) -> points_out {=
         // Process some events
-        
-        SET(points_out, points_in->value);
-        self->_lf__points_in.token->ok_to_free = token_only;
+        info_print(
+            "Lidar sensor height = %d, width = %d",
+            points_in->value->height,
+            points_in->value->width
+        );
+        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(*points_in->value);
+        SET(points_out, msg);
     =}
 }
 
