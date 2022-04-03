@@ -16,15 +16,6 @@ preamble {=
     #include "mpc_controller_nodes/mpc_controller_node.hpp" /* This is AUTOWARE node */
     #include "utils.hpp"
     #include "constants.hpp"
-    void* spin_node(void* args) {
-        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>*>(args);
-        auto node_shared_ptr = *node_shared_ptr_ptr;
-        while (rclcpp::ok()) {
-            rclcpp::spin(node_shared_ptr);
-        }
-        delete node_shared_ptr_ptr;
-        return 0;
-    }
 =}
 
 reactor mpc_controller {
@@ -59,7 +50,7 @@ reactor mpc_controller {
         pthread_create(
             &spinner_thread, 
             NULL, 
-            &spin_node, 
+            &spin_node<std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>>, 
             static_cast<void*>(new std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>(self->node_shared_ptr)));
     =}
 
