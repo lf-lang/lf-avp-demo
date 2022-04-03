@@ -25,13 +25,14 @@ reactor global_planner {
     input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
     output global_path:std::shared_ptr<autoware_auto_msgs::msg::Route>;
     output map_request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    physical action set_global_route:autoware_auto_msgs::msg::Route*;
     
     /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
 
     state node:autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>;
     
-    reaction (startup) ->  map_request {=
+    reaction (startup) ->  map_request, set_global_route {=
         // Use a try - catch for now so that if the rclcpp context is already initialized,
         // ROS doesn't throw a tantrum.
         try {
@@ -40,7 +41,11 @@ reactor global_planner {
         
         rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions();
         
-        self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(nodeOptions);
+        self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(
+            nodeOptions,
+            set_global_route,
+            &schedule_value
+        );
         self->node_shared_ptr = std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node);
 
         pthread_t spinner_thread;
@@ -61,17 +66,10 @@ reactor global_planner {
         self->node->current_pose_cb(vehicle_kinematic_state->value);
     =}
     
-    logical action act (60 msec);
-    
-    reaction (startup, act) -> global_path {=
-        if (self->node->global_route_set) {
-            auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(self->node->m_global_route);
-            SET(global_path, msg);
-            self->node->global_route_set = false;
-        } else {
-            schedule(act, 0);
-        }
-    =} 
+    reaction(set_global_route) -> global_path {=
+        auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(*set_global_route->value);
+        SET(global_path, msg);
+    =}
 
     reaction (map) {=
         // Convert binary map msg to lanelet2 map and set the map for global path planner
