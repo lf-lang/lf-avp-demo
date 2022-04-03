@@ -21,15 +21,6 @@ preamble {=
     #include "lane_planner_nodes/lane_planner_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-    void* spin_node(void* args) {
-        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>*>(args);
-        auto node_shared_ptr = *node_shared_ptr_ptr;
-        while (rclcpp::ok()) {
-            rclcpp::spin(node_shared_ptr);
-        }
-        delete node_shared_ptr_ptr;
-        return 0;
-    }
 =}
 
 reactor lane_planner {
