@@ -53,7 +53,12 @@ reactor lgsvl_interface {
         // Tell the LGSVL interface to publish pose updates on tf topics, which means we need to use a thread to call rclcpp::spin.
         nodeOptions.append_parameter_override("lgsvl.publish_tf", true);
         
-        self->node = new lgsvl_interface::LgsvlInterfaceNode(nodeOptions);
+        self->node = new lgsvl_interface::LgsvlInterfaceNode(
+            nodeOptions,
+            a_kinematic_state,
+            a_state_report,
+            &schedule_value
+        );
         self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
         self->sequence_number = 0;
         pthread_t spinner_thread;
