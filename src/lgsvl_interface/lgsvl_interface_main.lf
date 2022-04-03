@@ -18,16 +18,6 @@ preamble {=
     #include "lgsvl_interface/lgsvl_interface.hpp"
     #include "utils.hpp"
     std::string yaml_path = get_xronos_home() + "/src/lgsvl_interface/include/lgsvl_interface.param.yaml";
-
-    void* spin_node(void* args) {
-        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>*>(args);
-        auto node_shared_ptr = *node_shared_ptr_ptr;
-        while (rclcpp::ok()) {
-            rclcpp::spin(node_shared_ptr);
-        }
-        delete node_shared_ptr_ptr;
-        return 0;
-    }
 =}
 
 reactor lgsvl_interface {    
@@ -39,7 +29,7 @@ reactor lgsvl_interface {
     state node:lgsvl_interface::LgsvlInterfaceNode*;
     state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
     
-    reaction (startup) {=
+    reaction (startup) -> a_kinematic_state, a_state_report {=
         // Remap topics using command-line arguments
         char *argv[] = {
             "lf_lgsvl_interface",
@@ -70,39 +60,26 @@ reactor lgsvl_interface {
         pthread_create(
             &spinner_thread, 
             NULL, 
-            &spin_node, 
+            &spin_node<std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>>, 
             static_cast<void*>(new std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node_shared_ptr))); 
-    =}
-
-    timer ros_spin(0, 10 msec);
-    reaction(ros_spin) {=
-        rclcpp::spin_some(self->node_shared_ptr);
     =}
     
     // Comes from the LGSVL interface
-    timer gps_odom(0, 33 msec);
-    reaction (gps_odom) -> vehicle_kinematic_state {=
-        // If the vehicle kinematic state is not null
-        if (self->node->m_interface->m_vse_t) {
-            // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
-            self->node->m_interface->m_vse_t->sequence_number = self->sequence_number++;
-            SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
-            self->node->m_interface->m_vse_t.reset();
-            info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) self->sequence_number);
-        }
+    physical action a_kinematic_state : autoware_auto_msgs::msg::VehicleKinematicState*;
+    reaction (a_kinematic_state) -> vehicle_kinematic_state {=
+        // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
+        // a_kinematic_state->value->sequence_number = self->sequence_number++;
+        auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleKinematicState>(*a_kinematic_state->value);
+        SET(vehicle_kinematic_state, msg);
+
+        // info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) self->sequence_number);
     =}
      
     // Comes from the LGSVL interface
-    timer can_bus(0, 33 msec);
-    reaction (can_bus) -> state_report {=        
-        if (self->node->m_interface->m_state_report_set) {
-            auto msg =
-            std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(
-                self->node->m_interface->get_state_report()
-            );
-            SET(state_report, msg);
-            self->node->m_interface->m_state_report_set = false;
-        }
+    physical action a_state_report : autoware_auto_msgs::msg::VehicleStateReport*;
+    reaction (a_state_report) -> state_report {=
+        auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(*a_state_report->value);
+        SET(state_report, msg);
         
         // Update
         if (self->node->m_state_machine) {
@@ -114,7 +91,7 @@ reactor lgsvl_interface {
     
     // To the simulator
     reaction (vehicle_command) {=
-        info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
+        // info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
         try {
             self->node->on_command_message(*vehicle_command->value);
         } catch (...) {
