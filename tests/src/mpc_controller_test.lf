@@ -1,5 +1,6 @@
 target CCpp {
-    coordination: decentralized
+    coordination: decentralized,
+    build-type: RelWithDebInfo
 };
 
 import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf"
