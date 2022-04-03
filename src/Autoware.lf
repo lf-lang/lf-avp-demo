@@ -1,5 +1,6 @@
 target CCpp {
-    build-type: RelWithDebInfo
+    build-type: RelWithDebInfo,
+    workers: 1
 };
 
 import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";

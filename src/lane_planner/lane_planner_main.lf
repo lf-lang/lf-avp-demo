@@ -43,6 +43,12 @@ reactor lane_planner {
         );
         self->node = new autoware::lane_planner_nodes::LanePlannerNode(node_options);
         self->node_shared_ptr = std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>(self->node);
+        // pthread_t spinner_thread;
+        // pthread_create(
+        //     &spinner_thread, 
+        //     NULL, 
+        //     &spin_node, 
+        //     static_cast<void*>(new std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>(self->node_shared_ptr)));
     =}
 
     reaction (route) -> request {=
@@ -59,9 +65,6 @@ reactor lane_planner {
 
         auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
             self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
-        
-        // This node publishes some stuff to rviz2, so we need to spin for them to work
-        // rclcpp::spin_some(self->node_shared_ptr);
         
         // Only publish the trajectory if it is valid        
         if (self->node->is_trajectory_valid(*trajectory_msg)) {	

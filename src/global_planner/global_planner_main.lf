@@ -42,6 +42,13 @@ reactor global_planner {
         
         self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node);
+
+        pthread_t spinner_thread;
+        pthread_create(
+            &spinner_thread, 
+            NULL, 
+            &spin_node<std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>>, 
+            static_cast<void*>(new std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node_shared_ptr)));
         
         auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
         request->requested_primitives.push_back(
@@ -62,7 +69,6 @@ reactor global_planner {
             SET(global_path, msg);
             self->node->global_route_set = false;
         } else {
-            rclcpp::spin_some(self->node_shared_ptr);
             schedule(act, 0);
         }
     =} 

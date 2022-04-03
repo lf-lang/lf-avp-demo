@@ -1,6 +1,7 @@
 target CCpp {
     build-type: RelWithDebInfo,
-    coordination: decentralized
+    coordination: decentralized,
+    workers: 1
     // logging: INFO
 };
 

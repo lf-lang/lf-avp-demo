@@ -24,6 +24,7 @@ reactor mpc_controller {
     
     output command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
     
+    state sequence_number:uint32_t;
     state node:motion::control::mpc_controller_nodes::MpcControllerNode*;
     state node_shared_ptr:std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>;
     
@@ -40,14 +41,21 @@ reactor mpc_controller {
             "",
             nodeOptions
         );
-        
+        self->sequence_number = 0;
         self->node_shared_ptr = std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>(self->node);
         //std::cout << self->node->m_controller->get_base_config().safe_deceleration_rate() << std::endl;
+
+        // Spawn thread to spin node for tf stuff (FIXME: Causes a segfault)
+        // pthread_t spinner_thread;
+        // pthread_create(
+        //     &spinner_thread, 
+        //     NULL, 
+        //     &spin_node<std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>>, 
+        //     static_cast<void*>(new std::shared_ptr<motion::control::mpc_controller_nodes::MpcControllerNode>(self->node_shared_ptr)));
     =}
-    
-    // For tf stuff
-    timer ros_spin(0, 10 msec);
-    reaction (ros_spin) {=
+
+    timer ros_spin(0, 1 msec);
+    reaction(ros_spin) {=
         rclcpp::spin_some(self->node_shared_ptr);
     =}
 
@@ -68,6 +76,7 @@ reactor mpc_controller {
         // Check if there is a command to send after processing the state.
         if (self->node->cmd_is_set) {
             auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
+            // msg->sequence_number = self->sequence_number;
             SET(command, msg);
             self->node->cmd_is_set = false;
         }
@@ -80,12 +89,14 @@ reactor mpc_controller {
         // } catch (...) {
         //     self->node->on_bad_trajectory(std::current_exception());
         // }
-
+        // info_print("(YOLO)>>> MPC received trajectory at: {%lu} seq: {%lu}", get_elapsed_physical_time(), (long unsigned) trajectory->value->sequence_number);
+        // self->sequence_number = trajectory->value->sequence_number;
         self->node->on_trajectory(trajectory->value);
 
         // Check if there is a command to send after processing the state.
         if (self->node->cmd_is_set) {
             auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
+            // msg->sequence_number = trajectory->value->sequence_number;
             SET(command, msg);
             self->node->cmd_is_set = false;
         }

@@ -9,6 +9,15 @@ preamble {=
     #include "had_map_utils/had_map_conversion.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
+    void* spin_node(void* args) {
+        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>*>(args);
+        auto node_shared_ptr = *node_shared_ptr_ptr;
+        while (rclcpp::ok()) {
+            rclcpp::spin(node_shared_ptr);
+        }
+        delete node_shared_ptr_ptr;
+        return 0;
+    }
 =}
 
 reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
@@ -34,19 +43,19 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
         self->node = new autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode(nodeOptions);
         self->node_shared_ptr = std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>(self->node);
         
+        // For tf stuff
+        pthread_t spinner_thread;
+        pthread_create(
+            &spinner_thread, 
+            NULL, 
+            &spin_node, 
+            static_cast<void*>(new std::shared_ptr<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode>(self->node_shared_ptr)));
         
 		auto requestPtr = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
   		requestPtr->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
   		SET(request, requestPtr);
   		
   		info_print("Requesting map.");
-
-    =}
-
-    timer ros_spin(0, 10 msec);
-    reaction (ros_spin) {=
-        // For tf stuff
-        rclcpp::spin_some(self->node_shared_ptr);
     =}
     
     reaction (original_bounding_boxes) -> modified_bounding_boxes {=        

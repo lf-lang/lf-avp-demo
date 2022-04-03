@@ -18,6 +18,15 @@ preamble {=
     #include "map_publisher.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
+    void* spin_node(void* args) {
+        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>*>(args);
+        auto node_shared_ptr = *node_shared_ptr_ptr;
+        while (rclcpp::ok()) {
+            rclcpp::spin(node_shared_ptr);
+        }
+        delete node_shared_ptr_ptr;
+        return 0;
+    }
 =}
 
 reactor ndt_map_publisher {
@@ -35,17 +44,17 @@ reactor ndt_map_publisher {
         );
         self->node = new autoware::localization::ndt_nodes::NDTMapPublisherNode(node_options);
         self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node);
+
+        // Make sure the tf and rviz2 visualization stuff have gone out
+        pthread_t spinner_thread;
+        pthread_create(
+            &spinner_thread, 
+            NULL, 
+            &spin_node, 
+            static_cast<void*>(new std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node_shared_ptr)));
         
         auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_map_pc);
         SET(points_out, msg);
-        // Make sure the tf and rviz2 visualization stuff have gone out
-        rclcpp::spin_some(self->node_shared_ptr);
-    =}
-    
-    timer ros_spin(0, 10 msec);
-    reaction (ros_spin) {=
-        // Make sure the tf and rviz2 visualization stuff have gone out
-        rclcpp::spin_some(self->node_shared_ptr);
     =}
 }
 
