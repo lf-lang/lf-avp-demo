@@ -64,11 +64,6 @@ reactor filter_and_transform (
 
     reaction (points_in) -> points_out {=
         // Process some events
-        info_print(
-            "Lidar sensor height = %d, width = %d",
-            points_in->value->height,
-            points_in->value->width
-        );
         auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(*points_in->value);
         SET(points_out, msg);
     =}
