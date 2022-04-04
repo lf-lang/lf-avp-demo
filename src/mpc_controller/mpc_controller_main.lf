@@ -89,7 +89,7 @@ reactor mpc_controller {
         // } catch (...) {
         //     self->node->on_bad_trajectory(std::current_exception());
         // }
-        info_print("(YOLO)>>> MPC received trajectory at: {%lu} seq: {%lu}", get_elapsed_physical_time(), (long unsigned) trajectory->value->sequence_number);
+        // info_print("(YOLO)>>> MPC received trajectory at: {%lu} seq: {%lu}", get_elapsed_physical_time(), (long unsigned) trajectory->value->sequence_number);
         self->sequence_number = trajectory->value->sequence_number;
         self->node->on_trajectory(trajectory->value);
 
