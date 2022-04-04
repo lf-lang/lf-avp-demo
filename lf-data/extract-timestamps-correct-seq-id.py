@@ -44,7 +44,7 @@ def find_category(msg):
         return Category.MPC_TRAJECTORY
     elif is_lgsvl_received_vehicle_command(msg):
         return Category.LGSVL_COMMAND
-    return CORRUPTED
+    return Category.CORRUPTED
 
 for f_name in f_names:
     with open(f_name, "r") as f:
@@ -55,6 +55,7 @@ for f_name in f_names:
                 yolo_lines.append(line[line.find("(YOLO)>>>"):])
     
         yolo_lines_by_id = defaultdict(dict)
+        lowest_seq_id = defaultdict(int)
         for line in yolo_lines:
             try: 
                 t = line.find("{")
@@ -67,14 +68,18 @@ for f_name in f_names:
                 # In that case, we want to ignore the corner case
                 int(seq_id) 
                 category = find_category(line)
-                if category not in yolo_lines_by_id[seq_id]:
+                if category not in yolo_lines_by_id[seq_id] and int(seq_id) > lowest_seq_id[category]:
+                    lowest_seq_id[category] = int(seq_id)
                     yolo_lines_by_id[seq_id][category] = line
-            except:
+            except ValueError:
                 pass
 
         diffs = []
         for seq_id in sorted(yolo_lines_by_id.keys()):
-            if len(yolo_lines_by_id[seq_id]) >= 2 and Category.CORRUPTED not in yolo_lines_by_id[seq_id]:
+            if len(yolo_lines_by_id[seq_id]) >= 2 and \
+                    Category.LGSVL_VSE in yolo_lines_by_id[seq_id] and \
+                    Category.LGSVL_COMMAND in yolo_lines_by_id[seq_id] and \
+                    Category.CORRUPTED not in yolo_lines_by_id[seq_id]:
                 lgsvl_vse = yolo_lines_by_id[seq_id][Category.LGSVL_VSE]
                 # mpc_trajectory = yolo_lines_by_id[seq_id][Category.MPC_TRAJECTORY]
                 lgsvl_command = yolo_lines_by_id[seq_id][Category.LGSVL_COMMAND]
