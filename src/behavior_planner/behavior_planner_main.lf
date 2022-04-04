@@ -66,10 +66,12 @@ reactor behavior_planner {
     state node:autoware::behavior_planner_nodes::BehaviorPlannerNode*;
     state node_shared_ptr:std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>;
     
-    
     state global_path_route:autoware_auto_msgs::msg::Route;
     state previous_output_arrived_goal:std::chrono::time_point<std::chrono::system_clock>;
     state previous_output:std::chrono::time_point<std::chrono::system_clock>;
+
+    state sequence_number:uint32_t;
+    state trajectory_sequence_number:uint32_t;
         
     reaction (startup) {=
         static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
@@ -104,6 +106,10 @@ reactor behavior_planner {
             lane_route, 
             parking_route {=
         // info_print("Got a vehicle kinematic state.");
+        if (!self->node->m_requesting_trajectory) {
+            self->sequence_number = vehicle_kinematic_state->value->sequence_number;
+        }
+
         self->node->on_ego_state(vehicle_kinematic_state->value);
 
         // Check if any of the state variables are set. If so, send them.
@@ -127,14 +133,14 @@ reactor behavior_planner {
 
         if (self->node->m_trajectory != nullptr) {
             // info_print("Sending control trajectory.");
-            self->node->m_trajectory->sequence_number = vehicle_kinematic_state->value->sequence_number;
+            self->node->m_trajectory->sequence_number = self->trajectory_sequence_number;
             SET(control_trajectory, self->node->m_trajectory);
             self->node->m_trajectory.reset();
         }
 
         if (self->node->m_trajectory_to_modify != nullptr) {
             // info_print("Sending trajectory to be modified.");
-            self->node->m_trajectory_to_modify->sequence_number = vehicle_kinematic_state->value->sequence_number;
+            self->node->m_trajectory_to_modify->sequence_number = self->trajectory_sequence_number;
             SET(original_trajectory, self->node->m_trajectory_to_modify);
             self->node->m_trajectory_to_modify.reset();
         }
@@ -176,6 +182,7 @@ reactor behavior_planner {
         auto trajectory = (lane_trajectory->is_present) ? 
             *lane_trajectory->value.get() : *parking_trajectory->value.get();
 
+        self->trajectory_sequence_number = self->sequence_number;
         if (!trajectory.points.empty()){
             info_print("Received trajectory from planner");
         } else {
