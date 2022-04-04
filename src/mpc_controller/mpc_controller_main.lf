@@ -76,7 +76,7 @@ reactor mpc_controller {
         // Check if there is a command to send after processing the state.
         if (self->node->cmd_is_set) {
             auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
-            msg->sequence_number = self->sequence_number;
+            // msg->sequence_number = self->sequence_number;
             SET(command, msg);
             self->node->cmd_is_set = false;
         }
