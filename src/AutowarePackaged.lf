@@ -4,7 +4,8 @@
 * due to limitations in ROS.
 */
 target CCpp {
-    build-type: RelWithDebInfo
+    build-type: RelWithDebInfo,
+    // coordination-options: {advance-message-interval: 80 msec} // Fastest sensor period (odom)
 };
 
 import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
