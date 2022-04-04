@@ -9,7 +9,7 @@ if len(sys.argv) != 2:
     exit(1)
 folder_name = sys.argv[1]
 
-f_names = glob.glob(os.path.join(folder_name, "log*.txt"))
+f_names = sorted(glob.glob(os.path.join(folder_name, "log*.txt")))
 total_diffs = []
 first = 5
 
@@ -75,7 +75,7 @@ for f_name in f_names:
                 pass
 
         diffs = []
-        for seq_id in sorted(yolo_lines_by_id.keys()):
+        for seq_id in sorted(yolo_lines_by_id.keys(), key=lambda x: int(x)):
             if len(yolo_lines_by_id[seq_id]) >= 2 and \
                     Category.LGSVL_VSE in yolo_lines_by_id[seq_id] and \
                     Category.LGSVL_COMMAND in yolo_lines_by_id[seq_id] and \
@@ -83,11 +83,12 @@ for f_name in f_names:
                 lgsvl_vse = yolo_lines_by_id[seq_id][Category.LGSVL_VSE]
                 # mpc_trajectory = yolo_lines_by_id[seq_id][Category.MPC_TRAJECTORY]
                 lgsvl_command = yolo_lines_by_id[seq_id][Category.LGSVL_COMMAND]
-                diffs.append((get_time(lgsvl_command) - get_time(lgsvl_vse)) // 1_000_000)
+                diffs.append((seq_id, (get_time(lgsvl_command) - get_time(lgsvl_vse)) // 1_000_000))
         total_diffs += diffs
+        print(diffs)
 
 with open("results.txt", "w") as f:
-    for i in total_diffs:
+    for _, i in sorted(total_diffs, key=lambda x: x[1]):
         f.write(str(i) + "\n")
 
 
@@ -111,6 +112,6 @@ with open("results.txt", "r") as f:
     print("Total number of data points: ", c)
     print("Total number of runs: ", len(f_names))
 
-import matplotlib.pyplot as plt
-plt.hist(total_diffs)
-plt.show()
+# import matplotlib.pyplot as plt
+# plt.hist(total_diffs)
+# plt.show()
