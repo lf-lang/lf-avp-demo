@@ -73,11 +73,11 @@ reactor lgsvl_interface {
     physical action a_kinematic_state : autoware_auto_msgs::msg::VehicleKinematicState*;
     reaction (a_kinematic_state) -> vehicle_kinematic_state {=
         // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
-        a_kinematic_state->value->sequence_number = self->sequence_number++;
+        // a_kinematic_state->value->sequence_number = self->sequence_number++;
         auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleKinematicState>(*a_kinematic_state->value);
         SET(vehicle_kinematic_state, msg);
 
-        info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) self->sequence_number);
+        // info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) self->sequence_number);
     =}
      
     // Comes from the LGSVL interface
@@ -96,7 +96,7 @@ reactor lgsvl_interface {
     
     // To the simulator
     reaction (vehicle_command) {=
-        info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
+        // info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
         try {
             self->node->on_command_message(*vehicle_command->value);
         } catch (...) {
