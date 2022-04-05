@@ -164,7 +164,7 @@ reactor behavior_planner {
 
     // Corresponds to BehaviorPlannerNode::map_response()
     reaction (map) {=
-    //    info_print("Received map");
+       info_print("Received map");
        // Pass a future to the callback function
        self->node->map_response(
            create_future_from_service<
