@@ -85,12 +85,12 @@ reactor behavior_planner {
         
         self->node = new autoware::behavior_planner_nodes::BehaviorPlannerNode(node_options);
         self->node_shared_ptr = std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node);
-        pthread_t spinner_thread;
-        pthread_create(
-            &spinner_thread, 
-            NULL, 
-            &spin_node<std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>>, 
-            static_cast<void*>(new std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node_shared_ptr)));
+    =}
+    
+    timer ros_spin(0, 10 msec);
+    reaction (ros_spin) {=
+        // Spin on ROS for a bit to get tf updates
+        rclcpp::spin_some(self->node_shared_ptr);
     =}
 
     // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.

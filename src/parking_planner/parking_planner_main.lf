@@ -20,6 +20,10 @@ preamble {=
     #include "parking_planner_nodes/parking_planner_node.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
+<<<<<<< HEAD
+=======
+    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + PARKING_PLANNER_PARAM;
+>>>>>>> parent of 122047c... change the remaining spin_some to spin
 =}
 
 reactor parking_planner {
@@ -42,6 +46,7 @@ reactor parking_planner {
         );
         self->node = new autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode(node_options);
         self->node_shared_ptr = std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>(self->node);
+<<<<<<< HEAD
 
         // This node publishes some stuff to rviz2, so we need to spin for them to work
         // pthread_t spinner_thread;
@@ -50,6 +55,8 @@ reactor parking_planner {
         //     NULL, 
         //     &spin_node<std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>>, 
         //     static_cast<void*>(new std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>(self->node_shared_ptr)));
+=======
+>>>>>>> parent of 122047c... change the remaining spin_some to spin
     =}
 
     reaction (route) -> request {=
@@ -66,6 +73,9 @@ reactor parking_planner {
 
         auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
             self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
+        
+        // This node publishes some stuff to rviz2, so we need to spin for them to work
+        rclcpp::spin_some(self->node_shared_ptr);
         
         // Only publish the trajectory if it is valid        
         if (self->node->is_trajectory_valid(*trajectory_msg)) {
