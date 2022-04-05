@@ -5,10 +5,10 @@
 */
 target CCpp {
     build-type: RelWithDebInfo,
-    // coordination-options: {advance-message-interval: 80 msec} // Fastest sensor period (odom)
+    coordination-options: {advance-message-interval: 80 msec} // Fastest sensor period (odom)
 };
 
-import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
+import filter_and_transform from "filter_and_transform/filter_and_transform_timer_main.lf";
 
 import Lidar from "Packages/Lidar.lf";
 
@@ -16,12 +16,12 @@ import ndt_map_publisher from "ndt_map_publisher/ndt_map_publisher_main.lf";
 import p2d_ndt_localizer from "p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
 
 import Perception from "Packages/Perception.lf"
-import Planning from "Packages/Planning.lf"
+import Planning from "Packages/PlanningTimer.lf"
 
 import lanelet2_map_provider from "lanelet2_map_provider/lanelet2_map_provider_main.lf"
 
 
-import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
+import lgsvl_interface from "lgsvl_interface/lgsvl_interface_timer_main.lf";
 import mpc_controller from "mpc_controller/mpc_controller_main.lf";
 import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf";
 

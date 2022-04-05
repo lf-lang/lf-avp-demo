@@ -1,0 +1,119 @@
+/**
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
+ * reflect your top-level AutowareAuto folder. You can do this by changing
+ * the follwoing line:
+ * 
+ *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
+ * 
+ */
+
+ target CCpp {
+    cmake-include: "include/CMakeListsExtension.txt",
+    files: ["../include/utils.hpp"], 
+    threading: true
+};
+
+preamble {=
+    #include "lgsvl_interface/lgsvl_interface_node.hpp"
+    #include "lgsvl_interface/lgsvl_interface.hpp"
+    #include "utils.hpp"
+    std::string yaml_path = get_xronos_home() + "/src/lgsvl_interface/include/lgsvl_interface.param.yaml";
+=}
+
+reactor lgsvl_interface {    
+    input state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
+    input vehicle_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
+    output state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
+    output vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
+
+    state node:lgsvl_interface::LgsvlInterfaceNode*;
+    state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
+    
+    reaction (startup) {=
+        // Remap topics using command-line arguments
+        char *argv[] = {
+            "lf_lgsvl_interface",
+            "--ros-args",
+            "--remap", "vehicle_control_cmd:=/lgsvl/vehicle_control_cmd", 
+            "--remap", "vehicle_state_cmd:=/lgsvl/vehicle_state_cmd",
+            "--remap", "state_report:=/lgsvl/state_report",
+            "--remap", "vehicle_odom:=/lgsvl/vehicle_odom",
+            "--remap", "gnss_odom:=/lgsvl/gnss_odom",
+            "--", 
+            NULL
+        };
+        
+        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+            yaml_path.c_str(), 
+            "/**",
+            13,
+            argv
+        );
+        
+        // Tell the LGSVL interface to publish pose updates on tf topics, which means we need rclcpp::spin_some()
+        nodeOptions.append_parameter_override("lgsvl.publish_tf", true);
+        
+        self->node = new lgsvl_interface::LgsvlInterfaceNode(nodeOptions);
+        self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
+        rclcpp::spin_some(self->node_shared_ptr);       
+    
+    =}
+
+    timer ros_spin(0, 10 msec);
+    reaction(ros_spin) {=
+        rclcpp::spin_some(self->node_shared_ptr);
+    =}
+    
+    // Comes from the LGSVL interface
+    timer gps_odom(0, 33 msec);
+    reaction (gps_odom) -> vehicle_kinematic_state {=
+        // If the vehicle kinematic state is not null
+        if (self->node->m_interface->m_vse_t) {
+            // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
+            SET(vehicle_kinematic_state, self->node->m_interface->m_vse_t);
+            self->node->m_interface->m_vse_t.reset();
+        }
+    =}
+     
+    // Comes from the LGSVL interface
+    timer can_bus(0, 33 msec);
+    reaction (can_bus) -> state_report {=        
+        if (self->node->m_interface->m_state_report_set) {
+            auto msg =
+            std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(
+                self->node->m_interface->get_state_report()
+            );
+            SET(state_report, msg);
+            self->node->m_interface->m_state_report_set = false;
+        }
+        
+        // Update
+        if (self->node->m_state_machine) {
+            self->node->m_state_machine->update(self->node->m_interface->get_odometry(), self->node->m_interface->get_state_report());
+            self->node->state_machine_report();
+        }
+        
+    =}
+    
+    // To the simulator
+    reaction (vehicle_command) {=
+        try {
+            self->node->on_command_message(*vehicle_command->value);
+        } catch (...) {
+            self->node->on_error(std::current_exception());
+        }
+        
+        rclcpp::spin_some(self->node_shared_ptr);
+    =}
+    
+    // To the simulator
+    reaction (state_command) {=
+        self->node->m_last_state_command = *state_command->value;
+        
+        rclcpp::spin_some(self->node_shared_ptr);
+    =}
+}
+
+main reactor {
+    li = new lgsvl_interface();
+}

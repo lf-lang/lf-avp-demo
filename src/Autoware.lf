@@ -4,7 +4,7 @@ target CCpp {
     coordination-options: {advance-message-interval: 80 msec} // Fastest sensor period (odom)
 };
 
-import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
+import filter_and_transform from "filter_and_transform/filter_and_transform_timer_main.lf";
 import point_cloud_fusion from "point_cloud_fusion/point_cloud_fusion_main.lf";
 import voxel_grid_downsampler from "voxel_grid_downsampler/voxel_grid_downsampler_main.lf";
 import ray_ground_classifier from "ray_ground_classifier/ray_ground_classifier_main.lf";
@@ -18,9 +18,9 @@ import lanelet2_map_provider from "lanelet2_map_provider/lanelet2_map_provider_m
 import behavior_planner from "behavior_planner/behavior_planner_main.lf";
 import parking_planner from "parking_planner/parking_planner_main.lf";
 import lane_planner from "lane_planner/lane_planner_main.lf";
-import global_planner from "global_planner/global_planner_main.lf";
+import global_planner from "global_planner/global_planner_timer_main.lf";
 import object_collision_estimator from "object_collision_estimator/object_collision_estimator_main.lf";
-import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
+import lgsvl_interface from "lgsvl_interface/lgsvl_interface_timer_main.lf";
 import mpc_controller from "mpc_controller/mpc_controller_main.lf";
 import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf";
 

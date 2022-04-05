@@ -55,7 +55,7 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
   		requestPtr->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
   		SET(request, requestPtr);
   		
-  		info_print("Requesting map.");
+  		// info_print("Requesting map.");
     =}
     
     reaction (original_bounding_boxes) -> modified_bounding_boxes {=        
@@ -69,7 +69,7 @@ reactor off_map_obstacles_filter (wait_for_map:time(100 msec)) {
 
 
     reaction (map) {=
-        info_print("Got the map.");
+        // info_print("Got the map.");
         auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
         autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
         self->node->m_filter = std::make_unique<autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilter>(lanelet_map_ptr, self->node->m_overlap_threshold);

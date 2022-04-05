@@ -1,0 +1,55 @@
+target CCpp {
+    cmake-include: "include/planning.cmake"
+};
+
+import behavior_planner from "../behavior_planner/behavior_planner_main.lf";
+import parking_planner from "../parking_planner/parking_planner_main.lf";
+import lane_planner from "../lane_planner/lane_planner_main.lf";
+import global_planner from "../global_planner/global_planner_timer_main.lf";
+import object_collision_estimator from "../object_collision_estimator/object_collision_estimator_main.lf";
+
+reactor Planning {
+    input vehicle_kinematic_state : std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
+    input vehicle_state_report : std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
+    input[4] map : std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+    input filtered_bounding_boxes : std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>;
+
+    output[4] map_request : std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
+    output vehicle_state_command : std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
+    output control_trajectory : std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+
+    behavior_planner = new behavior_planner();
+    parking_planner = new parking_planner();
+    lane_planner = new lane_planner();
+    global_planner = new global_planner();
+    object_collision_estimator = new object_collision_estimator();
+
+    // Connect the sub-planners
+    behavior_planner.parking_route -> parking_planner.route;
+	behavior_planner.lane_route -> lane_planner.route;
+	lane_planner.trajectory -> behavior_planner.lane_trajectory;
+	parking_planner.trajectory -> behavior_planner.parking_trajectory;
+	
+    // Connect the obstacle avoidance
+	behavior_planner.original_trajectory ->
+	    object_collision_estimator.original_trajectory;
+	object_collision_estimator.modified_trajectory -> behavior_planner.modified_trajectory;
+
+    // Connect global path
+    global_planner.global_path -> behavior_planner.global_path;
+
+    // Map requests
+    behavior_planner.map_request, lane_planner.request, parking_planner.request,
+        global_planner.map_request -> map_request;
+    map -> behavior_planner.map, lane_planner.map, parking_planner.map, global_planner.map;
+
+    // Inputs
+	vehicle_kinematic_state -> behavior_planner.vehicle_kinematic_state;
+	vehicle_kinematic_state -> global_planner.vehicle_kinematic_state;
+	vehicle_state_report -> behavior_planner.vehicle_state_report;
+    filtered_bounding_boxes -> object_collision_estimator.filtered_lidar_boxes;
+
+    // Outputs
+    behavior_planner.vehicle_state_command -> vehicle_state_command;
+    behavior_planner.control_trajectory -> control_trajectory;
+}

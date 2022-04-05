@@ -150,11 +150,11 @@ reactor behavior_planner {
     // Corresponds to BehaviorPlannerNode::on_route()
     reaction (global_path) -> map_request {=
        if (self->node->m_requesting_trajectory) {
-           info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
+        //    info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
        } else if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
-           info_print("Route was rejected. Route cannot be update while the vehicle is moving");
+        //    info_print("Route was rejected. Route cannot be update while the vehicle is moving");
        } else {
-           info_print("Received route");
+        //    info_print("Received route");
            self->node->m_route = std::move(global_path->value);
            auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
            request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
@@ -164,7 +164,7 @@ reactor behavior_planner {
 
     // Corresponds to BehaviorPlannerNode::map_response()
     reaction (map) {=
-       info_print("Received map");
+    //    info_print("Received map");
        // Pass a future to the callback function
        self->node->map_response(
            create_future_from_service<
@@ -177,16 +177,16 @@ reactor behavior_planner {
     // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
     reaction (lane_trajectory, parking_trajectory) {=
         if (lane_trajectory->is_present && parking_trajectory->is_present) {
-            error_print("Both trajectories present!");
+            // error_print("Both trajectories present!");
         }
         auto trajectory = (lane_trajectory->is_present) ? 
             *lane_trajectory->value.get() : *parking_trajectory->value.get();
 
         self->trajectory_sequence_number = self->sequence_number;
         if (!trajectory.points.empty()){
-            info_print("Received trajectory from planner");
+            // info_print("Received trajectory from planner");
         } else {
-            error_print("Planner failed to calculate!!");
+            // error_print("Planner failed to calculate!!");
         }
 
         trajectory.header.frame_id = "map";
