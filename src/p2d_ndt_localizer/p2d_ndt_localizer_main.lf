@@ -17,19 +17,6 @@ preamble {=
     #include "ndt_localizer_nodes.hpp"
     #include "utils.hpp"
     #include "constants.hpp"
-<<<<<<< HEAD
-    void* spin_node(void* args) {
-        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>*>(args);
-        auto node_shared_ptr = *node_shared_ptr_ptr;
-        while (rclcpp::ok()) {
-            rclcpp::spin(node_shared_ptr);
-        }
-        delete node_shared_ptr_ptr;
-        return 0;
-    }
-=======
-    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
->>>>>>> parent of 122047c... change the remaining spin_some to spin
 =}
 
 reactor p2d_ndt_localizer {
@@ -67,7 +54,8 @@ reactor p2d_ndt_localizer {
 	reaction (fused_downsampled_points_in) {=
         self->node->observation_callback(fused_downsampled_points_in->value);   
     =}
-
+    
+    timer spin_timer(0, 10 msec);
     reaction (spin_timer) {=
         rclcpp::spin_some(self->node_shared_ptr);
     =}

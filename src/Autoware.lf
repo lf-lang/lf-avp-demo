@@ -1,7 +1,6 @@
 target CCpp {
     build-type: RelWithDebInfo,
-    workers: 1,
-    coordination-options: {advance-message-interval: 80 msec} // Fastest sensor period (odom)
+    workers: 1
 };
 
 import filter_and_transform from "filter_and_transform/filter_and_transform_timer_main.lf";

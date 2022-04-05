@@ -59,14 +59,9 @@ reactor lgsvl_interface {
     
     =}
 
-    timer ros_spin(0, 10 msec);
-    reaction(ros_spin) {=
-        rclcpp::spin_some(self->node_shared_ptr);
-    =}
-    
-    // Comes from the LGSVL interface
-    timer gps_odom(0, 33 msec);
+    timer gps_odom(0, 10 msec);
     reaction (gps_odom) -> vehicle_kinematic_state {=
+        rclcpp::spin_some(self->node_shared_ptr);
         // If the vehicle kinematic state is not null
         if (self->node->m_interface->m_vse_t) {
             // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
@@ -77,7 +72,8 @@ reactor lgsvl_interface {
      
     // Comes from the LGSVL interface
     timer can_bus(0, 33 msec);
-    reaction (can_bus) -> state_report {=        
+    reaction (can_bus) -> state_report {=   
+        rclcpp::spin_some(self->node_shared_ptr);     
         if (self->node->m_interface->m_state_report_set) {
             auto msg =
             std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(
