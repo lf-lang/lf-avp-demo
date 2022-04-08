@@ -90,6 +90,8 @@ reactor mpc_controller {
         //     self->node->on_bad_trajectory(std::current_exception());
         // }
         // info_print("(YOLO)>>> MPC received trajectory at: {%lu} seq: {%lu}", get_elapsed_physical_time(), (long unsigned) trajectory->value->sequence_number);
+        warning_print("on time trajectory from behavior planner");
+
         self->sequence_number = trajectory->value->sequence_number;
         self->node->on_trajectory(trajectory->value);
 
@@ -100,7 +102,20 @@ reactor mpc_controller {
             SET(command, msg);
             self->node->cmd_is_set = false;
         }
- 	=}
+ 	=} STP (32 msec) {=
+        warning_print("late trajectory from behavior planner by {%ld}", get_logical_time() - trajectory->intended_tag.time);
+
+        self->sequence_number = trajectory->value->sequence_number;
+        self->node->on_trajectory(trajectory->value);
+
+        // Check if there is a command to send after processing the state.
+        if (self->node->cmd_is_set) {
+            auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleControlCommand>(self->node->cmd);
+            msg->sequence_number = trajectory->value->sequence_number;
+            SET(command, msg);
+            self->node->cmd_is_set = false;
+        }
+     =}
 }
 
 main reactor {

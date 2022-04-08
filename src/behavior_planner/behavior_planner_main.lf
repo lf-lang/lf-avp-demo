@@ -97,6 +97,48 @@ reactor behavior_planner {
     reaction (vehicle_state_report) {=
         self->node->on_vehicle_state_report(vehicle_state_report->value);
     =}
+
+    // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
+    reaction (lane_trajectory, parking_trajectory) {=
+        info_print("on time trajectory from subplanners");
+        if (lane_trajectory->is_present && parking_trajectory->is_present) {
+            // error_print("Both trajectories present!");
+        }
+        auto trajectory = (lane_trajectory->is_present) ? 
+            *lane_trajectory->value.get() : *parking_trajectory->value.get();
+
+        self->trajectory_sequence_number = self->sequence_number;
+        if (!trajectory.points.empty()){
+            // info_print("Received trajectory from planner");
+        } else {
+            // error_print("Planner failed to calculate!!");
+        }
+
+        trajectory.header.frame_id = "map";
+        self->node->m_debug_trajectory_pub->publish(trajectory);
+
+        self->node->m_planner->set_trajectory(trajectory);
+
+        // finished requesting trajectory
+        self->node->m_requesting_trajectory = false;
+    =}
+    
+    
+    // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
+    reaction (modified_trajectory) -> control_trajectory {=
+        // info_print("Received modified trajectory.");
+        // Initialize with modified trajectory from object collision estimator.
+        auto trajectory = modified_trajectory->value;
+        
+        // Set current position with velocity zero to do emergency stop in case
+        // collision estimator fails or if there is obstacle on first point
+        if (trajectory->points.empty()) {
+            auto stopping_point = self->node->m_ego_state.state;
+            stopping_point.longitudinal_velocity_mps = 0.0;
+            trajectory->points.push_back(stopping_point);
+        }
+        SET(control_trajectory, trajectory);
+    =}
     
     // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
     reaction (vehicle_kinematic_state) -> 
@@ -174,46 +216,7 @@ reactor behavior_planner {
        );
     =}
     
-    // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
-    reaction (lane_trajectory, parking_trajectory) {=
-        if (lane_trajectory->is_present && parking_trajectory->is_present) {
-            // error_print("Both trajectories present!");
-        }
-        auto trajectory = (lane_trajectory->is_present) ? 
-            *lane_trajectory->value.get() : *parking_trajectory->value.get();
-
-        self->trajectory_sequence_number = self->sequence_number;
-        if (!trajectory.points.empty()){
-            // info_print("Received trajectory from planner");
-        } else {
-            // error_print("Planner failed to calculate!!");
-        }
-
-        trajectory.header.frame_id = "map";
-        self->node->m_debug_trajectory_pub->publish(trajectory);
-
-        self->node->m_planner->set_trajectory(trajectory);
-
-        // finished requesting trajectory
-        self->node->m_requesting_trajectory = false;
-    =}
     
-    
-    // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
-    reaction (modified_trajectory) -> control_trajectory {=
-        // info_print("Received modified trajectory.");
-        // Initialize with modified trajectory from object collision estimator.
-        auto trajectory = modified_trajectory->value;
-        
-        // Set current position with velocity zero to do emergency stop in case
-        // collision estimator fails or if there is obstacle on first point
-        if (trajectory->points.empty()) {
-            auto stopping_point = self->node->m_ego_state.state;
-            stopping_point.longitudinal_velocity_mps = 0.0;
-            trajectory->points.push_back(stopping_point);
-        }
-        SET(control_trajectory, trajectory);
-    =}
 }
 
 main reactor {
