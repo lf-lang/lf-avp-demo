@@ -1,43 +1,43 @@
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp", "../include/constants.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "euclidean_cluster_node.hpp"
-    #include "utils.hpp"
-    #include "constants.hpp"
+  #include "euclidean_cluster_node.hpp"
+  #include "utils.hpp"
+  #include "constants.hpp"
 =}
 
 reactor euclidean_cluster_detector {
-	input points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	output bounding_boxes:std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>;
-	
-	//state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
-    state node:autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode*;
-    
-    reaction (startup) {=
-        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + EUCLIDEAN_CLUSTER_DETECTOR_PARAM;
+  input points_in: std::shared_ptr<sensor_msgs::msg::PointCloud2>
+  output bounding_boxes: std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray>
 
-        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            yaml_path.c_str(), 
-            "/**"
-        );
-        self->node = new autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode(nodeOptions);
-        // info_print("Max clusters = %d", self->node->m_clusters.clusters.capacity());
-    =}
-    
-    reaction (points_in) -> bounding_boxes {=
-        // info_print("Got points");
-        self->node->handle(points_in->value);
-        // info_print("Handled points");
-        // info_print("Boxes = %d", self->node->m_boxes.boxes.size());
-        auto msg = std::make_shared<autoware_auto_msgs::msg::BoundingBoxArray>(self->node->m_boxes);
-        SET(bounding_boxes, msg);
-	=}
+  // state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode;
+  state node: autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode*
+
+  reaction(startup) {=
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + EUCLIDEAN_CLUSTER_DETECTOR_PARAM;
+
+    rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+    self->node = new autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode(nodeOptions);
+    // info_print("Max clusters = %d", self->node->m_clusters.clusters.capacity());
+  =}
+
+  reaction(points_in) -> bounding_boxes {=
+    // info_print("Got points");
+    self->node->handle(points_in->value);
+    // info_print("Handled points");
+    // info_print("Boxes = %d", self->node->m_boxes.boxes.size());
+    auto msg = std::make_shared<autoware_auto_msgs::msg::BoundingBoxArray>(self->node->m_boxes);
+    SET(bounding_boxes, msg);
+  =}
 }
 
 main reactor {
-    ecd = new euclidean_cluster_detector();
+  ecd = new euclidean_cluster_detector()
 }

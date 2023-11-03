@@ -1,29 +1,27 @@
 target CCpp {
-    coordination: decentralized,
-    build-type: RelWithDebInfo
-};
+  coordination: decentralized,
+  build-type: RelWithDebInfo
+}
 
 import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf"
-
-import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf";
+import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf"
 
 federated reactor {
-    
-    lgsvl = new lgsvl_interface();
-    rsp = new robot_state_publisher();
+  lgsvl = new lgsvl_interface()
+  rsp = new robot_state_publisher()
 
-    reaction(lgsvl.state_report) {=
-        info_print(
-            "Vehicle Gear: %d",
-            lgsvl.state_report->value->gear
-        );
-    =}
+  reaction(lgsvl.state_report) {=
+    info_print(
+        "Vehicle Gear: %d",
+        lgsvl.state_report->value->gear
+    );
+  =}
 
-    reaction(lgsvl.vehicle_kinematic_state) {=
-        info_print(
-            "Lon. Velocity: %f. Lat. Velocity: %f",
-            lgsvl.vehicle_kinematic_state->value->state.longitudinal_velocity_mps,
-            lgsvl.vehicle_kinematic_state->value->state.lateral_velocity_mps
-        );
-    =}
+  reaction(lgsvl.vehicle_kinematic_state) {=
+    info_print(
+        "Lon. Velocity: %f. Lat. Velocity: %f",
+        lgsvl.vehicle_kinematic_state->value->state.longitudinal_velocity_mps,
+        lgsvl.vehicle_kinematic_state->value->state.lateral_velocity_mps
+    );
+  =}
 }

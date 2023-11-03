@@ -1,39 +1,39 @@
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp", "../include/constants.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "voxel_cloud_node.hpp"
-    #include "utils.hpp"
-    #include "constants.hpp"
+  #include "voxel_cloud_node.hpp"
+  #include "utils.hpp"
+  #include "constants.hpp"
 =}
 
 reactor voxel_grid_downsampler {
-    input points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-    output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-    
-    state node:autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode*;
-    
-    reaction (startup) {=
-        std::string yaml_path = get_xronos_home() + "/src/voxel_grid_downsampler/include/scan_downsampler_ms3.param.yaml";
+  input points_in: std::shared_ptr<sensor_msgs::msg::PointCloud2>
+  output points_out: std::shared_ptr<sensor_msgs::msg::PointCloud2>
 
-        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            yaml_path.c_str(), 
-            "/**"
-        );
-        
-        self->node = new autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode(nodeOptions);
-    =}
-        
-    reaction (points_in) -> points_out {=
-          self->node->callback(points_in->value);
-          auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_voxelgrid_ptr->get());
-          SET(points_out, msg);
-	=}
+  state node: autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode*
+
+  reaction(startup) {=
+    std::string yaml_path = get_xronos_home() + "/src/voxel_grid_downsampler/include/scan_downsampler_ms3.param.yaml";
+
+    rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+
+    self->node = new autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode(nodeOptions);
+  =}
+
+  reaction(points_in) -> points_out {=
+    self->node->callback(points_in->value);
+    auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_voxelgrid_ptr->get());
+    SET(points_out, msg);
+  =}
 }
 
 main reactor {
-    vgd = new voxel_grid_downsampler();
+  vgd = new voxel_grid_downsampler()
 }

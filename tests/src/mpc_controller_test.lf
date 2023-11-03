@@ -1,25 +1,23 @@
 target CCpp {
-    coordination: decentralized,
-    build-type: RelWithDebInfo
-};
+  coordination: decentralized,
+  build-type: RelWithDebInfo
+}
 
 import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf"
 import mpc_controller from "../../src/mpc_controller/mpc_controller_main.lf"
-
-import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf";
+import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf"
 
 federated reactor {
-    
-    lgsvl = new lgsvl_interface();
-    mpc = new mpc_controller();
-    rsp = new robot_state_publisher();
+  lgsvl = new lgsvl_interface()
+  mpc = new mpc_controller()
+  rsp = new robot_state_publisher()
 
-    lgsvl.vehicle_kinematic_state -> mpc.vehicle_kinematic_state serializer "ROS2";
+  lgsvl.vehicle_kinematic_state -> mpc.vehicle_kinematic_state serializer "ROS2"
 
-    reaction(mpc.command) {=
-        info_print(
-            "Velocity = %f mps",
-            mpc.command->value->velocity_mps
-        );
-    =}
+  reaction(mpc.command) {=
+    info_print(
+        "Velocity = %f mps",
+        mpc.command->value->velocity_mps
+    );
+  =}
 }

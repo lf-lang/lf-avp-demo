@@ -1,116 +1,113 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
- * 
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
+ *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  */
-
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"], 
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "lgsvl_interface/lgsvl_interface_node.hpp"
-    #include "lgsvl_interface/lgsvl_interface.hpp"
-    #include "utils.hpp"
-    std::string yaml_path = get_xronos_home() + "/src/lgsvl_interface/include/lgsvl_interface.param.yaml";
+  #include "lgsvl_interface/lgsvl_interface_node.hpp"
+  #include "lgsvl_interface/lgsvl_interface.hpp"
+  #include "utils.hpp"
+  std::string yaml_path = get_xronos_home() + "/src/lgsvl_interface/include/lgsvl_interface.param.yaml";
 =}
 
-reactor lgsvl_interface {    
-    input state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
-    input vehicle_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>;
-    output state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
-    output vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
-    state sequence_number:uint32_t;
-    state node:lgsvl_interface::LgsvlInterfaceNode*;
-    state node_shared_ptr:std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>;
-    
-    reaction (startup) -> a_kinematic_state, a_state_report {=
-        // Remap topics using command-line arguments
-        char *argv[] = {
-            "lf_lgsvl_interface",
-            "--ros-args",
-            "--remap", "vehicle_control_cmd:=/lgsvl/vehicle_control_cmd", 
-            "--remap", "vehicle_state_cmd:=/lgsvl/vehicle_state_cmd",
-            "--remap", "state_report:=/lgsvl/state_report",
-            "--remap", "vehicle_odom:=/lgsvl/vehicle_odom",
-            "--remap", "gnss_odom:=/lgsvl/gnss_odom",
-            "--", 
-            NULL
-        };
-        
-        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            yaml_path.c_str(), 
-            "/**",
-            13,
-            argv
-        );
-        
-        // Tell the LGSVL interface to publish pose updates on tf topics, which means we need to use a thread to call rclcpp::spin.
-        nodeOptions.append_parameter_override("lgsvl.publish_tf", true);
-        
-        self->node = new lgsvl_interface::LgsvlInterfaceNode(
-            nodeOptions,
-            a_kinematic_state,
-            a_state_report,
-            &schedule_value
-        );
-        self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
-        self->sequence_number = 0;
-        pthread_t spinner_thread;
-        pthread_create(
-            &spinner_thread, 
-            NULL, 
-            &spin_node<std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>>, 
-            static_cast<void*>(new std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node_shared_ptr))); 
-    =}
-    
-    // Comes from the LGSVL interface
-    physical action a_kinematic_state : autoware_auto_msgs::msg::VehicleKinematicState*;
-    reaction (a_kinematic_state) -> vehicle_kinematic_state {=
-        // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
-        // a_kinematic_state->value->sequence_number = self->sequence_number++;
-        auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleKinematicState>(*a_kinematic_state->value);
-        SET(vehicle_kinematic_state, msg);
+reactor lgsvl_interface {
+  input state_command: std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>
+  input vehicle_command: std::shared_ptr<autoware_auto_msgs::msg::VehicleControlCommand>
+  output state_report: std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>
+  output vehicle_kinematic_state: std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>
+  state sequence_number: uint32_t
+  state node: lgsvl_interface::LgsvlInterfaceNode*
+  state node_shared_ptr: std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>
 
-        // info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) self->sequence_number);
-    =}
-     
-    // Comes from the LGSVL interface
-    physical action a_state_report : autoware_auto_msgs::msg::VehicleStateReport*;
-    reaction (a_state_report) -> state_report {=
-        auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(*a_state_report->value);
-        SET(state_report, msg);
-        
-        // Update
-        if (self->node->m_state_machine) {
-            self->node->m_state_machine->update(self->node->m_interface->get_odometry(), self->node->m_interface->get_state_report());
-            self->node->state_machine_report();
-        }
-        
-    =}
-    
-    // To the simulator
-    reaction (vehicle_command) {=
-        // info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
-        try {
-            self->node->on_command_message(*vehicle_command->value);
-        } catch (...) {
-            self->node->on_error(std::current_exception());
-        }
-    =}
-    
-    // To the simulator
-    reaction (state_command) {=
-        self->node->m_last_state_command = *state_command->value;
-    =}
+  // Comes from the LGSVL interface
+  physical action a_kinematic_state: autoware_auto_msgs::msg::VehicleKinematicState*
+
+  // Comes from the LGSVL interface
+  physical action a_state_report: autoware_auto_msgs::msg::VehicleStateReport*
+
+  reaction(startup) -> a_kinematic_state, a_state_report {=
+    // Remap topics using command-line arguments
+    char *argv[] = {
+        "lf_lgsvl_interface",
+        "--ros-args",
+        "--remap", "vehicle_control_cmd:=/lgsvl/vehicle_control_cmd",
+        "--remap", "vehicle_state_cmd:=/lgsvl/vehicle_state_cmd",
+        "--remap", "state_report:=/lgsvl/state_report",
+        "--remap", "vehicle_odom:=/lgsvl/vehicle_odom",
+        "--remap", "gnss_odom:=/lgsvl/gnss_odom",
+        "--",
+        NULL
+    };
+
+    rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**",
+        13,
+        argv
+    );
+
+    // Tell the LGSVL interface to publish pose updates on tf topics, which means we need to use a thread to call rclcpp::spin.
+    nodeOptions.append_parameter_override("lgsvl.publish_tf", true);
+
+    self->node = new lgsvl_interface::LgsvlInterfaceNode(
+        nodeOptions,
+        a_kinematic_state,
+        a_state_report,
+        &schedule_value
+    );
+    self->node_shared_ptr = std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node);
+    self->sequence_number = 0;
+    pthread_t spinner_thread;
+    pthread_create(
+        &spinner_thread,
+        NULL,
+        &spin_node<std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>>,
+        static_cast<void*>(new std::shared_ptr<lgsvl_interface::LgsvlInterfaceNode>(self->node_shared_ptr)));
+  =}
+
+  reaction(a_kinematic_state) -> vehicle_kinematic_state {=
+    // info_print("Long. Velocity: %f", (*self->node->m_interface->m_vse_t).state.longitudinal_velocity_mps);
+    // a_kinematic_state->value->sequence_number = self->sequence_number++;
+    auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleKinematicState>(*a_kinematic_state->value);
+    SET(vehicle_kinematic_state, msg);
+
+    // info_print("(YOLO)>>> Published kinematic state at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) self->sequence_number);
+  =}
+
+  reaction(a_state_report) -> state_report {=
+    auto msg = std::make_shared<autoware_auto_msgs::msg::VehicleStateReport>(*a_state_report->value);
+    SET(state_report, msg);
+
+    // Update
+    if (self->node->m_state_machine) {
+        self->node->m_state_machine->update(self->node->m_interface->get_odometry(), self->node->m_interface->get_state_report());
+        self->node->state_machine_report();
+    }
+  =}
+
+  // To the simulator
+  reaction(vehicle_command) {=
+    // info_print("(YOLO)>>> LGSVL received vehicle command at: {%lu} for seq: {%lu}", get_elapsed_physical_time(), (long unsigned) vehicle_command->value->sequence_number);
+    try {
+        self->node->on_command_message(*vehicle_command->value);
+    } catch (...) {
+        self->node->on_error(std::current_exception());
+    }
+  =}
+
+  // To the simulator
+  reaction(state_command) {=
+    self->node->m_last_state_command = *state_command->value;
+  =}
 }
 
 main reactor {
-    li = new lgsvl_interface();
+  li = new lgsvl_interface()
 }
-

@@ -1,77 +1,76 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
  *
- *     set(AUTOWARE_HOME /home/$ENV{USER}/Autoware)
- *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/Autoware)
  */
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp", "../include/constants.hpp"], 
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp", "../include/constants.hpp"],
+  threading: true
+}
 
-# preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
-
+// preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
 preamble {=
-    #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
-    #include "utils.hpp"
-    #include "constants.hpp"
-    #include <cstdlib>
-    #include <string>
+  #include "point_cloud_filter_transform_node.hpp" /* This is AUTOWARE node */
+  #include "utils.hpp"
+  #include "constants.hpp"
+  #include <cstdlib>
+  #include <string>
 =}
 
-reactor filter_and_transform (
-    bank_index:int(0), 
-    config_namespaces:std::vector<string>({=std::vector<string>{"/lidar_front/filter_transform_vlp16_front", "/lidar_rear/filter_transform_vlp16_rear"}=}),
-    lidar_topic_names:std::vector<char*>({=std::vector<char*>{"/lidar_front/points_raw", "/lidar_rear/points_raw"}=})
-) {
-    // Point in come from ROS
-    output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-    state count:int(0);
-    state node:autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*;
-    state node_shared_ptr:std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>;
-    physical action points_in:sensor_msgs::msg::PointCloud2*;
+reactor filter_and_transform(
+    bank_index: int = 0,
+    config_namespaces: std::vector<string> = {=
+      std::vector<string>{"/lidar_front/filter_transform_vlp16_front", "/lidar_rear/filter_transform_vlp16_rear"}
+    =},
+    lidar_topic_names: std::vector<char*> = {=
+      std::vector<char*>{"/lidar_front/points_raw", "/lidar_rear/points_raw"}
+    =}) {
+  output points_out: std::shared_ptr<sensor_msgs::msg::PointCloud2>  // Point in come from ROS
+  state count: int = 0
+  state node: autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode*
+  state node_shared_ptr: std::shared_ptr<
+      autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>
+  physical action points_in: sensor_msgs::msg::PointCloud2*
 
-    reaction (startup) -> points_in {=
-        static std::string yaml_path = get_xronos_home() + "/src/filter_and_transform/include/pc_filter_transform.param.yaml";
+  reaction(startup) -> points_in {=
+    static std::string yaml_path = get_xronos_home() + "/src/filter_and_transform/include/pc_filter_transform.param.yaml";
 
-        char program_name[200], topic_cmd[200];
-        sprintf(program_name, "lf_filter_and_transform_%d", self->bank_index);
-        sprintf(topic_cmd, "points_in:=%s", self->lidar_topic_names[self->bank_index]);
-        char *argv[] = {program_name, "--ros-args", "--remap", topic_cmd, "--", NULL};
-        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            yaml_path.c_str(),
-            self->config_namespaces[self->bank_index],
-            5,
-            argv
-        );
-        self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(
-            nodeOptions,
-            points_in,
-            &schedule_value
-        );
-        self->node_shared_ptr = std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>(self->node);
-        pthread_t spinner_thread;
-        pthread_create(
-            &spinner_thread, 
-            NULL, 
-            &spin_node<std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>>, 
-            static_cast<void*>(new std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>(self->node_shared_ptr)));
-    =}
+    char program_name[200], topic_cmd[200];
+    sprintf(program_name, "lf_filter_and_transform_%d", self->bank_index);
+    sprintf(topic_cmd, "points_in:=%s", self->lidar_topic_names[self->bank_index]);
+    char *argv[] = {program_name, "--ros-args", "--remap", topic_cmd, "--", NULL};
+    rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        self->config_namespaces[self->bank_index],
+        5,
+        argv
+    );
+    self->node = new autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode(
+        nodeOptions,
+        points_in,
+        &schedule_value
+    );
+    self->node_shared_ptr = std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>(self->node);
+    pthread_t spinner_thread;
+    pthread_create(
+        &spinner_thread,
+        NULL,
+        &spin_node<std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>>,
+        static_cast<void*>(new std::shared_ptr<autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode>(self->node_shared_ptr)));
+  =}
 
-
-    reaction (points_in) -> points_out {=
-        // Process some events
-        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(*points_in->value);
-        SET(points_out, msg);
-    =}
+  reaction(points_in) -> points_out {=
+    // Process some events
+    auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(*points_in->value);
+    SET(points_out, msg);
+  =}
 }
 
 main reactor {
-    fat = new filter_and_transform(
-        config_namespaces = {=std::vector<string>{"/lidar_front/filter_transform_vlp16_front", "/lidar_rear/filter_transform_vlp16_rear"}=}
-    );
+  fat = new filter_and_transform(
+      config_namespaces = {=
+        std::vector<string>{"/lidar_front/filter_transform_vlp16_front", "/lidar_rear/filter_transform_vlp16_rear"}
+      =})
 }
-

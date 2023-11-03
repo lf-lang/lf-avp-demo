@@ -1,77 +1,74 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
- * 
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
+ *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  */
-
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp", "../include/constants.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "ndt_localizer_nodes.hpp"
-    #include "utils.hpp"
-    #include "constants.hpp"
-    void* spin_node(void* args) {
-        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>*>(args);
-        auto node_shared_ptr = *node_shared_ptr_ptr;
-        while (rclcpp::ok()) {
-            rclcpp::spin(node_shared_ptr);
-        }
-        delete node_shared_ptr_ptr;
-        return 0;
-    }
+  #include "ndt_localizer_nodes.hpp"
+  #include "utils.hpp"
+  #include "constants.hpp"
+  void* spin_node(void* args) {
+      auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>*>(args);
+      auto node_shared_ptr = *node_shared_ptr_ptr;
+      while (rclcpp::ok()) {
+          rclcpp::spin(node_shared_ptr);
+      }
+      delete node_shared_ptr_ptr;
+      return 0;
+  }
 =}
 
 reactor p2d_ndt_localizer {
-    input ndt_map_points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-    input fused_downsampled_points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	
-	state node:autoware::localization::ndt_nodes::P2DNDTLocalizerNode*;
-    state node_shared_ptr:std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>;
-    
-    reaction (startup) {=
-        std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
+  input ndt_map_points_in: std::shared_ptr<sensor_msgs::msg::PointCloud2>
+  input fused_downsampled_points_in: std::shared_ptr<sensor_msgs::msg::PointCloud2>
 
-        rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            yaml_path.c_str(),
-            "/**"
-        );
-        
-        // This constructor copies pose_initializer and stores it internally. Thus,
-        // pose_initializer does not need to be a state.
-        self->node = new autoware::localization::ndt_nodes::P2DNDTLocalizerNode(
-        	"lfros2_ndt_localizer", node_options, autoware::localization::ndt_nodes::PoseInitializer_{});
-        self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>(self->node);
+  state node: autoware::localization::ndt_nodes::P2DNDTLocalizerNode*
+  state node_shared_ptr: std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>
 
-        pthread_t spinner_thread;
-        pthread_create(
-            &spinner_thread, 
-            NULL, 
-            &spin_node, 
-            static_cast<void*>(new std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>(self->node_shared_ptr)));
-    =}
-    
-    reaction (ndt_map_points_in) {=
-        // Converts the point in value to shared pointer
-        self->node->map_callback(ndt_map_points_in->value);
-        // Callback definitions:
-        // void map_callback(typename MapMsgT::ConstSharedPtr msg_ptr)
-        // void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
-        // Both MapMsgT and ObservationMsgT are given as PointCloud2 in the templated class definition of
-        // RelativeLocalizerNode in localization_node.hpp.
-	=}
-	
-	reaction (fused_downsampled_points_in) {=
-        self->node->observation_callback(fused_downsampled_points_in->value);   
-    =}
+  reaction(startup) {=
+    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_LOCALIZER_PARAM;
+
+    rclcpp::NodeOptions node_options = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+
+    // This constructor copies pose_initializer and stores it internally. Thus,
+    // pose_initializer does not need to be a state.
+    self->node = new autoware::localization::ndt_nodes::P2DNDTLocalizerNode(
+    	"lfros2_ndt_localizer", node_options, autoware::localization::ndt_nodes::PoseInitializer_{});
+    self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>(self->node);
+
+    pthread_t spinner_thread;
+    pthread_create(
+        &spinner_thread,
+        NULL,
+        &spin_node,
+        static_cast<void*>(new std::shared_ptr<autoware::localization::ndt_nodes::P2DNDTLocalizerNode>(self->node_shared_ptr)));
+  =}
+
+  reaction(ndt_map_points_in) {=
+    // Converts the point in value to shared pointer
+    self->node->map_callback(ndt_map_points_in->value);
+    // Callback definitions:
+    // void map_callback(typename MapMsgT::ConstSharedPtr msg_ptr)
+    // void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
+    // Both MapMsgT and ObservationMsgT are given as PointCloud2 in the templated class definition of
+    // RelativeLocalizerNode in localization_node.hpp.
+  =}
+
+  reaction(fused_downsampled_points_in) {=
+    self->node->observation_callback(fused_downsampled_points_in->value);
+  =}
 }
 
 main reactor {
-    pnl = new p2d_ndt_localizer();
+  pnl = new p2d_ndt_localizer()
 }

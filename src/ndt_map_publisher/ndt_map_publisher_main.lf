@@ -1,63 +1,60 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
- * 
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
+ *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  */
-
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp", "../include/constants.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "sensor_msgs/msg/point_cloud2.hpp"
-    #include "map_publisher.hpp"
-    #include "utils.hpp"
-    #include "constants.hpp"
-    void* spin_node(void* args) {
-        auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>*>(args);
-        auto node_shared_ptr = *node_shared_ptr_ptr;
-        while (rclcpp::ok()) {
-            rclcpp::spin(node_shared_ptr);
-        }
-        delete node_shared_ptr_ptr;
-        return 0;
-    }
+  #include "sensor_msgs/msg/point_cloud2.hpp"
+  #include "map_publisher.hpp"
+  #include "utils.hpp"
+  #include "constants.hpp"
+  void* spin_node(void* args) {
+      auto node_shared_ptr_ptr = static_cast<std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>*>(args);
+      auto node_shared_ptr = *node_shared_ptr_ptr;
+      while (rclcpp::ok()) {
+          rclcpp::spin(node_shared_ptr);
+      }
+      delete node_shared_ptr_ptr;
+      return 0;
+  }
 =}
 
 reactor ndt_map_publisher {
-    output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	
-	state node:autoware::localization::ndt_nodes::NDTMapPublisherNode*;
-    state node_shared_ptr:std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>;
-    
-    reaction (startup) -> points_out {=
-        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_MAP_PUBLISHER_PARAM;
+  output points_out: std::shared_ptr<sensor_msgs::msg::PointCloud2>
 
-        rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            yaml_path.c_str(),
-            "/**"
-        );
-        self->node = new autoware::localization::ndt_nodes::NDTMapPublisherNode(node_options);
-        self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node);
+  state node: autoware::localization::ndt_nodes::NDTMapPublisherNode*
+  state node_shared_ptr: std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>
 
-        // Make sure the tf and rviz2 visualization stuff have gone out
-        pthread_t spinner_thread;
-        pthread_create(
-            &spinner_thread, 
-            NULL, 
-            &spin_node, 
-            static_cast<void*>(new std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node_shared_ptr)));
-        
-        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_map_pc);
-        SET(points_out, msg);
-    =}
+  reaction(startup) -> points_out {=
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + NDT_MAP_PUBLISHER_PARAM;
+
+    rclcpp::NodeOptions node_options = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+    self->node = new autoware::localization::ndt_nodes::NDTMapPublisherNode(node_options);
+    self->node_shared_ptr = std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node);
+
+    // Make sure the tf and rviz2 visualization stuff have gone out
+    pthread_t spinner_thread;
+    pthread_create(
+        &spinner_thread,
+        NULL,
+        &spin_node,
+        static_cast<void*>(new std::shared_ptr<autoware::localization::ndt_nodes::NDTMapPublisherNode>(self->node_shared_ptr)));
+
+    auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_map_pc);
+    SET(points_out, msg);
+  =}
 }
 
 main reactor {
-    nmp = new ndt_map_publisher();
+  nmp = new ndt_map_publisher()
 }
