@@ -1,10 +1,10 @@
 # Autonomous Vehicle Parking (AVP) Demo
 This is a Lingua Franca port of the Autoware AVP demo featured in:
 
-    Bateni, Soroush and Lohstroh, Marten and Wong, Hou Seng and Kim, Hokeun and Lin, Shaokai and Menard,
-    Christian and Lee, Edward A.. "Risk and Mitigation of Nondeterminism in Distributed Cyber-Physical Systems".
-    21st ACM/IEEE International Symposium on Formal Methods and Models for System Design (MEMOCODE), Hamburg,
-    Germany, September 21-22 2023.
+    Bateni, Soroush and Lohstroh, Marten and Wong, Hou Seng and Kim, Hokeun and Lin, Shaokai and
+    Menard, Christian and Lee, Edward A.. "Risk and Mitigation of Nondeterminism in Distributed
+    Cyber-Physical Systems". 21st ACM/IEEE International Symposium on Formal Methods and Models
+    for System Design (MEMOCODE), Hamburg, Germany, September 21-22 2023.
 
 The implementation uses the federated runtime and currently only supported by the C target.
 To be able to use this branch, clone the [Lingua Franca](https://github.com/lf-lang/lingua-franca) repository.
