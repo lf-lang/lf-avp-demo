@@ -6,7 +6,7 @@ This is a Lingua Franca port of the Autoware AVP demo featured in:
     Cyber-Physical Systems". 21st ACM/IEEE International Symposium on Formal Methods and Models
     for System Design (MEMOCODE), Hamburg, Germany, September 21-22 2023.
 
-The implementation uses the federated runtime and currently only supported by the C target.
+The implementation uses the federated runtime and is currently only supported by the C target.
 To be able to use this branch, clone the [Lingua Franca](https://github.com/lf-lang/lingua-franca) repository.
 
 Note:
