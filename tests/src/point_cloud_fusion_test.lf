@@ -1,35 +1,33 @@
 target CCpp {
-    coordination: decentralized,
-    build-type: RelWithDebInfo
-};
+  coordination: decentralized,
+  build-type: RelWithDebInfo
+}
 
-import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
-import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf";
+import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf"
+import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf"
 
 federated reactor {
-    
-    fat = new[2] filter_and_transform();
-    pcf = new point_cloud_fusion(in_width = 2);
-    
-    fat.points_out -> pcf.points_in serializer "ros2";
+  fat = new[2] filter_and_transform()
+  pcf = new point_cloud_fusion(in_width=2)
 
-    // The following is causing a seg fault!
-    // reaction(fat.points_out) {=
-    //     for (int i = 0; i < fat_width; i++) {
-    //         info_print(
-    //             "Lidar sensor %d's height = %d, width = %d",
-    //             i,
-    //             fat[i].points_out->value->height, 
-    //             fat[i].points_out->value->width
-    //         );
-    //     }
-    // =}
+  fat.points_out -> pcf.points_in serializer "ros2"
 
-    reaction(pcf.points_out) {=
-        info_print(
-            "Fused output's height = %d, width = %d",
-            pcf.points_out->value->height, 
-            pcf.points_out->value->width
-        );
-    =}
+  // The following is causing a seg fault!
+  // reaction(fat.points_out) {=
+  // for (int i = 0; i < fat_width; i++) {
+  // info_print(
+  //             "Lidar sensor %d's height = %d, width = %d",
+  // i,
+  // fat[i].points_out->value->height,
+  // fat[i].points_out->value->width
+  //         );
+  //     }
+  // =}
+  reaction(pcf.points_out) {=
+    info_print(
+        "Fused output's height = %d, width = %d",
+        pcf.points_out->value->height,
+        pcf.points_out->value->width
+    );
+  =}
 }

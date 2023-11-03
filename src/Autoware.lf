@@ -1,86 +1,95 @@
 target CCpp {
-    build-type: RelWithDebInfo,
-    workers: 1
-};
+  build-type: RelWithDebInfo,
+  workers: 1
+}
 
-import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
-import point_cloud_fusion from "point_cloud_fusion/point_cloud_fusion_main.lf";
-import voxel_grid_downsampler from "voxel_grid_downsampler/voxel_grid_downsampler_main.lf";
-import ray_ground_classifier from "ray_ground_classifier/ray_ground_classifier_main.lf";
-import euclidean_cluster_detector from "euclidean_cluster_detector/euclidean_cluster_detector_main.lf";
-import ndt_map_publisher from "ndt_map_publisher/ndt_map_publisher_main.lf";
-import p2d_ndt_localizer from "p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
-import off_map_obstacles_filter from "off_map_obstacles_filter/off_map_obstacles_filter_main.lf";
-
+import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf"
+import point_cloud_fusion from "point_cloud_fusion/point_cloud_fusion_main.lf"
+import voxel_grid_downsampler from "voxel_grid_downsampler/voxel_grid_downsampler_main.lf"
+import ray_ground_classifier from "ray_ground_classifier/ray_ground_classifier_main.lf"
+import euclidean_cluster_detector from "euclidean_cluster_detector/euclidean_cluster_detector_main.lf"
+import ndt_map_publisher from "ndt_map_publisher/ndt_map_publisher_main.lf"
+import p2d_ndt_localizer from "p2d_ndt_localizer/p2d_ndt_localizer_main.lf"
+import off_map_obstacles_filter from "off_map_obstacles_filter/off_map_obstacles_filter_main.lf"
 import lanelet2_map_provider from "lanelet2_map_provider/lanelet2_map_provider_main.lf"
-
-import behavior_planner from "behavior_planner/behavior_planner_main.lf";
-import parking_planner from "parking_planner/parking_planner_main.lf";
-import lane_planner from "lane_planner/lane_planner_main.lf";
-import global_planner from "global_planner/global_planner_main.lf";
-import object_collision_estimator from "object_collision_estimator/object_collision_estimator_main.lf";
-import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
-import mpc_controller from "mpc_controller/mpc_controller_main.lf";
-import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf";
-
-import rviz2 from "rviz/rviz_main.lf";
+import behavior_planner from "behavior_planner/behavior_planner_main.lf"
+import parking_planner from "parking_planner/parking_planner_main.lf"
+import lane_planner from "lane_planner/lane_planner_main.lf"
+import global_planner from "global_planner/global_planner_main.lf"
+import object_collision_estimator from "object_collision_estimator/object_collision_estimator_main.lf"
+import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf"
+import mpc_controller from "mpc_controller/mpc_controller_main.lf"
+import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf"
+import rviz2 from "rviz/rviz_main.lf"
 
 federated reactor Autoware {
-    // rviz2 = new rviz2();
+  filter_and_transform = new[2] filter_and_transform()        // rviz2 = new rviz2();
+  point_cloud_fusion = new point_cloud_fusion(in_width=2)
+  voxel_grid_downsampler = new voxel_grid_downsampler()
+  ray_ground_classifier = new ray_ground_classifier()
+  euclidean_cluster_detector = new euclidean_cluster_detector()
+  ndt_map_publisher = new ndt_map_publisher()
+  p2d_ndt_localizer = new p2d_ndt_localizer()
+  off_map_obstacles_filter = new off_map_obstacles_filter()
+  behavior_planner = new behavior_planner()
+  parking_planner = new parking_planner()
+  lane_planner = new lane_planner()
+  global_planner = new global_planner()
+  object_collision_estimator = new object_collision_estimator()
+  lgsvl_interface = new lgsvl_interface()
+  mpc_controller = new mpc_controller()
+  robot_state_publisher = new robot_state_publisher()
 
-    filter_and_transform = new[2] filter_and_transform();
-    point_cloud_fusion = new point_cloud_fusion(in_width = 2);
-    voxel_grid_downsampler = new voxel_grid_downsampler();
-    ray_ground_classifier = new ray_ground_classifier();
-    euclidean_cluster_detector = new euclidean_cluster_detector();
-    ndt_map_publisher = new ndt_map_publisher();
-    p2d_ndt_localizer = new p2d_ndt_localizer();
-    off_map_obstacles_filter = new off_map_obstacles_filter();
-    behavior_planner = new behavior_planner();
-    parking_planner = new parking_planner();
-    lane_planner = new lane_planner();
-    global_planner = new global_planner();
-    object_collision_estimator = new object_collision_estimator();
-    lgsvl_interface = new lgsvl_interface();
-    mpc_controller = new mpc_controller();
-    robot_state_publisher = new robot_state_publisher();
-    
-	filter_and_transform.points_out -> point_cloud_fusion.points_in serializer "ros2";
-	point_cloud_fusion.points_out -> voxel_grid_downsampler.points_in serializer "ros2";
-	point_cloud_fusion.points_out -> ray_ground_classifier.points_in serializer "ros2";
-	ray_ground_classifier.points_non_ground -> euclidean_cluster_detector.points_in serializer "ros2";
-	euclidean_cluster_detector.bounding_boxes -> off_map_obstacles_filter.original_bounding_boxes serializer "ros2";
-	off_map_obstacles_filter.modified_bounding_boxes -> object_collision_estimator.filtered_lidar_boxes serializer "ros2";
-	ndt_map_publisher.points_out -> p2d_ndt_localizer.ndt_map_points_in serializer "ros2";
-	voxel_grid_downsampler.points_out -> p2d_ndt_localizer.fused_downsampled_points_in serializer "ros2";
-	
-    //////// Maps /////////
-    map_provider = new lanelet2_map_provider(num_requestors = 5);
+  filter_and_transform.points_out -> point_cloud_fusion.points_in serializer "ros2"
+  point_cloud_fusion.points_out -> voxel_grid_downsampler.points_in serializer "ros2"
+  point_cloud_fusion.points_out -> ray_ground_classifier.points_in serializer "ros2"
+  ray_ground_classifier.points_non_ground -> euclidean_cluster_detector.points_in serializer "ros2"
+  euclidean_cluster_detector.bounding_boxes
+    -> off_map_obstacles_filter.original_bounding_boxes serializer "ros2"
+  off_map_obstacles_filter.modified_bounding_boxes
+    -> object_collision_estimator.filtered_lidar_boxes serializer "ros2"
+  ndt_map_publisher.points_out -> p2d_ndt_localizer.ndt_map_points_in serializer "ros2"
+  voxel_grid_downsampler.points_out
+    -> p2d_ndt_localizer.fused_downsampled_points_in serializer "ros2"
 
-    behavior_planner.map_request, lane_planner.request, parking_planner.request, global_planner.map_request, off_map_obstacles_filter.request -> map_provider.request serializer "ros2";
-    map_provider.map -> behavior_planner.map, lane_planner.map, parking_planner.map, global_planner.map, off_map_obstacles_filter.map serializer "ros2";
-    /////////////////////
-	
-	lgsvl_interface.vehicle_kinematic_state -> behavior_planner.vehicle_kinematic_state serializer "ros2";
-	lgsvl_interface.state_report -> behavior_planner.vehicle_state_report serializer "ros2";
-	lgsvl_interface.vehicle_kinematic_state -> mpc_controller.vehicle_kinematic_state serializer "ros2";
-	lgsvl_interface.vehicle_kinematic_state -> global_planner.vehicle_kinematic_state serializer "ros2";
-	
-	behavior_planner.parking_route -> parking_planner.route serializer "ros2";
-	behavior_planner.lane_route -> lane_planner.route serializer "ros2";
-	
-	behavior_planner.vehicle_state_command -> lgsvl_interface.state_command serializer "ros2";
-	behavior_planner.control_trajectory -> mpc_controller.trajectory serializer "ros2";
-	
-	lane_planner.trajectory -> behavior_planner.lane_trajectory serializer "ros2";
-	parking_planner.trajectory -> behavior_planner.parking_trajectory serializer "ros2";
-	
-	behavior_planner.original_trajectory ->
-	    object_collision_estimator.original_trajectory serializer "ros2";
-	object_collision_estimator.modified_trajectory -> behavior_planner.modified_trajectory serializer "ros2";
+  map_provider = new lanelet2_map_provider(num_requestors=5)  //////// Maps /////////
 
-    global_planner.global_path -> behavior_planner.global_path serializer "ros2";
-    
-    mpc_controller.command -> lgsvl_interface.vehicle_command serializer "ros2";
-	
+  behavior_planner.map_request,
+  lane_planner.request,
+  parking_planner.request,
+  global_planner.map_request,
+  off_map_obstacles_filter.request -> map_provider.request serializer "ros2"
+  map_provider.map ->
+    behavior_planner.map,
+    lane_planner.map,
+    parking_planner.map,
+    global_planner.map,
+    off_map_obstacles_filter.map serializer "ros2"
+
+  /////////////////////
+  lgsvl_interface.vehicle_kinematic_state
+    -> behavior_planner.vehicle_kinematic_state serializer "ros2"
+  lgsvl_interface.state_report -> behavior_planner.vehicle_state_report serializer "ros2"
+  lgsvl_interface.vehicle_kinematic_state
+    -> mpc_controller.vehicle_kinematic_state serializer "ros2"
+  lgsvl_interface.vehicle_kinematic_state
+    -> global_planner.vehicle_kinematic_state serializer "ros2"
+
+  behavior_planner.parking_route -> parking_planner.route serializer "ros2"
+  behavior_planner.lane_route -> lane_planner.route serializer "ros2"
+
+  behavior_planner.vehicle_state_command -> lgsvl_interface.state_command serializer "ros2"
+  behavior_planner.control_trajectory -> mpc_controller.trajectory serializer "ros2"
+
+  lane_planner.trajectory -> behavior_planner.lane_trajectory serializer "ros2"
+  parking_planner.trajectory -> behavior_planner.parking_trajectory serializer "ros2"
+
+  behavior_planner.original_trajectory
+    -> object_collision_estimator.original_trajectory serializer "ros2"
+  object_collision_estimator.modified_trajectory
+    -> behavior_planner.modified_trajectory serializer "ros2"
+
+  global_planner.global_path -> behavior_planner.global_path serializer "ros2"
+
+  mpc_controller.command -> lgsvl_interface.vehicle_command serializer "ros2"
 }

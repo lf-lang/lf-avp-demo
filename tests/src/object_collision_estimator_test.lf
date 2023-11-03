@@ -1,52 +1,50 @@
-target CCpp;
+target CCpp
 
-import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
-import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf";
-import ray_ground_classifier from "../../src/ray_ground_classifier/ray_ground_classifier_main.lf";
-import euclidean_cluster_detector from "../../src/euclidean_cluster_detector/euclidean_cluster_detector_main.lf";
-import off_map_obstacles_filter from "../../src/off_map_obstacles_filter/off_map_obstacles_filter_main.lf";
-import object_collision_estimator from "../../src/object_collision_estimator/object_collision_estimator_main.lf";
-import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf";
-import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf";
+import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf"
+import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf"
+import ray_ground_classifier from "../../src/ray_ground_classifier/ray_ground_classifier_main.lf"
+import euclidean_cluster_detector from "../../src/euclidean_cluster_detector/euclidean_cluster_detector_main.lf"
+import off_map_obstacles_filter from "../../src/off_map_obstacles_filter/off_map_obstacles_filter_main.lf"
+import object_collision_estimator from "../../src/object_collision_estimator/object_collision_estimator_main.lf"
+import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf"
+import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf"
 import voxel_grid_downsampler from "../../src/voxel_grid_downsampler/voxel_grid_downsampler_main.lf"
-import p2d_ndt_localizer from "../../src/p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
-import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf";
-import mpc_controller from "../../src/mpc_controller/mpc_controller_main.lf";
-import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf";
-
+import p2d_ndt_localizer from "../../src/p2d_ndt_localizer/p2d_ndt_localizer_main.lf"
+import lgsvl_interface from "../../src/lgsvl_interface/lgsvl_interface_main.lf"
+import mpc_controller from "../../src/mpc_controller/mpc_controller_main.lf"
+import robot_state_publisher from "../../src/robot_state_publisher/robot_state_publisher_main.lf"
 
 federated reactor {
-    fat = new[2] filter_and_transform();
-    pcf = new point_cloud_fusion(in_width = 2);
-    rgc = new ray_ground_classifier();
-    ecd = new euclidean_cluster_detector();
-    omof = new off_map_obstacles_filter();
-    oce = new object_collision_estimator();
-    
-    map_provider = new lanelet2_map_provider();
-    nmp = new ndt_map_publisher();
-    vgd = new voxel_grid_downsampler();
-    pnl = new p2d_ndt_localizer();
-    li = new lgsvl_interface();
-    mc = new mpc_controller();
-    rsp = new robot_state_publisher();
-    
-    fat.points_out -> pcf.points_in serializer "ros2";
-    pcf.points_out -> vgd.points_in serializer "ros2";
-    vgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2";
-    nmp.points_out -> pnl.ndt_map_points_in serializer "ros2";
-    pcf.points_out -> rgc.points_in serializer "ros2";
-    rgc.points_non_ground -> ecd.points_in serializer "ros2";
-    ecd.bounding_boxes -> omof.original_bounding_boxes serializer "ros2";
-    omof.request -> map_provider.request serializer "ros2";
-    map_provider.map -> omof.map serializer "ros2";
-    omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serializer "ros2";
+  fat = new[2] filter_and_transform()
+  pcf = new point_cloud_fusion(in_width=2)
+  rgc = new ray_ground_classifier()
+  ecd = new euclidean_cluster_detector()
+  omof = new off_map_obstacles_filter()
+  oce = new object_collision_estimator()
 
-    reaction(omof.modified_bounding_boxes) {=
-        info_print(
-            "Number of bounding boxes: %d.",
-            omof.modified_bounding_boxes->value->boxes.size()
-        );
-    =}
-    
+  map_provider = new lanelet2_map_provider()
+  nmp = new ndt_map_publisher()
+  vgd = new voxel_grid_downsampler()
+  pnl = new p2d_ndt_localizer()
+  li = new lgsvl_interface()
+  mc = new mpc_controller()
+  rsp = new robot_state_publisher()
+
+  fat.points_out -> pcf.points_in serializer "ros2"
+  pcf.points_out -> vgd.points_in serializer "ros2"
+  vgd.points_out -> pnl.fused_downsampled_points_in serializer "ros2"
+  nmp.points_out -> pnl.ndt_map_points_in serializer "ros2"
+  pcf.points_out -> rgc.points_in serializer "ros2"
+  rgc.points_non_ground -> ecd.points_in serializer "ros2"
+  ecd.bounding_boxes -> omof.original_bounding_boxes serializer "ros2"
+  omof.request -> map_provider.request serializer "ros2"
+  map_provider.map -> omof.map serializer "ros2"
+  omof.modified_bounding_boxes -> oce.filtered_lidar_boxes serializer "ros2"
+
+  reaction(omof.modified_bounding_boxes) {=
+    info_print(
+        "Number of bounding boxes: %d.",
+        omof.modified_bounding_boxes->value->boxes.size()
+    );
+  =}
 }

@@ -1,67 +1,65 @@
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "ray_ground_classifier_cloud_node.hpp"
-    #include <stdlib.h>
-    #include <string>
-    #include "utils.hpp"
+  #include "ray_ground_classifier_cloud_node.hpp"
+  #include <stdlib.h>
+  #include <string>
+  #include "utils.hpp"
 =}
 
 reactor ray_ground_classifier {
-    
-	input points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	output points_non_ground:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	
-	//state node:autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode*; 
-	state node_shared_ptr:std::shared_ptr<autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode>;
-	
-        
-    reaction (startup) {=
-        std::string yaml_path = get_xronos_home() + "/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml";
+  input points_in: std::shared_ptr<sensor_msgs::msg::PointCloud2>
+  output points_non_ground: std::shared_ptr<sensor_msgs::msg::PointCloud2>
 
-        char *argv[] = {
-            "ray_ground_classifier_cloud_node",
-            "--ros-args",
-            "--remap", "points_in:=/lidars/points_fused",
-            "--", 
-            NULL
-        };
-        
-        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            yaml_path.c_str(), 
-            "/**",
-            5,
-            argv
-        );
-        info_print("Loaded node options");
-        
-        self->node_shared_ptr = std::make_shared<autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode>(nodeOptions);
-        
-        info_print("Initialized node. PCL Size = %d", self->node_shared_ptr->m_pcl_size);
-        info_print("Initialized node. Width = %d", self->node_shared_ptr->m_nonground_msg.width);
-        info_print("Initialized node. Frame id = %s", self->node_shared_ptr->m_nonground_msg.header.frame_id.c_str());
-        
-    =}
-    
-    reaction (points_in) -> points_non_ground {=
-        // info_print("Non-ground input width: %d", points_in->value->width);
-        self->node_shared_ptr->callback(points_in->value);    
-        
-        if (self->node_shared_ptr->m_has_failed) {
-            warning_print("Ground classification failed.");
-            return;
-        }
-        // info_print("Non-ground width: %d", self->node_shared_ptr->m_nonground_msg.width);
-        // info_print("Ground width: %d", self->node_shared_ptr->m_ground_msg.width);
-        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node_shared_ptr->m_nonground_msg);
-        SET(points_non_ground, msg);
-	=}
+  // state node:autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode*;
+  state node_shared_ptr: std::shared_ptr<
+      autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode>
+
+  reaction(startup) {=
+    std::string yaml_path = get_xronos_home() + "/src/ray_ground_classifier/include/ray_ground_classifier.param.yaml";
+
+    char *argv[] = {
+        "ray_ground_classifier_cloud_node",
+        "--ros-args",
+        "--remap", "points_in:=/lidars/points_fused",
+        "--",
+        NULL
+    };
+
+    rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**",
+        5,
+        argv
+    );
+    info_print("Loaded node options");
+
+    self->node_shared_ptr = std::make_shared<autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode>(nodeOptions);
+
+    info_print("Initialized node. PCL Size = %d", self->node_shared_ptr->m_pcl_size);
+    info_print("Initialized node. Width = %d", self->node_shared_ptr->m_nonground_msg.width);
+    info_print("Initialized node. Frame id = %s", self->node_shared_ptr->m_nonground_msg.header.frame_id.c_str());
+  =}
+
+  reaction(points_in) -> points_non_ground {=
+    // info_print("Non-ground input width: %d", points_in->value->width);
+    self->node_shared_ptr->callback(points_in->value);
+
+    if (self->node_shared_ptr->m_has_failed) {
+        warning_print("Ground classification failed.");
+        return;
+    }
+    // info_print("Non-ground width: %d", self->node_shared_ptr->m_nonground_msg.width);
+    // info_print("Ground width: %d", self->node_shared_ptr->m_ground_msg.width);
+    auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node_shared_ptr->m_nonground_msg);
+    SET(points_non_ground, msg);
+  =}
 }
 
 federated reactor {
-    pcf = new ray_ground_classifier();
+  pcf = new ray_ground_classifier()
 }

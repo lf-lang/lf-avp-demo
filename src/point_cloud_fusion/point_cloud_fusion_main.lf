@@ -1,54 +1,54 @@
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "sensor_msgs/msg/point_cloud2.hpp"
-    #include "point_cloud_fusion_node.hpp"
-    #include "utils.hpp"
+  #include "sensor_msgs/msg/point_cloud2.hpp"
+  #include "point_cloud_fusion_node.hpp"
+  #include "utils.hpp"
 =}
 
-reactor point_cloud_fusion(in_width:int(2), stp_offset:time(10 msec)) {
-	input[in_width] points_in:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	output points_out:std::shared_ptr<sensor_msgs::msg::PointCloud2>;
-	
-	state node:autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode*;
-	
-	reaction (startup) {=
-        std::string yaml_path = get_xronos_home() + "/src/point_cloud_fusion/include/vlp16_sim_lexus_pc_fusion.param.yaml";
+reactor point_cloud_fusion(in_width: int = 2, stp_offset: time = 10 msec) {
+  input[in_width] points_in: std::shared_ptr<sensor_msgs::msg::PointCloud2>
+  output points_out: std::shared_ptr<sensor_msgs::msg::PointCloud2>
 
-        rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
-            yaml_path.c_str(), 
-            "/**"
-        );
-        
-        self->node = new autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode(nodeOptions);
-    =}
-        
-    reaction (points_in) -> points_out {=
-        // Make sure point clouds are not null
-        if (points_in[0]->value == nullptr || points_in[1]->value == nullptr) {
-            return;
-        }
-        // info_print("Calling pointcloud_callback %d %d.", points_in[0]->value->width, points_in[1]->value->width);
-        self->node->pointcloud_callback(
-            points_in[0]->value,
-            points_in[1]->value,
-            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
-            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
-            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
-            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
-            std::make_shared<const sensor_msgs::msg::PointCloud2>(),
-            std::make_shared<const sensor_msgs::msg::PointCloud2>()
-         );
-        auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_cloud_concatenated);
-        SET(points_out, msg);
-        // info_print("Output width = %d", points_out->value->width);
-	=}
+  state node: autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode*
+
+  reaction(startup) {=
+    std::string yaml_path = get_xronos_home() + "/src/point_cloud_fusion/include/vlp16_sim_lexus_pc_fusion.param.yaml";
+
+    rclcpp::NodeOptions nodeOptions = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+
+    self->node = new autoware::perception::filters::point_cloud_fusion_nodes::PointCloudFusionNode(nodeOptions);
+  =}
+
+  reaction(points_in) -> points_out {=
+    // Make sure point clouds are not null
+    if (points_in[0]->value == nullptr || points_in[1]->value == nullptr) {
+        return;
+    }
+    // info_print("Calling pointcloud_callback %d %d.", points_in[0]->value->width, points_in[1]->value->width);
+    self->node->pointcloud_callback(
+        points_in[0]->value,
+        points_in[1]->value,
+        std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+        std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+        std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+        std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+        std::make_shared<const sensor_msgs::msg::PointCloud2>(),
+        std::make_shared<const sensor_msgs::msg::PointCloud2>()
+     );
+    auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>(self->node->m_cloud_concatenated);
+    SET(points_out, msg);
+    // info_print("Output width = %d", points_out->value->width);
+  =}
 }
 
 main reactor {
-    pcf = new point_cloud_fusion();
+  pcf = new point_cloud_fusion()
 }

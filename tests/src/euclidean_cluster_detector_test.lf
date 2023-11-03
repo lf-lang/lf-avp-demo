@@ -1,42 +1,41 @@
 target CCpp {
-    coordination: decentralized
-};
+  coordination: decentralized
+}
 
-import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf";
-import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf";
-import ray_ground_classifier from "../../src/ray_ground_classifier/ray_ground_classifier_main.lf";
-import euclidean_cluster_detector from "../../src/euclidean_cluster_detector/euclidean_cluster_detector_main.lf";
+import filter_and_transform from "../../src/filter_and_transform/filter_and_transform_main.lf"
+import point_cloud_fusion from "../../src/point_cloud_fusion/point_cloud_fusion_main.lf"
+import ray_ground_classifier from "../../src/ray_ground_classifier/ray_ground_classifier_main.lf"
+import euclidean_cluster_detector from "../../src/euclidean_cluster_detector/euclidean_cluster_detector_main.lf"
 
 federated reactor {
-    
-    fat = new[2] filter_and_transform();
-    pcf = new point_cloud_fusion(in_width = 2);
-    rgc = new ray_ground_classifier();
-    ecd = new euclidean_cluster_detector();
-    
-    fat.points_out -> pcf.points_in serializer "ros2";
-    pcf.points_out -> rgc.points_in serializer "ros2";
-    rgc.points_non_ground -> ecd.points_in serializer "ros2";
+  fat = new[2] filter_and_transform()
+  pcf = new point_cloud_fusion(in_width=2)
+  rgc = new ray_ground_classifier()
+  ecd = new euclidean_cluster_detector()
 
-    reaction(pcf.points_out) {=
-        info_print(
-            "Fused output's height = %d, width = %d",
-            pcf.points_out->value->height, 
-            pcf.points_out->value->width
-        );
-    =}
+  fat.points_out -> pcf.points_in serializer "ros2"
+  pcf.points_out -> rgc.points_in serializer "ros2"
+  rgc.points_non_ground -> ecd.points_in serializer "ros2"
 
-    reaction(rgc.points_non_ground) {=
-        info_print(
-            "Non-ground width: %d", 
-            rgc.points_non_ground->value->width
-        );
-    =}
+  reaction(pcf.points_out) {=
+    info_print(
+        "Fused output's height = %d, width = %d",
+        pcf.points_out->value->height,
+        pcf.points_out->value->width
+    );
+  =}
 
-    reaction(ecd.bounding_boxes) {=
-        info_print(
-            "Boxes = %d", 
-            ecd.bounding_boxes->value->boxes.size()
-        );
-    =}
+  reaction(rgc.points_non_ground) {=
+    info_print(
+        "Non-ground width: %d",
+        rgc.points_non_ground->value->width
+    );
+  =}
+
+  reaction(ecd.bounding_boxes) {=
+    info_print(
+        "Boxes = %d",
+        ecd.bounding_boxes->value->boxes.size()
+    );
+  =}
 }

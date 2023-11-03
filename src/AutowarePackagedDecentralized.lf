@@ -1,79 +1,68 @@
 /**
-* This is a version of Autoware.lf where sometimes multiple nodes are packaged
-* into one federate. Some federates that need a ROS spin() are not packaged together
-* due to limitations in ROS.
-*/
+ * This is a version of Autoware.lf where sometimes multiple nodes are packaged into one federate.
+ * Some federates that need a ROS spin() are not packaged together due to limitations in ROS.
+ */
 target CCpp {
-    build-type: RelWithDebInfo,
-    coordination: decentralized
-    // coordination-options: {advance-message-interval: 80 msec} // Fastest sensor period (odom)
-};
+  build-type: RelWithDebInfo,
+  // coordination-options: {advance-message-interval: 80 msec} // Fastest sensor period (odom)
+  coordination: decentralized
+}
 
-import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf";
-
-import Lidar from "Packages/Lidar.lf";
-
-import ndt_map_publisher from "ndt_map_publisher/ndt_map_publisher_main.lf";
-import p2d_ndt_localizer from "p2d_ndt_localizer/p2d_ndt_localizer_main.lf";
-
+import filter_and_transform from "filter_and_transform/filter_and_transform_main.lf"
+import Lidar from "Packages/Lidar.lf"
+import ndt_map_publisher from "ndt_map_publisher/ndt_map_publisher_main.lf"
+import p2d_ndt_localizer from "p2d_ndt_localizer/p2d_ndt_localizer_main.lf"
 import Perception from "Packages/Perception.lf"
 import Planning from "Packages/Planning.lf"
-
 import lanelet2_map_provider from "lanelet2_map_provider/lanelet2_map_provider_main.lf"
-
-
-import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf";
-import mpc_controller from "mpc_controller/mpc_controller_main.lf";
-import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf";
-
-import rviz2 from "rviz/rviz_main.lf";
+import lgsvl_interface from "lgsvl_interface/lgsvl_interface_main.lf"
+import mpc_controller from "mpc_controller/mpc_controller_main.lf"
+import robot_state_publisher from "robot_state_publisher/robot_state_publisher_main.lf"
+import rviz2 from "rviz/rviz_main.lf"
 
 federated reactor {
-    // rviz2 = new rviz2();
-    filter_and_transform = new[2] filter_and_transform();
-    lidar = new Lidar();
+  // rviz2 = new rviz2();
+  filter_and_transform = new[2] filter_and_transform()
+  lidar = new Lidar()
 
-	filter_and_transform.points_out -> lidar.points_in serializer "ros2";
-    
-    ndt_map_publisher = new ndt_map_publisher();
-    p2d_ndt_localizer = new p2d_ndt_localizer();
+  filter_and_transform.points_out -> lidar.points_in serializer "ros2"
 
-    lidar.downsampled_points -> p2d_ndt_localizer.fused_downsampled_points_in serializer "ros2";
-	ndt_map_publisher.points_out -> p2d_ndt_localizer.ndt_map_points_in serializer "ros2";
-    
-    perception = new Perception();
-    planning = new Planning();
+  ndt_map_publisher = new ndt_map_publisher()
+  p2d_ndt_localizer = new p2d_ndt_localizer()
 
-    lgsvl_interface = new lgsvl_interface();
-    mpc_controller = new mpc_controller();
-    robot_state_publisher = new robot_state_publisher();
-    
-    
-    // reaction(lidar.downsampled_points) {=
-    //     info_print("Produced downsampled points.");
-    // =}
-    
-    lidar.fused_points -> perception.fused_points serializer "ros2";
-	perception.bounding_boxes -> planning.filtered_bounding_boxes serializer "ros2";
-    // reaction(perception.bounding_boxes) {=
-    //     info_print("Produced bounding boxes.");
-    // =}
+  lidar.downsampled_points -> p2d_ndt_localizer.fused_downsampled_points_in serializer "ros2"
+  ndt_map_publisher.points_out -> p2d_ndt_localizer.ndt_map_points_in serializer "ros2"
 
-    //////// Maps /////////
-    map_provider = new lanelet2_map_provider(num_requestors = 5);
+  perception = new Perception()
+  planning = new Planning()
 
-    planning.map_request, perception.map_request -> map_provider.request serializer "ros2";
-    map_provider.map -> planning.map, perception.map serializer "ros2";
-    /////////////////////
-	
-	lgsvl_interface.vehicle_kinematic_state -> planning.vehicle_kinematic_state serializer "ros2";
-	lgsvl_interface.state_report -> planning.vehicle_state_report serializer "ros2";
-	lgsvl_interface.vehicle_kinematic_state -> mpc_controller.vehicle_kinematic_state serializer "ros2";
-	
-	
-	planning.vehicle_state_command -> lgsvl_interface.state_command serializer "ros2";
-	planning.control_trajectory -> mpc_controller.trajectory serializer "ros2";
-    
-    mpc_controller.command -> lgsvl_interface.vehicle_command serializer "ros2";
-	
+  lgsvl_interface = new lgsvl_interface()
+  mpc_controller = new mpc_controller()
+  robot_state_publisher = new robot_state_publisher()
+
+  // reaction(lidar.downsampled_points) {=
+  // info_print("Produced downsampled points.");
+  // =}
+  lidar.fused_points -> perception.fused_points serializer "ros2"
+  perception.bounding_boxes -> planning.filtered_bounding_boxes serializer "ros2"
+
+  // reaction(perception.bounding_boxes) {=
+  // info_print("Produced bounding boxes.");
+  // =}
+  //////// Maps /////////
+  map_provider = new lanelet2_map_provider(num_requestors=5)
+
+  planning.map_request, perception.map_request -> map_provider.request serializer "ros2"
+  map_provider.map -> planning.map, perception.map serializer "ros2"
+
+  /////////////////////
+  lgsvl_interface.vehicle_kinematic_state -> planning.vehicle_kinematic_state serializer "ros2"
+  lgsvl_interface.state_report -> planning.vehicle_state_report serializer "ros2"
+  lgsvl_interface.vehicle_kinematic_state
+    -> mpc_controller.vehicle_kinematic_state serializer "ros2"
+
+  planning.vehicle_state_command -> lgsvl_interface.state_command serializer "ros2"
+  planning.control_trajectory -> mpc_controller.trajectory serializer "ros2"
+
+  mpc_controller.command -> lgsvl_interface.vehicle_command serializer "ros2"
 }

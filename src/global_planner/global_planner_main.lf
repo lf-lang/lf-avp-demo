@@ -1,88 +1,85 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
- * 
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
+ *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  */
-
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp"], 
-    threading: true 
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp"],
+  threading: true
+}
 
-# preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
-
+// preamble -> Wiki LF explains -> https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#preamble
 preamble {=
-    #include "lanelet2_global_planner_node.hpp" /* This is AUTOWARE node */
-    #include "utils.hpp"
+  #include "lanelet2_global_planner_node.hpp" /* This is AUTOWARE node */
+  #include "utils.hpp"
 =}
 
 reactor global_planner {
-    input vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
-    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
-    output global_path:std::shared_ptr<autoware_auto_msgs::msg::Route>;
-    output map_request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
-    physical action set_global_route:autoware_auto_msgs::msg::Route*;
-    
-    /* This is state variable for LF program https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables*/
+  input vehicle_kinematic_state: std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>
+  input map: std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>
+  output global_path: std::shared_ptr<autoware_auto_msgs::msg::Route>
+  output map_request: std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>
+  physical action set_global_route: autoware_auto_msgs::msg::Route*
 
-    state node:autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode*;
-    state node_shared_ptr:std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>;
-    
-    reaction (startup) ->  map_request, set_global_route {=
-        // Use a try - catch for now so that if the rclcpp context is already initialized,
-        // ROS doesn't throw a tantrum.
-        try {
-            rclcpp::init(0, NULL);
-        } catch (...) { /*  Ignore */ }
-        
-        rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions();
-        
-        self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(
-            nodeOptions,
-            set_global_route,
-            &schedule_value
-        );
-        self->node_shared_ptr = std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node);
+  /**
+   * This is state variable for LF program
+   * https://github.com/icyphy/lingua-franca/wiki/Writing-Reactors-in-C#using-state-variables
+   */
+  state node: autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode*
+  state node_shared_ptr: std::shared_ptr<
+      autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>
 
-        pthread_t spinner_thread;
-        pthread_create(
-            &spinner_thread, 
-            NULL, 
-            &spin_node<std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>>, 
-            static_cast<void*>(new std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node_shared_ptr)));
-        
-        auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
-        request->requested_primitives.push_back(
-            autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP);
-        
-        SET(map_request, request);
-    =}
-    
-    reaction (vehicle_kinematic_state) {=
-        self->node->current_pose_cb(vehicle_kinematic_state->value);
-    =}
-    
-    reaction(set_global_route) -> global_path {=
-        auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(*set_global_route->value);
-        SET(global_path, msg);
-    =}
+  reaction(startup) -> map_request, set_global_route {=
+    // Use a try - catch for now so that if the rclcpp context is already initialized,
+    // ROS doesn't throw a tantrum.
+    try {
+        rclcpp::init(0, NULL);
+    } catch (...) { /*  Ignore */ }
 
-    reaction (map) {=
-        // Convert binary map msg to lanelet2 map and set the map for global path planner
-        self->node->lanelet2_global_planner->osm_map = std::make_shared<lanelet::LaneletMap>();
-        autoware::common::had_map_utils::fromBinaryMsg(*map->value, self->node->lanelet2_global_planner->osm_map);
+    rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions();
 
-        // parse lanelet global path planner elements
-        self->node->lanelet2_global_planner->parse_lanelet_element();
-        
-    =}
+    self->node = new autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode(
+        nodeOptions,
+        set_global_route,
+        &schedule_value
+    );
+    self->node_shared_ptr = std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node);
+
+    pthread_t spinner_thread;
+    pthread_create(
+        &spinner_thread,
+        NULL,
+        &spin_node<std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>>,
+        static_cast<void*>(new std::shared_ptr<autoware::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode>(self->node_shared_ptr)));
+
+    auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
+    request->requested_primitives.push_back(
+        autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP);
+
+    SET(map_request, request);
+  =}
+
+  reaction(vehicle_kinematic_state) {=
+    self->node->current_pose_cb(vehicle_kinematic_state->value);
+  =}
+
+  reaction(set_global_route) -> global_path {=
+    auto msg = std::make_shared<autoware_auto_msgs::msg::Route>(*set_global_route->value);
+    SET(global_path, msg);
+  =}
+
+  reaction(map) {=
+    // Convert binary map msg to lanelet2 map and set the map for global path planner
+    self->node->lanelet2_global_planner->osm_map = std::make_shared<lanelet::LaneletMap>();
+    autoware::common::had_map_utils::fromBinaryMsg(*map->value, self->node->lanelet2_global_planner->osm_map);
+
+    // parse lanelet global path planner elements
+    self->node->lanelet2_global_planner->parse_lanelet_element();
+  =}
 }
 
 main reactor {
-    gp = new global_planner();
+  gp = new global_planner()
 }
-

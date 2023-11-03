@@ -1,20 +1,19 @@
-target CCpp;
+target CCpp
 
-import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf";
-import behavior_planner from "../../src/behavior_planner/behavior_planner_main.lf";
-import parking_planner from "../../src/parking_planner/parking_planner_main.lf";
-import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf";
+import lanelet2_map_provider from "../../src/lanelet2_map_provider/lanelet2_map_provider_main.lf"
+import behavior_planner from "../../src/behavior_planner/behavior_planner_main.lf"
+import parking_planner from "../../src/parking_planner/parking_planner_main.lf"
+import ndt_map_publisher from "../../src/ndt_map_publisher/ndt_map_publisher_main.lf"
 
 federated reactor {
-    ndt_map_publisher = new ndt_map_publisher();
+  ndt_map_publisher = new ndt_map_publisher()
 
-    lanelet2_map_provider = new lanelet2_map_provider();
-    behavior_planner = new behavior_planner();
-    parking_planner = new parking_planner();
+  lanelet2_map_provider = new lanelet2_map_provider()
+  behavior_planner = new behavior_planner()
+  parking_planner = new parking_planner()
 
-    parking_planner.request -> lanelet2_map_provider.request serializer "ROS2";
-    lanelet2_map_provider.map -> parking_planner.map serializer "ROS2";
-    parking_planner.trajectory -> behavior_planner.parking_trajectory serializer "ROS2";
-    behavior_planner.parking_route -> parking_planner.route serializer "ROS2";
+  parking_planner.request -> lanelet2_map_provider.request serializer "ROS2"
+  lanelet2_map_provider.map -> parking_planner.map serializer "ROS2"
+  parking_planner.trajectory -> behavior_planner.parking_trajectory serializer "ROS2"
+  behavior_planner.parking_route -> parking_planner.route serializer "ROS2"
 }
-

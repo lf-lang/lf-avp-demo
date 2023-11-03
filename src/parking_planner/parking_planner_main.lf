@@ -1,80 +1,77 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
- * 
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
+ *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  */
-
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp", "../include/constants.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "lanelet2_core/LaneletMap.h"
-    #include "had_map_utils/had_map_conversion.hpp"
-    #include "had_map_utils/had_map_query.hpp"
-    #include "parking_planner_nodes/parking_planner_node.hpp"
-    #include "utils.hpp"
-    #include "constants.hpp"
+  #include "lanelet2_core/LaneletMap.h"
+  #include "had_map_utils/had_map_conversion.hpp"
+  #include "had_map_utils/had_map_query.hpp"
+  #include "parking_planner_nodes/parking_planner_node.hpp"
+  #include "utils.hpp"
+  #include "constants.hpp"
 =}
 
 reactor parking_planner {
-    input route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
-    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+  input route: std::shared_ptr<autoware_auto_msgs::msg::Route>
+  input map: std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>
 
-    output request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
-    output trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
-	
-    state route_msg:autoware_auto_msgs::msg::Route;
-    state node:autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode*;
-    state node_shared_ptr:std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>;
-        
-    reaction (startup) {=
-        std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + PARKING_PLANNER_PARAM;
+  output request: std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>
+  output trajectory: std::shared_ptr<autoware_auto_msgs::msg::Trajectory>
 
-        rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            yaml_path.c_str(),
-            "/**"
-        );
-        self->node = new autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode(node_options);
-        self->node_shared_ptr = std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>(self->node);
+  state route_msg: autoware_auto_msgs::msg::Route
+  state node: autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode*
+  state node_shared_ptr: std::shared_ptr<
+      autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>
 
-        // This node publishes some stuff to rviz2, so we need to spin for them to work
-        // pthread_t spinner_thread;
-        // pthread_create(
-        //     &spinner_thread, 
-        //     NULL, 
-        //     &spin_node<std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>>, 
-        //     static_cast<void*>(new std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>(self->node_shared_ptr)));
-    =}
+  reaction(startup) {=
+    std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + PARKING_PLANNER_PARAM;
 
-    reaction (route) -> request {=
-        self->route_msg = *route->value;
-        auto request_msg = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>(
-        	self->node->create_map_request(self->route_msg));
-        	
-        SET(request, request_msg);
-	=}
+    rclcpp::NodeOptions node_options = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+    self->node = new autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode(node_options);
+    self->node_shared_ptr = std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>(self->node);
 
-    reaction (map) -> trajectory {=
-	    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-	    autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
+    // This node publishes some stuff to rviz2, so we need to spin for them to work
+    // pthread_t spinner_thread;
+    // pthread_create(
+    //     &spinner_thread,
+    //     NULL,
+    //     &spin_node<std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>>,
+    //     static_cast<void*>(new std::shared_ptr<autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode>(self->node_shared_ptr)));
+  =}
 
-        auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
-            self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
-        
-        // Only publish the trajectory if it is valid        
-        if (self->node->is_trajectory_valid(*trajectory_msg)) {
-            SET(trajectory, trajectory_msg);
-        }
-	=}
-	
+  reaction(route) -> request {=
+    self->route_msg = *route->value;
+    auto request_msg = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>(
+    	self->node->create_map_request(self->route_msg));
+
+    SET(request, request_msg);
+  =}
+
+  reaction(map) -> trajectory {=
+    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
+    autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
+
+       auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
+           self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
+
+       // Only publish the trajectory if it is valid
+       if (self->node->is_trajectory_valid(*trajectory_msg)) {
+           SET(trajectory, trajectory_msg);
+       }
+  =}
 }
 
 main reactor {
-    pp = new parking_planner();
+  pp = new parking_planner()
 }

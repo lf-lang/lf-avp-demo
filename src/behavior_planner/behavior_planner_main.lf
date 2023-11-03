@@ -1,214 +1,204 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
- * 
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
+ *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  */
-
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/utils.hpp", "../include/constants.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/utils.hpp", "../include/constants.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "lanelet2_core/LaneletMap.h"
-    #include "had_map_utils/had_map_conversion.hpp"
-    #include "had_map_utils/had_map_query.hpp"
-    #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
-    #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
-    #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
-    #include "behavior_planner.hpp"
-    #include "behavior_planner_node.hpp"
-    #include "utils.hpp"
-    #include "constants.hpp"
+  #include "lanelet2_core/LaneletMap.h"
+  #include "had_map_utils/had_map_conversion.hpp"
+  #include "had_map_utils/had_map_query.hpp"
+  #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+  #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
+  #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
+  #include "behavior_planner.hpp"
+  #include "behavior_planner_node.hpp"
+  #include "utils.hpp"
+  #include "constants.hpp"
 =}
 
 reactor behavior_planner {
-    //////// INPUTS /////////
-    // Global path from global planner.
-    input global_path:std::shared_ptr<autoware_auto_msgs::msg::Route>;
-    
-    // Map returned from map provider.
-    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
-    
-    // Inputs from LGSVL interface.
-    input vehicle_kinematic_state:std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>;
-    input vehicle_state_report:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>;
-    
-    // For responses from lane and parking planners.
-    input lane_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
-    input parking_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
-    
-    // Modified trajectory from object collision estimator.
-    input modified_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
-    
-    //////// OUTPUTS ////////
-    // For request to map provider.
-    output map_request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
-    
-    // For sending vehicle state command to LGSVL interface.
-    output vehicle_state_command:std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>;
-    
-    // For requests to lane and parking planners.
-    output lane_route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
-    output parking_route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
-    
-    // Original trajectory to be consulted with object collision estimator.
-    output original_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
-    
-    // Trajectory to MPC controller.
-    output control_trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
+  //////// INPUTS /////////
+  // Global path from global planner.
+  input global_path: std::shared_ptr<autoware_auto_msgs::msg::Route>
 
-    //////// STATES ////////
-    state node:autoware::behavior_planner_nodes::BehaviorPlannerNode*;
-    state node_shared_ptr:std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>;
-    
-    
-    state global_path_route:autoware_auto_msgs::msg::Route;
-    state previous_output_arrived_goal:std::chrono::time_point<std::chrono::system_clock>;
-    state previous_output:std::chrono::time_point<std::chrono::system_clock>;
-        
-    reaction (startup) {=
-        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
+  // Map returned from map provider.
+  input map: std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>
 
-        rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            yaml_path.c_str(),
-            "/**"
-        );
-        
-        node_options.append_parameter_override("enable_object_collision_estimator", true);
-        
-        self->node = new autoware::behavior_planner_nodes::BehaviorPlannerNode(node_options);
-        self->node_shared_ptr = std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node);
-        pthread_t spinner_thread;
-        pthread_create(
-            &spinner_thread, 
-            NULL, 
-            &spin_node<std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>>, 
-            static_cast<void*>(new std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node_shared_ptr)));
-    =}
+  // Inputs from LGSVL interface.
+  input vehicle_kinematic_state: std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState>
+  input vehicle_state_report: std::shared_ptr<autoware_auto_msgs::msg::VehicleStateReport>
 
-    // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
-    reaction (vehicle_state_report) {=
-        self->node->on_vehicle_state_report(vehicle_state_report->value);
-    =}
-    
-    // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
-    reaction (vehicle_kinematic_state) -> 
-            control_trajectory, 
-            original_trajectory, 
-            vehicle_state_command, 
-            lane_route, 
-            parking_route {=
-        // info_print("Got a vehicle kinematic state.");
-        self->node->on_ego_state(vehicle_kinematic_state->value);
+  // For responses from lane and parking planners.
+  input lane_trajectory: std::shared_ptr<autoware_auto_msgs::msg::Trajectory>
+  input parking_trajectory: std::shared_ptr<autoware_auto_msgs::msg::Trajectory>
 
-        // Check if any of the state variables are set. If so, send them.
-        if (self->node->m_lane_route != nullptr) {
-            // info_print("Sending lane route.");
-            SET(lane_route, self->node->m_lane_route);
-            self->node->m_lane_route.reset();
-        }
+  // Modified trajectory from object collision estimator.
+  input modified_trajectory: std::shared_ptr<autoware_auto_msgs::msg::Trajectory>
 
-        if (self->node->m_parking_route != nullptr) {
-            // info_print("Sending parking route.");
-            SET(parking_route, self->node->m_parking_route);
-            self->node->m_parking_route.reset();
-        }
+  //////// OUTPUTS ////////
+  // For request to map provider.
+  output map_request: std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>
 
-        if (self->node->m_state_command != nullptr) {
-            // info_print("Sending vehicle state command.");
-            SET(vehicle_state_command, self->node->m_state_command);
-            self->node->m_state_command.reset();
-        }
+  // For sending vehicle state command to LGSVL interface.
+  output vehicle_state_command: std::shared_ptr<autoware_auto_msgs::msg::VehicleStateCommand>
 
-        if (self->node->m_trajectory != nullptr) {
-            // info_print("Sending control trajectory.");
-            // self->node->m_trajectory->sequence_number = vehicle_kinematic_state->value->sequence_number;
-            SET(control_trajectory, self->node->m_trajectory);
-            self->node->m_trajectory.reset();
-        }
+  // For requests to lane and parking planners.
+  output lane_route: std::shared_ptr<autoware_auto_msgs::msg::Route>
+  output parking_route: std::shared_ptr<autoware_auto_msgs::msg::Route>
 
-        if (self->node->m_trajectory_to_modify != nullptr) {
-            // info_print("Sending trajectory to be modified.");
-            // self->node->m_trajectory_to_modify->sequence_number = vehicle_kinematic_state->value->sequence_number;
-            SET(original_trajectory, self->node->m_trajectory_to_modify);
-            self->node->m_trajectory_to_modify.reset();
-        }
-        
-    =}
-    
-    // Corresponds to BehaviorPlannerNode::on_route()
-    reaction (global_path) -> map_request {=
-       if (self->node->m_requesting_trajectory) {
-           info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
-       } else if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
-           info_print("Route was rejected. Route cannot be update while the vehicle is moving");
-       } else {
-           info_print("Received route");
-           self->node->m_route = std::move(global_path->value);
-           auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
-           request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
-           SET(map_request, request);
-       }
-    =}
+  // Original trajectory to be consulted with object collision estimator.
+  output original_trajectory: std::shared_ptr<autoware_auto_msgs::msg::Trajectory>
 
-    // Corresponds to BehaviorPlannerNode::map_response()
-    reaction (map) {=
-       info_print("Received map");
-       // Pass a future to the callback function
-       self->node->map_response(
-           create_future_from_service<
-           autoware_auto_msgs::srv::HADMapService,
-           autoware_auto_msgs::msg::HADMapBin
-           >(map->value)
-       );
-    =}
-    
-    // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
-    reaction (lane_trajectory, parking_trajectory) {=
-        if (lane_trajectory->is_present && parking_trajectory->is_present) {
-            error_print("Both trajectories present!");
-        }
-        auto trajectory = (lane_trajectory->is_present) ? 
-            *lane_trajectory->value.get() : *parking_trajectory->value.get();
+  // Trajectory to MPC controller.
+  output control_trajectory: std::shared_ptr<autoware_auto_msgs::msg::Trajectory>
 
-        if (!trajectory.points.empty()){
-            info_print("Received trajectory from planner");
-        } else {
-            error_print("Planner failed to calculate!!");
-        }
+  //////// STATES ////////
+  state node: autoware::behavior_planner_nodes::BehaviorPlannerNode*
+  state node_shared_ptr: std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>
 
-        trajectory.header.frame_id = "map";
-        self->node->m_debug_trajectory_pub->publish(trajectory);
+  state global_path_route: autoware_auto_msgs::msg::Route
+  state previous_output_arrived_goal: std::chrono::time_point<std::chrono::system_clock>
+  state previous_output: std::chrono::time_point<std::chrono::system_clock>
 
-        self->node->m_planner->set_trajectory(trajectory);
+  reaction(startup) {=
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + BEHAVIOR_PLANNER_PARAM;
 
-        // finished requesting trajectory
-        self->node->m_requesting_trajectory = false;
-    =}
-    
-    
-    // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
-    reaction (modified_trajectory) -> control_trajectory {=
-        // info_print("Received modified trajectory.");
-        // Initialize with modified trajectory from object collision estimator.
-        auto trajectory = modified_trajectory->value;
-        
-        // Set current position with velocity zero to do emergency stop in case
-        // collision estimator fails or if there is obstacle on first point
-        if (trajectory->points.empty()) {
-            auto stopping_point = self->node->m_ego_state.state;
-            stopping_point.longitudinal_velocity_mps = 0.0;
-            trajectory->points.push_back(stopping_point);
-        }
-        SET(control_trajectory, trajectory);
-    =}
+    rclcpp::NodeOptions node_options = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+
+    node_options.append_parameter_override("enable_object_collision_estimator", true);
+
+    self->node = new autoware::behavior_planner_nodes::BehaviorPlannerNode(node_options);
+    self->node_shared_ptr = std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node);
+    pthread_t spinner_thread;
+    pthread_create(
+        &spinner_thread,
+        NULL,
+        &spin_node<std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>>,
+        static_cast<void*>(new std::shared_ptr<autoware::behavior_planner_nodes::BehaviorPlannerNode>(self->node_shared_ptr)));
+  =}
+
+  // Corresponds to BehaviorPlannerNode::on_vehicle_state_report.
+  reaction(vehicle_state_report) {=
+    self->node->on_vehicle_state_report(vehicle_state_report->value);
+  =}
+
+  // Corresponds to BehaviorPlannerNode::on_ego_state() and request_trajectory()
+  reaction(vehicle_kinematic_state) ->
+  control_trajectory, original_trajectory, vehicle_state_command, lane_route, parking_route {=
+    // info_print("Got a vehicle kinematic state.");
+    self->node->on_ego_state(vehicle_kinematic_state->value);
+
+    // Check if any of the state variables are set. If so, send them.
+    if (self->node->m_lane_route != nullptr) {
+        // info_print("Sending lane route.");
+        SET(lane_route, self->node->m_lane_route);
+        self->node->m_lane_route.reset();
+    }
+
+    if (self->node->m_parking_route != nullptr) {
+        // info_print("Sending parking route.");
+        SET(parking_route, self->node->m_parking_route);
+        self->node->m_parking_route.reset();
+    }
+
+    if (self->node->m_state_command != nullptr) {
+        // info_print("Sending vehicle state command.");
+        SET(vehicle_state_command, self->node->m_state_command);
+        self->node->m_state_command.reset();
+    }
+
+    if (self->node->m_trajectory != nullptr) {
+        // info_print("Sending control trajectory.");
+        // self->node->m_trajectory->sequence_number = vehicle_kinematic_state->value->sequence_number;
+        SET(control_trajectory, self->node->m_trajectory);
+        self->node->m_trajectory.reset();
+    }
+
+    if (self->node->m_trajectory_to_modify != nullptr) {
+        // info_print("Sending trajectory to be modified.");
+        // self->node->m_trajectory_to_modify->sequence_number = vehicle_kinematic_state->value->sequence_number;
+        SET(original_trajectory, self->node->m_trajectory_to_modify);
+        self->node->m_trajectory_to_modify.reset();
+    }
+  =}
+
+  // Corresponds to BehaviorPlannerNode::on_route()
+  reaction(global_path) -> map_request {=
+    if (self->node->m_requesting_trajectory) {
+        info_print("Route was rejected. Route cannot be updated while communicating with trajectory planners.");
+    } else if (!self->node->m_planner->is_vehicle_stopped(self->node->m_ego_state)) {
+        info_print("Route was rejected. Route cannot be update while the vehicle is moving");
+    } else {
+        info_print("Received route");
+        self->node->m_route = std::move(global_path->value);
+        auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
+        request->requested_primitives.push_back(autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
+        SET(map_request, request);
+    }
+  =}
+
+  // Corresponds to BehaviorPlannerNode::map_response()
+  reaction(map) {=
+    info_print("Received map");
+    // Pass a future to the callback function
+    self->node->map_response(
+        create_future_from_service<
+        autoware_auto_msgs::srv::HADMapService,
+        autoware_auto_msgs::msg::HADMapBin
+        >(map->value)
+    );
+  =}
+
+  // Corresponds to BehaviorPlannerNode::result_callback() for lane planner response.
+  reaction(lane_trajectory, parking_trajectory) {=
+    if (lane_trajectory->is_present && parking_trajectory->is_present) {
+        error_print("Both trajectories present!");
+    }
+    auto trajectory = (lane_trajectory->is_present) ?
+        *lane_trajectory->value.get() : *parking_trajectory->value.get();
+
+    if (!trajectory.points.empty()){
+        info_print("Received trajectory from planner");
+    } else {
+        error_print("Planner failed to calculate!!");
+    }
+
+    trajectory.header.frame_id = "map";
+    self->node->m_debug_trajectory_pub->publish(trajectory);
+
+    self->node->m_planner->set_trajectory(trajectory);
+
+    // finished requesting trajectory
+    self->node->m_requesting_trajectory = false;
+  =}
+
+  // Corresponds to BehaviorPlannerNode::modify_trajectory_response().
+  reaction(modified_trajectory) -> control_trajectory {=
+    // info_print("Received modified trajectory.");
+    // Initialize with modified trajectory from object collision estimator.
+    auto trajectory = modified_trajectory->value;
+
+    // Set current position with velocity zero to do emergency stop in case
+    // collision estimator fails or if there is obstacle on first point
+    if (trajectory->points.empty()) {
+        auto stopping_point = self->node->m_ego_state.state;
+        stopping_point.longitudinal_velocity_mps = 0.0;
+        trajectory->points.push_back(stopping_point);
+    }
+    SET(control_trajectory, trajectory);
+  =}
 }
 
 main reactor {
-    bp = new behavior_planner();
+  bp = new behavior_planner()
 }

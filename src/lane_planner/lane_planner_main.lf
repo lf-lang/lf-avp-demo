@@ -1,78 +1,75 @@
 /**
- * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to
- * reflect your top-level AutowareAuto folder. You can do this by changing
- * the follwoing line:
- * 
- *     set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
- * 
+ * Note: Please change AUTOWARE_HOME in include/CMakeListsExtension.txt to reflect your top-level
+ * AutowareAuto folder. You can do this by changing the follwoing line:
+ *
+ * set(AUTOWARE_HOME /home/$ENV{USER}/adehome/AutowareAuto)
  */
-
 target CCpp {
-    cmake-include: "include/CMakeListsExtension.txt",
-    files: ["../include/constants.hpp", "../include/utils.hpp"],
-    threading: true
-};
+  cmake-include: "include/CMakeListsExtension.txt",
+  files: ["../include/constants.hpp", "../include/utils.hpp"],
+  threading: true
+}
 
 preamble {=
-    #include "lanelet2_core/LaneletMap.h"
-    #include "had_map_utils/had_map_conversion.hpp"
-    #include "had_map_utils/had_map_query.hpp"
-    #include "motion_common/motion_common.hpp"
-    #include "lane_planner_nodes/lane_planner_node.hpp"
-    #include "utils.hpp"
-    #include "constants.hpp"
+  #include "lanelet2_core/LaneletMap.h"
+  #include "had_map_utils/had_map_conversion.hpp"
+  #include "had_map_utils/had_map_query.hpp"
+  #include "motion_common/motion_common.hpp"
+  #include "lane_planner_nodes/lane_planner_node.hpp"
+  #include "utils.hpp"
+  #include "constants.hpp"
 =}
 
 reactor lane_planner {
-    input route:std::shared_ptr<autoware_auto_msgs::msg::Route>;
-    input map:std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>;
+  input route: std::shared_ptr<autoware_auto_msgs::msg::Route>
+  input map: std::shared_ptr<autoware_auto_msgs::msg::HADMapBin>
 
-    output request:std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>;
-    output trajectory:std::shared_ptr<autoware_auto_msgs::msg::Trajectory>;
-	
-    state route_msg:autoware_auto_msgs::msg::Route;
-    state node:autoware::lane_planner_nodes::LanePlannerNode*;
-    state node_shared_ptr:std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>;
-        
-    reaction (startup) {=
-        static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANE_PLANNER_PARAM;
+  output request: std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request>
+  output trajectory: std::shared_ptr<autoware_auto_msgs::msg::Trajectory>
 
-        rclcpp::NodeOptions node_options = get_node_options_from_yaml(
-            yaml_path.c_str(),
-            "/**"
-        );
-        self->node = new autoware::lane_planner_nodes::LanePlannerNode(node_options);
-        self->node_shared_ptr = std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>(self->node);
-        // pthread_t spinner_thread;
-        // pthread_create(
-        //     &spinner_thread, 
-        //     NULL, 
-        //     &spin_node, 
-        //     static_cast<void*>(new std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>(self->node_shared_ptr)));
-    =}
+  state route_msg: autoware_auto_msgs::msg::Route
+  state node: autoware::lane_planner_nodes::LanePlannerNode*
+  state node_shared_ptr: std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>
 
-    reaction (route) -> request {=
-        self->route_msg = *route->value;
-        auto request_msg = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>(
-        	self->node->create_map_request(self->route_msg));
-        	
-        SET(request, request_msg);
-	=}
+  reaction(startup) {=
+    static std::string yaml_path = get_autoware_home() + "/" + AVP_DEMO_PARAM_PATH + "/" + LANE_PLANNER_PARAM;
 
-    reaction (map) -> trajectory {=
-	    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-	    autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
+    rclcpp::NodeOptions node_options = get_node_options_from_yaml(
+        yaml_path.c_str(),
+        "/**"
+    );
+    self->node = new autoware::lane_planner_nodes::LanePlannerNode(node_options);
+    self->node_shared_ptr = std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>(self->node);
+    // pthread_t spinner_thread;
+    // pthread_create(
+    //     &spinner_thread,
+    //     NULL,
+    //     &spin_node,
+    //     static_cast<void*>(new std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode>(self->node_shared_ptr)));
+  =}
 
-        auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
-            self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
-        
-        // Only publish the trajectory if it is valid        
-        if (self->node->is_trajectory_valid(*trajectory_msg)) {	
-            SET(trajectory, trajectory_msg);
-        }
-	=}
+  reaction(route) -> request {=
+    self->route_msg = *route->value;
+    auto request_msg = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>(
+    	self->node->create_map_request(self->route_msg));
+
+    SET(request, request_msg);
+  =}
+
+  reaction(map) -> trajectory {=
+    std::shared_ptr<lanelet::LaneletMap> lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
+    autoware::common::had_map_utils::fromBinaryMsg(*map->value, lanelet_map_ptr);
+
+       auto trajectory_msg = std::make_shared<autoware_auto_msgs::msg::Trajectory>(
+           self->node->plan_trajectory(self->route_msg, lanelet_map_ptr));
+
+       // Only publish the trajectory if it is valid
+       if (self->node->is_trajectory_valid(*trajectory_msg)) {
+           SET(trajectory, trajectory_msg);
+       }
+  =}
 }
 
 main reactor {
-    lp = new lane_planner();
+  lp = new lane_planner()
 }
