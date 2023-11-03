@@ -22,11 +22,11 @@ jobs:
         shell: bash
     #   - name: Setup environment
     #     run: bash ./utils/scripts/setup-env.bash
-      - name: Make environment variables persistent
-        run: |
-          source /opt/ros/*/setup.bash
-          printenv >> "$GITHUB_ENV"
-        shell: bash
+    #   - name: Make environment variables persistent
+    #     run: |
+    #       source /opt/ros/*/setup.bash
+    #       printenv >> "$GITHUB_ENV"
+    #    shell: bash
       - uses: lf-lang/action-check-lf-files@main
         with:
           check_mode: "compile"
